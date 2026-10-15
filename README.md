@@ -63,10 +63,12 @@ Without this, the app still asks, and your own answers are used on your phone.
 export DIGITRANSIT_API_KEY=...
 python3 tools/stations/build_stations.py                 # all stations (~10 min, cached in tools/stations/.cache)
 python3 tools/stations/build_stations.py --only Kamppi   # quick look at one
+python3 tools/stations/build_stations.py --stations-file saved.json   # reuse a saved Digitransit `stations` response
+python3 tools/stations/build_stations.py --inventory --stations-file saved.json   # station list only, no OSM
 python3 -m unittest discover -s tools/stations            # offline tests
 ```
 
-It writes `App/Resources/Stations/stations.json` and `docs/stations/coverage.md`. The report rates each station *complete*, *partial* or *empty* and lists exactly what's missing in OpenStreetMap (entrances, platform levels, escalators, lifts, gaps in corridors), so you know where hand-mapping is needed.
+It writes `App/Resources/Stations/stations.json` and `docs/stations/coverage.md`. The current list of what it covers (116 stations: 49 train, 35 bus terminals, 30 metro, 2 Raide-Jokeri hubs) is in [docs/stations/inventory.md](docs/stations/inventory.md). The report rates each station *complete*, *partial* or *empty* and lists exactly what's missing in OpenStreetMap (entrances, platform levels, escalators, lifts, gaps in corridors), so you know where hand-mapping is needed.
 
 ## Project layout
 

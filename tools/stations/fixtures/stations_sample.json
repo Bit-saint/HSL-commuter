@@ -1,0 +1,253 @@
+{
+ "data": {
+  "stations": [
+   {
+    "gtfsId": "HSL:1000102",
+    "name": "Kampin metroasema",
+    "lat": 60.168842,
+    "lon": 24.931199,
+    "stops": [
+     {
+      "gtfsId": "HSL:1040602",
+      "name": "Kamppi",
+      "code": "H0016",
+      "platformCode": null
+     },
+     {
+      "gtfsId": "HSL:1040601",
+      "name": "Kamppi",
+      "code": "H0017",
+      "platformCode": null
+     }
+    ]
+   },
+   {
+    "gtfsId": "HSL:1000201",
+    "name": "Päärautatieasema",
+    "lat": 60.171831,
+    "lon": 24.9412,
+    "stops": [
+     {
+      "gtfsId": "HSL:1020552",
+      "name": "Helsinki",
+      "code": "H0065",
+      "platformCode": null
+     },
+     {
+      "gtfsId": "HSL:1020551",
+      "name": "Helsinki",
+      "code": "H0063",
+      "platformCode": null
+     },
+     {
+      "gtfsId": "HSL:1020553",
+      "name": "Helsinki",
+      "code": "H0061",
+      "platformCode": "1-3"
+     },
+     {
+      "gtfsId": "HSL:1020501",
+      "name": "Helsinki",
+      "code": "H0062",
+      "platformCode": null
+     },
+     {
+      "gtfsId": "HSL:1020503",
+      "name": "Helsinki",
+      "code": "H0070",
+      "platformCode": "1-8"
+     },
+     {
+      "gtfsId": "HSL:1020502",
+      "name": "Helsinki",
+      "code": "H0064",
+      "platformCode": null
+     }
+    ]
+   },
+   {
+    "gtfsId": "HSL:1000202",
+    "name": "Pasilan asema",
+    "lat": 60.199228,
+    "lon": 24.933114,
+    "stops": [
+     {
+      "gtfsId": "HSL:1174504",
+      "name": "Pasila",
+      "code": "H0090",
+      "platformCode": "8"
+     },
+     {
+      "gtfsId": "HSL:1174502",
+      "name": "Pasila",
+      "code": "H0093",
+      "platformCode": "11"
+     },
+     {
+      "gtfsId": "HSL:1174503",
+      "name": "Pasila",
+      "code": "H0087",
+      "platformCode": "3"
+     },
+     {
+      "gtfsId": "HSL:1174501",
+      "name": "Pasila",
+      "code": "H0086",
+      "platformCode": "2"
+     },
+     {
+      "gtfsId": "HSL:1174553",
+      "name": "Pasila",
+      "code": "H0089",
+      "platformCode": "5"
+     },
+     {
+      "gtfsId": "HSL:1174554",
+      "name": "Pasila",
+      "code": "H0091",
+      "platformCode": "9"
+     },
+     {
+      "gtfsId": "HSL:1174551",
+      "name": "Pasila",
+      "code": "H0085",
+      "platformCode": "1"
+     },
+     {
+      "gtfsId": "HSL:1174552",
+      "name": "Pasila",
+      "code": "H0092",
+      "platformCode": "10"
+     }
+    ]
+   },
+   {
+    "gtfsId": "HSLlautta:459558",
+    "name": "Kaunissaari",
+    "lat": 60.17372,
+    "lon": 25.345448,
+    "stops": [
+     {
+      "gtfsId": "HSLlautta:459560",
+      "name": "Kaunissaari",
+      "code": null,
+      "platformCode": null
+     }
+    ]
+   },
+   {
+    "gtfsId": "HSL:6000201",
+    "name": "Luoman asema",
+    "lat": 60.172691,
+    "lon": 24.550301,
+    "stops": []
+   },
+   {
+    "gtfsId": "HSL:1000013",
+    "name": "Herttoniemi",
+    "lat": 60.194992,
+    "lon": 25.031411,
+    "stops": [
+     {
+      "gtfsId": "HSL:1431201",
+      "name": "Herttoniemi (M)",
+      "code": "H4993",
+      "platformCode": "25"
+     },
+     {
+      "gtfsId": "HSL:1431189",
+      "name": "Herttoniemi (M)",
+      "code": "H4042",
+      "platformCode": "11"
+     },
+     {
+      "gtfsId": "HSL:1431111",
+      "name": "Herttoniemi (M)",
+      "code": "H4040",
+      "platformCode": "17"
+     },
+     {
+      "gtfsId": "HSL:1431188",
+      "name": "Herttoniemi (M)",
+      "code": "H4043",
+      "platformCode": "12"
+     },
+     {
+      "gtfsId": "HSL:1431107",
+      "name": "Herttoniemi (M)",
+      "code": "H4047",
+      "platformCode": "16"
+     },
+     {
+      "gtfsId": "HSL:1431106",
+      "name": "Herttoniemi (M)",
+      "code": "H4046",
+      "platformCode": "15"
+     },
+     {
+      "gtfsId": "HSL:1431139",
+      "name": "Herttoniemi (M)",
+      "code": "H4050",
+      "platformCode": "20"
+     },
+     {
+      "gtfsId": "HSL:1431205",
+      "name": "Herttoniemi (M)",
+      "code": "H4995",
+      "platformCode": "23"
+     },
+     {
+      "gtfsId": "HSL:1431204",
+      "name": "Herttoniemi (M)",
+      "code": "H4994",
+      "platformCode": "24"
+     },
+     {
+      "gtfsId": "HSL:1431208",
+      "name": "Herttoniemi(M), tulo",
+      "code": "H4047",
+      "platformCode": "16"
+     },
+     {
+      "gtfsId": "HSL:1431108",
+      "name": "Herttoniemi (M)",
+      "code": "H4049",
+      "platformCode": "19"
+     },
+     {
+      "gtfsId": "HSL:1431183",
+      "name": "Herttoniemi (M)",
+      "code": "H4045",
+      "platformCode": "14"
+     },
+     {
+      "gtfsId": "HSL:1431185",
+      "name": "Herttoniemi (M)",
+      "code": "H4044",
+      "platformCode": "13"
+     }
+    ]
+   },
+   {
+    "gtfsId": "HSL:1999998",
+    "name": "Keilaniemi",
+    "lat": 60.177147,
+    "lon": 24.830736,
+    "stops": [
+     {
+      "gtfsId": "HSL:2222410",
+      "name": "Keilaniemi (M)",
+      "code": "E0776",
+      "platformCode": "22"
+     },
+     {
+      "gtfsId": "HSL:2222409",
+      "name": "Keilaniemi (M)",
+      "code": "E0777",
+      "platformCode": "21"
+     }
+    ]
+   }
+  ]
+ }
+}

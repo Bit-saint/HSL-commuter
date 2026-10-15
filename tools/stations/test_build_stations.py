@@ -122,7 +122,7 @@ class PipelineTests(unittest.TestCase):
         orig = (b.hsl_stations, b.fetch_osm, b.OUT_JSON, b.OUT_DOCS, os.environ.get("DIGITRANSIT_API_KEY"))
         with tempfile.TemporaryDirectory() as tmp:
             try:
-                b.hsl_stations = lambda key, refresh: [info(), {**info(), "id": "x", "name": "Empty", "stops": []}]
+                b.hsl_stations = lambda *a, **k: [info(), {**info(), "id": "x", "name": "Empty", "stops": []}]
                 b.fetch_osm = lambda st, bbox, refresh: synthetic_osm() if st["name"] == "Kamppi" else {"elements": []}
                 b.OUT_JSON = os.path.join(tmp, "stations.json")
                 b.OUT_DOCS = tmp
@@ -137,3 +137,65 @@ class PipelineTests(unittest.TestCase):
                     os.environ.pop("DIGITRANSIT_API_KEY", None)
                 else:
                     os.environ["DIGITRANSIT_API_KEY"] = key
+
+
+FIXTURE = os.path.join(os.path.dirname(__file__), "fixtures", "stations_sample.json")
+
+
+class RealDataTests(unittest.TestCase):
+    """Uses a sample of a real Digitransit `stations` response (no vehicleMode, no stop coordinates)."""
+
+    def load(self, **kw):
+        with open(FIXTURE, encoding="utf-8") as f:
+            return b.stations_from_response(json.load(f), **kw)
+
+    def test_kinds_from_stop_ids(self):
+        out, skipped = self.load()
+        kinds = {i["name"]: i["kind"] for i in out}
+        self.assertEqual(kinds["Kampin metroasema"], "metro")
+        self.assertEqual(kinds["Pasilan asema"], "train")
+        self.assertEqual(kinds["Päärautatieasema"], "train")
+        self.assertEqual(kinds["Herttoniemi"], "bus")
+        self.assertEqual(kinds["Keilaniemi"], "tram")
+        self.assertIn("Luoman asema", skipped["no stops"])
+        self.assertIn("Kaunissaari", skipped["ferry"])
+
+    def test_ferry_opt_in(self):
+        out, _ = self.load(include_ferry=True)
+        self.assertIn("ferry", {i["kind"] for i in out})
+
+    def test_refs(self):
+        self.assertEqual(b.refs_in("1-3"), {"1", "2", "3"})
+        self.assertEqual(b.refs_in("1;2"), {"1", "2"})
+        self.assertEqual(b.refs_in(None), set())
+        self.assertEqual(b.refs_in("11"), {"11"})
+
+    def test_metro_without_codes_or_coords_matches_island_platform(self):
+        out, _ = self.load()
+        kamppi = next(i for i in out if i["name"] == "Kampin metroasema")
+        osm = synthetic_osm()
+        # One island platform, no ref: drop the second platform and the refs.
+        osm["elements"] = [e for e in osm["elements"] if e.get("id") != 111]
+        for e in osm["elements"]:
+            if e.get("id") == 110:
+                e["tags"].pop("ref")
+        st = b.build_station(kamppi, osm)
+        self.assertEqual(st.stats["matchedPlatforms"], 2)
+
+    def test_range_code_matches_platform(self):
+        out, _ = self.load()
+        helsinki = next(i for i in out if i["name"] == "Päärautatieasema")
+        st = b.build_station(helsinki, synthetic_osm())   # OSM platforms ref 1 and 2
+        ranged = [s["gtfsId"] for s in helsinki["stops"] if s.get("platformCode") in ("1-3", "1-8")]
+        matched = {g for p in st.platforms for g in p["gtfsStops"]}
+        self.assertTrue(set(ranged) <= matched)
+
+    def test_inventory(self):
+        out, _ = self.load()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = b.write_inventory(out, tmp)
+            with open(path, encoding="utf-8") as f:
+                md = f.read()
+        self.assertIn("## Metro stations (1)", md)
+        self.assertIn("Kampin metroasema", md)
+        self.assertIn("Light rail hubs", md)

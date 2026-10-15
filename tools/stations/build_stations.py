@@ -13,6 +13,8 @@ Usage (on a machine with internet access, e.g. your Mac):
   python3 tools/stations/build_stations.py
   python3 tools/stations/build_stations.py --only Kamppi Pasila     # a few stations
   python3 tools/stations/build_stations.py --refresh                 # ignore the cache
+  python3 tools/stations/build_stations.py --stations-file saved.json # use a saved Digitransit `stations` response
+  python3 tools/stations/build_stations.py --inventory --stations-file saved.json   # station list only, no OSM
 
 Outputs
   App/Resources/Stations/stations.json   dataset for the app
@@ -47,8 +49,9 @@ OVERPASS = os.environ.get("OVERPASS_URL", "https://overpass-api.de/api/interpret
 UA = "HSLCommuter-station-builder/1.0 (personal project)"
 ATTRIBUTION = "© OpenStreetMap contributors (ODbL) · HSL/Digitransit (CC BY 4.0)"
 
-# Major bus terminals without a single GTFS parent station. Coordinates are approximate
-# seeds; the bus bays themselves come from Digitransit stops within `radius` meters.
+# Bus stop clusters that may lack a GTFS parent station. Only used when no GTFS bus
+# station lies within 300 m. Coordinates are approximate seeds; the bus bays come from
+# Digitransit stops within `radius` meters.
 BUS_TERMINALS = [
     ("Kamppi bus terminal", 60.1690, 24.9320, 220),
     ("Elielinaukio", 60.1712, 24.9405, 150),
@@ -150,6 +153,55 @@ def cached(name, fetch, refresh=False):
         json.dump(data, f)
     return data
 
+# --------------------------------------------------------------------------- classification
+
+KIND_BY_MODE = {"SUBWAY": "metro", "RAIL": "train", "BUS": "bus", "TRAM": "tram", "FERRY": "ferry"}
+
+
+def kind_from_stop_id(gtfs_id):
+    """HSL stop ids encode the type in the 5th digit: 5 = train, 6 = metro, 4 = tram/light rail."""
+    feed, _, digits = gtfs_id.partition(":")
+    if feed != "HSL":
+        return "ferry" if "lautta" in feed.lower() else None
+    if not digits.isdigit() or len(digits) < 7:
+        return None
+    return {"5": "train", "6": "metro", "4": "tram"}.get(digits[4], "bus")
+
+
+def station_kind(s):
+    """Station vehicle mode if given, else the most common type among its stops."""
+    mode = (s.get("vehicleMode") or "").upper()
+    if mode in KIND_BY_MODE:
+        return KIND_BY_MODE[mode]
+    votes = defaultdict(int)
+    for st in s.get("stops") or []:
+        k = KIND_BY_MODE.get((st.get("vehicleMode") or "").upper()) or kind_from_stop_id(st.get("gtfsId", ""))
+        if k:
+            votes[k] += 1
+    if not votes:
+        return None
+    # Prefer rail over bus when a station mixes them (e.g. a train station with feeder bays).
+    rank = {"metro": 4, "train": 3, "tram": 2, "bus": 1, "ferry": 0}
+    return max(votes, key=lambda k: (votes[k], rank[k]))
+
+
+def refs_in(code):
+    """Platform codes/refs: "3", "1-3" (range), "1;2" (OSM list). Returns a set of strings."""
+    if code is None:
+        return set()
+    out = set()
+    for part in re.split(r"[;,]", str(code)):
+        part = part.strip()
+        m = re.fullmatch(r"(\d+)\s*-\s*(\d+)", part)
+        if m:
+            a, b = sorted((int(m.group(1)), int(m.group(2))))
+            if b - a <= 40:
+                out.update(str(i) for i in range(a, b + 1))
+                continue
+        if part:
+            out.add(part)
+    return out
+
 # --------------------------------------------------------------------------- Digitransit
 
 def digitransit(query, variables, key):
@@ -175,20 +227,42 @@ query($lat: Float!, $lon: Float!, $r: Int!) {
 }"""
 
 
-def hsl_stations(key, refresh):
-    """Metro + train stations from GTFS, plus bus terminals assembled from nearby bus stops."""
-    data = cached("digitransit_stations.json", lambda: digitransit(STATIONS_Q, {}, key), refresh)
-    out = []
-    for s in data["stations"] or []:
-        mode = (s.get("vehicleMode") or "").upper()
-        if mode not in ("SUBWAY", "RAIL"):
+def stations_from_response(data, include_ferry=False):
+    """GTFS stations (metro, train, light rail hubs, bus terminals) from a Digitransit `stations` response.
+    Stations without stops (closed stations, placeholders) are skipped."""
+    if "data" in data:
+        data = data["data"]
+    out, skipped = [], defaultdict(list)
+    for s in data.get("stations") or []:
+        stops = s.get("stops") or []
+        if not stops:
+            skipped["no stops"].append(s["name"])
             continue
-        out.append({
-            "id": s["gtfsId"], "name": s["name"], "kind": "metro" if mode == "SUBWAY" else "train",
-            "center": [s["lat"], s["lon"]],
-            "stops": [st for st in (s.get("stops") or [])],
-        })
+        kind = station_kind(s)
+        if kind is None or (kind == "ferry" and not include_ferry):
+            skipped[kind or "unknown type"].append(s["name"])
+            continue
+        out.append({"id": s["gtfsId"], "name": s["name"], "kind": kind,
+                    "center": [s["lat"], s["lon"]], "stops": stops})
+    return out, skipped
+
+
+def hsl_stations(key, refresh, stations_file=None, include_ferry=False):
+    """GTFS stations, plus extra bus terminals for stop clusters without a GTFS station."""
+    if stations_file:
+        with open(stations_file, encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = cached("digitransit_stations.json", lambda: digitransit(STATIONS_Q, {}, key), refresh)
+    out, skipped = stations_from_response(data, include_ferry)
+    for reason, names in skipped.items():
+        print(f"  skipped {len(names)} ({reason}): {', '.join(sorted(set(names))[:8])}{' …' if len(names) > 8 else ''}")
+    if not key:
+        return out
+    bus_centers = [s["center"] for s in out if s["kind"] == "bus"]
     for name, lat, lon, radius in BUS_TERMINALS:
+        if any(haversine([lat, lon], c) < 300 for c in bus_centers):
+            continue
         slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
         data = cached(f"terminal_{slug}.json",
                       lambda: digitransit(NEARBY_Q, {"lat": lat, "lon": lon, "r": radius}, key), refresh)
@@ -375,19 +449,24 @@ def build_station(info, osm):
 
 def match_platforms(st):
     """Link GTFS platforms (HSL stops) to OSM platforms by ref, then by distance (≤ 40 m)."""
+    rail_platforms = [p for p in st.platforms if p["id"].startswith("w")]
     for stop in st.stops:
-        pos = [stop["lat"], stop["lon"]]
-        code = stop.get("platformCode") or ""
+        pos = [stop["lat"], stop["lon"]] if stop.get("lat") is not None and stop.get("lon") is not None else None
+        codes = refs_in(stop.get("platformCode"))
         best = None
-        for p in st.platforms:
-            if code and p.get("ref") and str(p["ref"]).strip() == str(code).strip():
-                best = p
-                break
-        if best is None and st.platforms:
+        if codes:
+            for p in st.platforms:
+                if codes & refs_in(p.get("ref")):
+                    best = p
+                    break
+        if best is None and pos and st.platforms:
             d, p = min(((distance_to_line(pos, p["line"]), p) for p in st.platforms if p["line"]), key=lambda x: x[0],
                        default=(math.inf, None))
             if d <= 40:
                 best = p
+        # Helsinki metro: one island platform serves both directions and HSL gives no platform code.
+        if best is None and not codes and st.kind == "metro" and len(rail_platforms) == 1:
+            best = rail_platforms[0]
         if best is not None:
             best["gtfsStops"].append(stop["gtfsId"])
 
@@ -486,7 +565,7 @@ def to_json(st):
                        for c in st.connectors],
         "graph": {"nodes": [[n[0], n[1], n[2]] for n in st.nodes], "edges": st.edges},
         "stops": [{"id": s["gtfsId"], "code": s.get("code"), "platform": s.get("platformCode"),
-                   "pos": [s["lat"], s["lon"]]} for s in st.stops],
+                   "pos": [s["lat"], s["lon"]] if s.get("lat") is not None else st.center} for s in st.stops],
         "missing": st.missing,
     }
 
@@ -537,27 +616,61 @@ def write_outputs(stations, out_json, out_docs):
                     **s.stats, "missing": s.missing} for s in rows], f, ensure_ascii=False, indent=1)
     return counts
 
+def write_inventory(infos, out_docs):
+    """Station list by type: what the builder will cover (no OpenStreetMap needed)."""
+    os.makedirs(out_docs, exist_ok=True)
+    titles = {"metro": "Metro stations", "train": "Train stations", "tram": "Light rail hubs (Raide-Jokeri)",
+              "bus": "Bus terminals", "ferry": "Ferry piers"}
+    by_kind = defaultdict(list)
+    for i in infos:
+        by_kind[i["kind"]].append(i)
+    lines = ["# Station inventory", "",
+             f"{len(infos)} stations and terminals from HSL's GTFS data. Indoor coverage comes from "
+             "`build_stations.py` (OpenStreetMap) and is reported in `coverage.md`.", "",
+             "| Type | Count |", "|---|---:|"]
+    lines += [f"| {titles[k]} | {len(v)} |" for k, v in sorted(by_kind.items(), key=lambda kv: -len(kv[1]))]
+    for kind in ("metro", "train", "tram", "bus", "ferry"):
+        items = sorted(by_kind.get(kind, []), key=lambda i: i["name"])
+        if not items:
+            continue
+        lines += ["", f"## {titles[kind]} ({len(items)})", "", "| Station | GTFS id | Platforms / bays | Codes |", "|---|---|---:|---|"]
+        for i in items:
+            codes = sorted({str(s.get("platformCode")) for s in i["stops"] if s.get("platformCode")},
+                           key=lambda c: (len(c), c))
+            lines.append(f"| {i['name']} | `{i['id']}` | {len(i['stops'])} | {', '.join(codes) or '—'} |")
+    path = os.path.join(out_docs, "inventory.md")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+    return path
+
 # --------------------------------------------------------------------------- main
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--only", nargs="*", help="only stations whose name contains one of these")
     ap.add_argument("--refresh", action="store_true", help="ignore cached downloads")
+    ap.add_argument("--stations-file", help="saved Digitransit `stations` query response (JSON) instead of the API")
+    ap.add_argument("--include-ferry", action="store_true", help="also build ferry piers")
+    ap.add_argument("--inventory", action="store_true", help="only write docs/stations/inventory.md (no OSM)")
     args = ap.parse_args(argv)
 
     key = os.environ.get("DIGITRANSIT_API_KEY")
-    if not key:
-        sys.exit("Set DIGITRANSIT_API_KEY (free key from https://portal-api.digitransit.fi)")
+    if not key and not args.stations_file:
+        sys.exit("Set DIGITRANSIT_API_KEY (free key from https://portal-api.digitransit.fi) or pass --stations-file")
 
-    infos = hsl_stations(key, args.refresh)
+    infos = hsl_stations(key, args.refresh, args.stations_file, args.include_ferry)
     if args.only:
         wanted = [w.lower() for w in args.only]
         infos = [i for i in infos if any(w in i["name"].lower() for w in wanted)]
     print(f"{len(infos)} stations/terminals")
+    if args.inventory:
+        path = write_inventory(infos, OUT_DOCS)
+        print("Wrote", os.path.relpath(path, ROOT))
+        return
 
     stations = []
     for n, info in enumerate(infos, 1):
-        pts = [info["center"]] + [[s["lat"], s["lon"]] for s in info["stops"]]
+        pts = [info["center"]] + [[s["lat"], s["lon"]] for s in info["stops"] if s.get("lat") is not None]
         bbox = bbox_around(pts, 150)
         try:
             osm = fetch_osm(info, bbox, args.refresh)
