@@ -1,0 +1,459 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>HSL Commuter mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=block" rel="stylesheet">
+<style>
+  :root {
+    --blue:#007AC9; --tram:#00985F; --metro:#FF6319; --train:#8C4799; --trunk:#EA7000;
+    --green:#64BE14; --yellow:#FED100; --orange:#FF8A00; --red:#DC0451;
+    --surface:#1C1C1E; --raised:#2C2C2E; --sec:rgba(235,235,245,.6);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#111; font-family:'Nunito',system-ui,sans-serif; color:#fff; padding:20px; display:flex; gap:30px; flex-wrap:wrap; }
+  .phone { width:393px; height:852px; background:#000; border-radius:54px; position:relative; overflow:hidden;
+           box-shadow:0 0 0 10px #222, 0 0 0 12px #444; }
+  .status { position:absolute; top:0; left:0; right:0; height:54px; display:flex; justify-content:space-between;
+            align-items:center; padding:14px 34px 0 46px; font-weight:800; font-size:17px; z-index:20; }
+  .island { position:absolute; top:11px; left:50%; transform:translateX(-50%); width:126px; height:37px;
+            background:#000; border-radius:20px; z-index:30; }
+  .status .r { display:flex; gap:6px; align-items:center; }
+  .bat { width:27px; height:13px; border:1.5px solid rgba(255,255,255,.5); border-radius:4px; padding:1px; }
+  .bat i { display:block; height:100%; width:75%; background:#fff; border-radius:2px; }
+  .content { position:absolute; top:54px; left:0; right:0; bottom:83px; overflow:hidden; padding:0 16px; }
+  .tabbar { position:absolute; bottom:0; left:0; right:0; height:83px; background:rgba(22,22,24,.94);
+            border-top:.5px solid rgba(255,255,255,.12); display:flex; justify-content:space-around; padding-top:7px; }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10.5px; font-weight:700; color:#8e8e93; width:90px; }
+  .tab.on { color:var(--blue); }
+  .tab svg { width:26px; height:26px; }
+  .home-ind { position:absolute; bottom:8px; left:50%; transform:translateX(-50%); width:134px; height:5px;
+              border-radius:3px; background:#fff; z-index:40; }
+  h1 { font-size:34px; font-weight:900; letter-spacing:-.5px; margin:8px 0 14px; }
+  .badge { display:inline-flex; align-items:center; gap:4px; color:#fff; font-weight:900; border-radius:7px;
+           padding:2px 8px; font-size:14px; }
+  .badge svg { width:14px; height:14px; }
+  .sec { color:var(--sec); }
+  .row { display:flex; align-items:center; }
+  .sp { flex:1; }
+  .card { border-radius:28px; padding:20px; }
+  .opt { background:var(--surface); border-radius:18px; padding:14px; display:flex; align-items:center; margin-bottom:10px; }
+  .strip { display:flex; align-items:center; gap:4px; font-size:12px; font-weight:800; }
+  .strip .chev { opacity:.55; font-size:11px; }
+  .walk { display:inline-flex; align-items:center; gap:1px; }
+  .walk svg { width:13px; height:13px; }
+  .live { display:inline-flex; align-items:center; gap:4px; background:rgba(255,255,255,.22); border-radius:20px;
+          padding:3px 8px; font-size:11px; font-weight:900; }
+  .live i { width:6px; height:6px; border-radius:50%; background:#fff; display:block; }
+  .btn { border-radius:30px; text-align:center; padding:13px; font-weight:800; font-size:16px; }
+  /* form */
+  .navbar { display:flex; align-items:center; height:44px; font-size:17px; font-weight:700; color:var(--blue); }
+  .navbar .t { position:absolute; left:0; right:0; text-align:center; color:#fff; pointer-events:none; }
+  .ghead { font-size:13px; text-transform:uppercase; color:var(--sec); margin:20px 16px 7px; font-weight:700; display:flex; gap:6px; align-items:center; }
+  .ghead svg { width:14px; height:14px; }
+  .group { background:var(--surface); border-radius:12px; overflow:hidden; }
+  .cell { display:flex; align-items:center; min-height:46px; padding:0 16px; font-size:16.5px; font-weight:600;
+          border-bottom:.5px solid rgba(255,255,255,.1); }
+  .cell:last-child { border-bottom:none; }
+  .pill { background:var(--raised); border-radius:8px; padding:6px 11px; font-weight:700; }
+  .toggle { width:51px; height:31px; border-radius:16px; background:#34C759; position:relative; }
+  .toggle::after { content:''; position:absolute; right:2px; top:2px; width:27px; height:27px; border-radius:50%; background:#fff; }
+  .toggle.off { background:#39393D; } .toggle.off::after { right:auto; left:2px; }
+  .gfoot { font-size:13px; color:var(--sec); margin:7px 16px 0; line-height:1.35; font-weight:600; }
+  .days { display:flex; gap:6px; padding:10px 12px; }
+  .days span { flex:1; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+               font-size:13px; font-weight:800; background:rgba(255,255,255,.1); }
+  .days span.on { background:var(--blue); }
+  /* live trip */
+  canvas.map { position:absolute; inset:0; }
+  .mapbtns { position:absolute; right:14px; top:66px; width:44px; background:rgba(40,40,44,.82);
+             border-radius:14px; z-index:10; backdrop-filter:blur(10px); }
+  .mapbtns div { height:44px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:15px; }
+  .mapbtns div + div { border-top:.5px solid rgba(255,255,255,.15); }
+  .mapbtns svg { width:20px; height:20px; }
+  .sheet { position:absolute; left:10px; right:10px; bottom:26px; background:var(--surface); border-radius:32px; padding:10px 14px 14px; z-index:10; }
+  .grab { width:40px; height:5px; border-radius:3px; background:rgba(255,255,255,.3); margin:0 auto 10px; }
+  .tile { flex:1; background:rgba(255,255,255,.08); border-radius:16px; padding:11px 12px; }
+  .tile .h { font-size:12px; font-weight:700; color:var(--sec); display:flex; align-items:center; gap:5px; }
+  .tile .v { font-size:18px; font-weight:900; margin-top:3px; }
+  .tile .s { font-size:11px; font-weight:700; color:var(--sec); }
+  /* lock screen */
+  .wall { position:absolute; inset:0; background:radial-gradient(120% 80% at 30% 20%, #1d4e89 0%, #0b1d3a 45%, #050a14 100%); }
+  .lock-time { position:absolute; top:112px; width:100%; text-align:center; font-size:96px; font-weight:800; letter-spacing:-2px; }
+  .lock-date { position:absolute; top:96px; width:100%; text-align:center; font-size:20px; font-weight:700; opacity:.9; }
+  .la { position:absolute; left:10px; right:10px; border-radius:24px; background:rgba(0,0,0,.82); padding:16px; }
+  .di { position:absolute; top:11px; left:10px; right:10px; background:#000; border-radius:44px; padding:16px 18px 16px; z-index:30; }
+  .bar { height:6px; border-radius:3px; background:rgba(255,255,255,.2); position:relative; }
+  .bar i { position:absolute; left:0; top:0; bottom:0; border-radius:3px; }
+  .pace { display:flex; align-items:center; gap:8px; border-radius:12px; padding:7px 10px; font-weight:800; font-size:14px; }
+  .pace svg { width:17px; height:17px; }
+  .caption { width:393px; text-align:center; margin-top:14px; font-weight:800; font-size:15px; color:#aaa; }
+</style>
+</head>
+<body>
+
+<!-- ============ 1. TODAY ============ -->
+<div>
+<div class="phone" id="today">
+  <div class="island"></div>
+  <div class="status"><span>7:42</span><span class="r">●●●● <div class="bat"><i></i></div></span></div>
+  <div class="content">
+    <h1>Good morning</h1>
+    <div class="row" style="margin-bottom:16px">
+      <div>
+        <div class="sec" style="font-size:13px;font-weight:700">From Home</div>
+        <div style="font-size:22px;font-weight:900">Work · Keilaniemi</div>
+        <div style="font-size:12px;font-weight:800;color:var(--blue)">Arrive by 8:30</div>
+      </div>
+      <div class="sp"></div>
+      <svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#007AC9"/><path d="M12 9v14m0 0-4-4m4 4 4-4M22 25V11m0 0-4 4m4-4 4 4" stroke="#000" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+
+    <div class="card" style="background:linear-gradient(135deg, rgba(100,190,20,.95), rgba(100,190,20,.65));">
+      <div class="row"><span style="font-weight:700;opacity:.9">Leave in</span><div class="sp"></div><span class="live"><i></i>LIVE</span></div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin:4px 0 10px">
+        <span style="font-size:64px;font-weight:900;line-height:1">6</span><span style="font-size:22px;font-weight:800">min</span>
+      </div>
+      <div class="strip" id="s1"></div>
+      <div class="row" style="font-size:13px;font-weight:700;margin-top:12px;opacity:.95">
+        <span>550 from Pasila at 7:53</span><div class="sp"></div><span>Arrive 8:21</span>
+      </div>
+      <div class="btn" style="background:rgba(255,255,255,.22);margin-top:14px;display:flex;justify-content:center;gap:8px;align-items:center">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2 4 21l8-4 8 4z" fill="#fff"/></svg>Start live tracking</div>
+    </div>
+
+    <div style="font-size:18px;font-weight:900;margin:20px 0 10px">Other options</div>
+    <div class="opt"><div><div class="strip" id="s2"></div><div class="sec" style="font-size:12.5px;font-weight:700;margin-top:6px">Leave 7:51 · arrive 8:24</div></div><div class="sp"></div><b style="font-size:18px">33 min</b></div>
+    <div class="opt"><div><div class="strip" id="s3"></div><div class="sec" style="font-size:12.5px;font-weight:700;margin-top:6px">Leave 7:58 · arrive 8:27</div></div><div class="sp"></div><b style="font-size:18px">29 min</b></div>
+    <div class="opt"><div><div class="strip" id="s4"></div><div class="sec" style="font-size:12.5px;font-weight:700;margin-top:6px">Leave 8:03 · arrive 8:29</div></div><div class="sp"></div><b style="font-size:18px">26 min</b></div>
+  </div>
+  <div class="tabbar" id="tb1"></div>
+  <div class="home-ind"></div>
+</div>
+<div class="caption">Today: when to leave, picked from live data</div>
+</div>
+
+<!-- ============ 2. LIVE TRIP ============ -->
+<div>
+<div class="phone" id="live">
+  <canvas class="map" id="map" width="786" height="1704" style="width:393px;height:852px"></canvas>
+  <div class="island"></div>
+  <div class="status"><span>7:51</span><span class="r">●●●● <div class="bat"><i></i></div></span></div>
+  <div class="mapbtns"><div>2D</div><div><svg viewBox="0 0 24 24"><path d="M12 2 4 21l8-4 8 4z" fill="#fff"/></svg></div></div>
+
+  <div class="sheet">
+    <div class="grab"></div>
+    <div class="card" style="padding:16px;border-radius:24px;background:linear-gradient(#00985F, rgba(0,152,95,.72))">
+      <div class="row">
+        <span class="badge" style="background:rgba(255,255,255,.18);font-size:15px" id="b-tram"></span>
+        <div class="sp"></div>
+        <svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="15" fill="rgba(0,0,0,.25)"/><path d="m10 10 10 10m0-10L10 20" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </div>
+      <div style="font-size:13px;font-weight:700;opacity:.88;margin-top:8px">Heading to</div>
+      <div style="font-size:30px;font-weight:900;line-height:1.15">Munkkiniemi</div>
+      <div style="position:relative;height:16px;margin:10px 0 8px">
+        <div style="position:absolute;top:5.5px;left:0;right:0;height:5px;border-radius:3px;background:rgba(255,255,255,.3)"></div>
+        <div style="position:absolute;top:5.5px;left:0;width:64%;height:5px;border-radius:3px;background:#fff"></div>
+        <div style="position:absolute;left:calc(64% - 8px);top:0;width:16px;height:16px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center"><i style="width:8px;height:8px;border-radius:50%;background:#00985F"></i></div>
+      </div>
+      <div class="row" style="font-size:12px;font-weight:700;opacity:.92"><span>from Kauppatori</span><div class="sp"></div><span style="text-decoration:underline">to Stockmann</span></div>
+    </div>
+
+    <div class="row" style="margin:12px 4px 10px">
+      <div>
+        <div class="sec" style="font-size:13px;font-weight:700">Arrives at Aleksanterinkatu</div>
+        <div style="font-size:19px;font-weight:900">Now near Senaatintori</div>
+      </div>
+      <div class="sp"></div>
+      <div style="text-align:right">
+        <div><span style="font-size:40px;font-weight:900;line-height:1">2</span> <span style="font-size:15px;font-weight:700">min</span></div>
+        <div class="sec" style="font-size:11px;font-weight:700;display:flex;gap:4px;align-items:center;justify-content:flex-end"><i style="width:6px;height:6px;border-radius:50%;background:var(--green);display:block"></i>live position</div>
+      </div>
+    </div>
+
+    <div style="background:var(--yellow);color:#000;border-radius:18px;padding:13px 14px;display:flex;align-items:center;gap:12px">
+      <svg width="28" height="28" viewBox="0 0 24 24" id="walkfast"></svg>
+      <div><div style="font-size:18px;font-weight:900">Walk briskly</div><div style="font-size:13px;font-weight:700;opacity:.85">Walk briskly · 180 m</div></div>
+      <div class="sp"></div>
+      <div style="text-align:right"><div style="font-size:22px;font-weight:900">6.2</div><div style="font-size:10px;font-weight:700;opacity:.8">km/h needed</div></div>
+    </div>
+
+    <div class="row" style="gap:8px;margin-top:10px">
+      <div class="tile"><div class="h"><i style="width:7px;height:7px;border-radius:50%;background:var(--green);display:block"></i>How full</div><div class="v" style="color:var(--green)">Seats</div><div class="s">31% full</div></div>
+      <div class="tile"><div class="h">Speed</div><div class="v">24</div><div class="s">km/h</div></div>
+      <div class="tile"><div class="h">Arrive</div><div class="v">7:58</div><div class="s">Stockmann</div></div>
+    </div>
+    <div class="row" style="gap:10px;margin-top:10px">
+      <div class="btn" style="flex:1;background:rgba(255,255,255,.1)">Stop</div>
+      <div class="btn" style="flex:1;background:var(--green)">I'm on it</div>
+    </div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+<div class="caption">Live trip: 3D follow camera + pace advice</div>
+</div>
+
+<!-- ============ 3. HOME & WORK ============ -->
+<div>
+<div class="phone" id="homework">
+  <div class="island"></div>
+  <div class="status"><span>9:14</span><span class="r">●●●● <div class="bat"><i></i></div></span></div>
+  <div class="content" style="padding:0 16px;background:#000">
+    <div class="navbar" style="position:relative"><span>‹ Settings</span><span class="t">Home &amp; Work</span></div>
+
+    <div class="ghead" id="h-home"></div>
+    <div class="group"><div class="cell">Mannerheimintie 120<div class="sp"></div><span style="color:var(--blue)">Change</span></div></div>
+
+    <div class="ghead" id="h-work"></div>
+    <div class="group"><div class="cell">Keilaniemi, Espoo<div class="sp"></div><span style="color:var(--blue)">Change</span></div></div>
+
+    <div class="ghead">Working hours</div>
+    <div class="group">
+      <div class="days"><span class="on">M</span><span class="on">T</span><span class="on">W</span><span class="on">T</span><span class="on">F</span><span>S</span><span>S</span></div>
+      <div class="cell">Different times per day<div class="sp"></div><div class="toggle off"></div></div>
+      <div class="cell">Arrive at work by<div class="sp"></div><span class="pill">8:30</span></div>
+      <div class="cell">Leave work at<div class="sp"></div><span class="pill">16:30</span></div>
+    </div>
+    <div class="gfoot">Mornings plan backwards from your arrival time. Afternoons plan the first good departure after you leave work.</div>
+
+    <div class="ghead" style="margin-top:22px"></div>
+    <div class="group"><div class="cell">“Leave now” reminders<div class="sp"></div><div class="toggle"></div></div></div>
+    <div class="gfoot">A heads-up 10 minutes before you should leave, and again when it's time, based on realtime departures.</div>
+  </div>
+  <div class="tabbar" id="tb3"></div>
+  <div class="home-ind"></div>
+</div>
+<div class="caption">Settings → Home &amp; Work</div>
+</div>
+
+<!-- ============ 4. LOCK SCREEN ============ -->
+<div>
+<div class="phone" id="lock">
+  <div class="wall"></div>
+  <div class="island"></div>
+  <div class="lock-date">Thursday 15 October</div>
+  <div class="lock-time">7:47</div>
+
+  <div class="la" style="top:560px">
+    <div class="row">
+      <span class="badge" style="background:var(--trunk);font-size:16px" id="b-550b"></span>
+      <div style="margin-left:10px">
+        <div class="sec" style="font-size:12px;font-weight:700">At Pasila</div>
+        <div style="font-size:18px;font-weight:900">Itäkeskus</div>
+      </div>
+      <div class="sp"></div>
+      <div style="text-align:right">
+        <div style="font-size:34px;font-weight:900;line-height:1">5:42</div>
+        <div class="sec" style="font-size:10px;font-weight:700;display:flex;gap:3px;align-items:center;justify-content:flex-end"><i style="width:5px;height:5px;border-radius:50%;background:var(--green);display:block"></i>live</div>
+      </div>
+    </div>
+    <div class="bar" style="margin:12px 0 10px"><i style="width:58%;background:var(--trunk)"></i></div>
+    <div class="pace" style="background:var(--blue)"><svg viewBox="0 0 24 24" id="walk2"></svg>Start walking now · 410 m</div>
+    <div class="sec" style="font-size:12px;font-weight:700;margin-top:9px">⇄ Then M1 at Itäkeskus · on track</div>
+  </div>
+  <div style="position:absolute;bottom:36px;width:100%;display:flex;justify-content:space-between;padding:0 46px">
+    <div style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.15)"></div>
+    <div style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.15)"></div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+<div class="caption">Lock Screen Live Activity</div>
+</div>
+
+
+<!-- ============ 5. DYNAMIC ISLAND ============ -->
+<div>
+<div class="phone" id="island">
+  <div class="wall" style="background:radial-gradient(120% 80% at 70% 30%, #0f6b52 0%, #0a2c2a 50%, #040a0c 100%)"></div>
+  <div class="di">
+    <div class="row">
+      <div>
+        <span class="badge" style="background:var(--trunk)" id="b-550c"></span>
+        <div style="font-size:12px;font-weight:700;margin-top:5px">Pasila</div>
+      </div>
+      <div class="sp"></div>
+      <div style="text-align:right">
+        <div style="font-size:30px;font-weight:900;line-height:1">5:42</div>
+        <div class="sec" style="font-size:10px;font-weight:700;display:flex;gap:3px;align-items:center;justify-content:flex-end"><i style="width:5px;height:5px;border-radius:50%;background:var(--green);display:block"></i>live</div>
+      </div>
+    </div>
+    <div class="pace" style="background:var(--blue);margin-top:10px"><svg viewBox="0 0 24 24" id="walk3"></svg>Start walking now · 410 m</div>
+    <div class="bar" style="margin-top:9px"><i style="width:58%;background:var(--trunk)"></i></div>
+  </div>
+  
+  <div style="position:absolute;top:230px;left:28px;right:28px;display:grid;grid-template-columns:repeat(4,1fr);gap:26px 22px">
+    <div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.10)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.14)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.18)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.10)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.14)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.18)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.10)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.14)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.18)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.10)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.14)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.18)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.10)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.14)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.18)"></div><div style="aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,0.10)"></div>
+  </div>
+  <div style="position:absolute;bottom:22px;left:16px;right:16px;height:92px;border-radius:32px;background:rgba(255,255,255,.14);display:flex;justify-content:space-around;align-items:center">
+    <div style="width:62px;height:62px;border-radius:16px;background:rgba(255,255,255,.22)"></div><div style="width:62px;height:62px;border-radius:16px;background:rgba(255,255,255,.22)"></div><div style="width:62px;height:62px;border-radius:16px;background:rgba(255,255,255,.22)"></div><div style="width:62px;height:62px;border-radius:16px;background:rgba(255,255,255,.22)"></div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+<div class="caption">Dynamic Island (expanded) while using other apps</div>
+</div>
+
+<script>
+// ---------- icons ----------
+const I = {
+  bus: '<svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="17" rx="3" fill="#fff"/><rect x="6" y="5" width="12" height="6" rx="1" fill="currentColor" opacity=".55"/><circle cx="8" cy="15" r="1.4" fill="currentColor"/><circle cx="16" cy="15" r="1.4" fill="currentColor"/><rect x="5.5" y="19" width="3" height="3" rx="1" fill="#fff"/><rect x="15.5" y="19" width="3" height="3" rx="1" fill="#fff"/></svg>',
+  tram: '<svg viewBox="0 0 24 24"><path d="M8 2h8M12 2v3" stroke="#fff" stroke-width="2"/><rect x="5" y="5" width="14" height="14" rx="4" fill="#fff"/><rect x="7" y="8" width="10" height="5" rx="1" fill="currentColor" opacity=".55"/><path d="M8 19l-2 3M16 19l2 3" stroke="#fff" stroke-width="2"/></svg>',
+  metro: '<svg viewBox="0 0 24 24"><path d="M2 21V11a10 10 0 0 1 20 0v10" stroke="#fff" stroke-width="2" fill="none"/><rect x="7" y="9" width="10" height="10" rx="3" fill="#fff"/></svg>',
+  walk: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="13" cy="4" r="2.2"/><path d="M10.5 8.5 13 7.6l2.2 1.6 1.4 3.3 2.4.9-.6 1.6-3.1-1.2-1-1.8-.9 3.6 2.3 2.6V22h-1.9v-4.3l-2.6-2.6-1 4.1L8 22l-1.8-.5 2.2-7.3.9-3.5-1.6.9-.8 2.8-1.7-.5 1.1-3.8z"/></svg>',
+  house: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 12h3v8h5v-5h4v5h5v-8h3z"/></svg>',
+  brief: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 4h6a2 2 0 0 1 2 2v1h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3V6a2 2 0 0 1 2-2zm0 3h6V6H9z"/></svg>',
+  depart: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="4" r="2"/><path d="M7 8h3l2 5h3v2h-4l-1-2-1 4 2 3v3H9v-2l-2-3-1 5H4l2-9-1 1v3H3v-4zM16 4h6v12h-2V6h-4z"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5z"/></svg>',
+  gear: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7 7 0 0 0-1.7-1L15 3h-4l-.4 2.7a7 7 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7 7 0 0 0 1.7 1L11 21h4l.4-2.7a7 7 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>',
+};
+const badge = (mode, name, icon=true, size=13) => {
+  const c = {bus:'#007AC9', tram:'#00985F', metro:'#FF6319', trunk:'#EA7000', train:'#8C4799'}[mode];
+  const ic = {bus:I.bus, trunk:I.bus, tram:I.tram, metro:I.metro, train:I.tram}[mode];
+  return `<span class="badge" style="background:${c};font-size:${size}px;color:${c}">${icon?ic:''}<span style="color:#fff">${name}</span></span>`;
+};
+const walk = m => `<span class="walk" style="color:#fff">${I.walk}${m}</span>`;
+const strip = parts => parts.map((p,i) => (i ? '<span class="chev">›</span>' : '') + p).join('');
+document.getElementById('s1').innerHTML = strip([walk(5), badge('trunk','550'), walk(2), badge('metro','M1'), walk(4)]);
+document.getElementById('s2').innerHTML = strip([walk(7), badge('train','I'), walk(1), badge('metro','M2'), walk(4)]);
+document.getElementById('s3').innerHTML = strip([walk(5), badge('trunk','550'), walk(3)]);
+document.getElementById('s4').innerHTML = strip([walk(3), badge('bus','23'), badge('metro','M1'), walk(4)]);
+document.getElementById('b-tram').outerHTML = badge('tram','4',true,15).replace('background:#00985F','background:rgba(255,255,255,.18)');
+for (const id of ['b-550b','b-550c']) document.getElementById(id).outerHTML = badge('trunk','550',true, id==='b-550c'?14:16);
+for (const id of ['walk2','walk3']) { const el=document.getElementById(id); el.outerHTML = I.walk.replace('<svg','<svg style="width:17px;height:17px;color:#fff"'); }
+document.getElementById('walkfast').outerHTML = I.walk.replace('<svg','<svg style="width:28px;height:28px;color:#000"');
+document.getElementById('h-home').innerHTML = I.house + 'Home';
+document.getElementById('h-work').innerHTML = I.brief + 'Work';
+const tabs = on => [['Commute',I.depart],['Nearby',I.pin],['Settings',I.gear]]
+  .map(([n,ic],i) => `<div class="tab ${i===on?'on':''}">${ic}${n}</div>`).join('');
+document.getElementById('tb1').innerHTML = tabs(0);
+document.getElementById('tb3').innerHTML = tabs(2);
+
+// ---------- 3D map: same box-model projection as VehicleRenderer.swift ----------
+const cv = document.getElementById('map'), ctx = cv.getContext('2d');
+ctx.scale(2,2);
+const W = 393, H = 852;
+const cam = { x: 2, y: 58, heading: 18 * Math.PI/180, pitch: 58 * Math.PI/180, ppm: 6.2, cx: W/2, cy: 300, F: 1400 };
+const fwd = [Math.sin(cam.heading), Math.cos(cam.heading)], rgt = [Math.cos(cam.heading), -Math.sin(cam.heading)];
+function P([x,y,z]) {
+  const dx = x - cam.x, dy = y - cam.y;
+  const u = dx*rgt[0] + dy*rgt[1], v = dx*fwd[0] + dy*fwd[1];
+  const depth = v*Math.sin(cam.pitch) - z*Math.cos(cam.pitch);
+  const k = cam.F / (cam.F + depth);
+  return { x: cam.cx + u*cam.ppm*k, y: cam.cy - (v*Math.cos(cam.pitch) + z*Math.sin(cam.pitch))*cam.ppm*k, d: depth };
+}
+const poly = (pts, fill, stroke, lw=1) => {
+  ctx.beginPath(); pts.forEach((p,i) => { const q=P(p); i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y); }); ctx.closePath();
+  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); }
+};
+// sky & ground
+const sky = ctx.createLinearGradient(0,0,0,200); sky.addColorStop(0,'#2c3646'); sky.addColorStop(1,'#4b5566');
+ctx.fillStyle = sky; ctx.fillRect(0,0,W,H);
+const R = 700;
+poly([[-R,-R,0],[R,-R,0],[R,R,0],[-R,R,0]], '#3a3d42');
+// parks / water
+poly([[60,140,0],[220,140,0],[220,320,0],[60,320,0]], '#2f4a36');
+poly([[-R,-R,0],[-150,-R,0],[-150,-260,0],[-R,-260,0]], '#2a4258');
+// streets: grid every 90 m, plus our avenue x=0
+const streets = [];
+for (let s=-720; s<=720; s+=90) { streets.push(['v', s]); streets.push(['h', s+45]); }
+for (const [t,s] of streets) {
+  const w = (t==='v' && s===0) ? 14 : 9;
+  if (t==='v') poly([[s-w,-R,0.01],[s+w,-R,0.01],[s+w,R,0.01],[s-w,R,0.01]], '#5b5f66');
+  else poly([[-R,s-w,0.01],[R,s-w,0.01],[R,s+w,0.01],[-R,s+w,0.01]], '#5b5f66');
+}
+// route line on the avenue (tram green), walking dashes to the stop
+ctx.lineCap='round'; ctx.lineJoin='round';
+const line = (pts, color, w, dash) => {
+  ctx.beginPath(); pts.forEach((p,i) => { const q=P([p[0],p[1],0.05]); i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y); });
+  ctx.strokeStyle=color; ctx.lineWidth=w; ctx.setLineDash(dash||[]); ctx.stroke(); ctx.setLineDash([]);
+};
+line([[2,-400],[2,135],[92,135],[92,700]], '#00985F', 7);
+line([[38,140],[24,140],[24,128],[8,124]], 'rgba(255,255,255,.9)', 4, [1,9]);
+
+// boxes (buildings + vehicle)
+const faces = [];
+function box(cx,cy,cz, sx,sy,sz, side, top, yaw=0) {
+  const c = Math.cos(yaw), s = Math.sin(yaw);
+  const T = ([x,y,z]) => [cx + x*s + y*c, cy + x*c - y*s, cz + z];   // x = forward along heading yaw
+  const h = [sx/2, sy/2, sz/2];
+  const quads = [
+    [[0,0,1], [[ h[0], h[1], h[2]],[ h[0],-h[1], h[2]],[-h[0],-h[1], h[2]],[-h[0], h[1], h[2]]]],
+    [[1,0,0], [[ h[0], h[1], h[2]],[ h[0],-h[1], h[2]],[ h[0],-h[1],-h[2]],[ h[0], h[1],-h[2]]]],
+    [[-1,0,0],[[-h[0], h[1], h[2]],[-h[0],-h[1], h[2]],[-h[0],-h[1],-h[2]],[-h[0], h[1],-h[2]]]],
+    [[0,1,0], [[ h[0], h[1], h[2]],[-h[0], h[1], h[2]],[-h[0], h[1],-h[2]],[ h[0], h[1],-h[2]]]],
+    [[0,-1,0],[[ h[0],-h[1], h[2]],[-h[0],-h[1], h[2]],[-h[0],-h[1],-h[2]],[ h[0],-h[1],-h[2]]]],
+  ];
+  const view = [-Math.sin(cam.heading)*Math.sin(cam.pitch), -Math.cos(cam.heading)*Math.sin(cam.pitch), Math.cos(cam.pitch)];
+  const light = [-0.4, -0.35, 0.85];
+  for (const [n, q] of quads) {
+    const wn = [n[0]*s + n[1]*c, n[0]*c - n[1]*s, n[2]];
+    if (wn[0]*view[0] + wn[1]*view[1] + wn[2]*view[2] <= 0.001) continue;
+    const pts = q.map(T);
+    const d = pts.reduce((a,p) => a + P(p).d, 0) / 4;
+    const lam = Math.max(0, wn[0]*light[0] + wn[1]*light[1] + wn[2]*light[2]);
+    const base = n[2] > 0 ? (top||side) : side;
+    faces.push({pts, d, color: shade(base, 0.55 + 0.55*lam)});
+  }
+}
+function shade(hex, k) {
+  const n = parseInt(hex.slice(1),16);
+  const r = Math.min(255,((n>>16)&255)*k), g = Math.min(255,((n>>8)&255)*k), b = Math.min(255,(n&255)*k);
+  return `rgb(${r|0},${g|0},${b|0})`;
+}
+// buildings in blocks, deterministic pseudo-random
+let seed = 7; const rnd = () => (seed = (seed*16807) % 2147483647) / 2147483647;
+for (let bx=-720; bx<720; bx+=90) for (let by=-675; by<720; by+=90) {
+  const x0 = bx + 12, y0 = by + 12, size = 66;
+  if (x0 > 50 && x0 < 230 && y0 > 130 && y0 < 330) continue;    // park
+  if (x0 < -150 && y0 < -260) continue;                        // water
+  const n = 2 + Math.floor(rnd()*2);
+  for (let i=0;i<n;i++) for (let j=0;j<2;j++) {
+    const w = size/n - 4, d = size/2 - 4;
+    const hgt = 9 + rnd()*14;
+    const tint = ['#d8d3c9','#cfd5dc','#e2d9cc','#c9c3bb'][Math.floor(rnd()*4)];
+    box(x0 + (i+.5)*size/n, y0 + (j+.5)*size/2, hgt/2, d, w, hgt, tint, '#eceae6');
+  }
+}
+// tram (Artic, 3 sections) heading north on the avenue, same model as VehicleModel.tram
+const TR = { body:'#00985F', glass:'#1A2633', roof:'#C9CED4' };
+function car(xc, yc, along, len, wid, hgt, body, roof, stripe) {
+  const lower = hgt*.42, win = hgt*.36, rh = hgt - lower - win - .15;
+  const at = (dx) => [xc + dx*Math.sin(along), yc + dx*Math.cos(along)];
+  const [x,y] = at(0);
+  box(x, y, .15+lower/2, len, wid, lower, body, null, along);
+  box(x, y, .15+lower+win/2, len*.98, wid*.97, win, TR.glass, null, along);
+  box(x, y, .15+lower+win+rh/2, len, wid, rh, body, roof, along);
+  if (stripe) box(x, y, .15+lower*.35, len*1.002, wid*1.01, lower*.25, stripe, null, along);
+}
+const tramY = 70, s8 = 8.6;
+for (const k of [1,0,-1]) car(2, tramY + k*(s8+.3), 0, s8, 2.4, 3.4, TR.body, TR.roof);
+// shadow first
+poly([[2-1.6,tramY-14.5,0.02],[2+1.6,tramY-14.5,0.02],[2+1.6,tramY+14.5,0.02],[2-1.6,tramY+14.5,0.02]], 'rgba(0,0,0,.35)');
+// stop marker on ground
+faces.sort((a,b) => b.d - a.d);
+for (const f of faces) poly(f.pts, f.color, 'rgba(0,0,0,.12)', .5);
+// stop + user annotations (screen-space, like SwiftUI Annotations)
+const sp = P([8,124,0]);
+ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(sp.x,sp.y,7,0,7); ctx.fill();
+ctx.strokeStyle='#00985F'; ctx.lineWidth=4; ctx.stroke();
+const up = P([38,140,0]);
+ctx.fillStyle='rgba(10,132,255,.25)'; ctx.beginPath(); ctx.arc(up.x,up.y,18,0,7); ctx.fill();
+ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(up.x,up.y,8.5,0,7); ctx.fill();
+ctx.fillStyle='#0A84FF'; ctx.beginPath(); ctx.arc(up.x,up.y,6,0,7); ctx.fill();
+// vehicle pin + line badge above the tram
+const tp = P([2,tramY+6,4]);
+ctx.fillStyle='#fff'; ctx.fillRect(tp.x-1,tp.y-26,2,22);
+ctx.beginPath(); ctx.arc(tp.x,tp.y-32,8,0,7); ctx.fillStyle='#64BE14'; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.stroke();
+ctx.fillStyle='#00985F'; const bw=26; ctx.beginPath(); ctx.roundRect(tp.x-bw/2,tp.y-66,bw,20,6); ctx.fill();
+ctx.fillStyle='#fff'; ctx.font='900 13px Nunito'; ctx.textAlign='center'; ctx.fillText('4', tp.x, tp.y-51.5);
+// stop label
+ctx.fillStyle='rgba(0,0,0,.6)'; ctx.beginPath(); ctx.roundRect(sp.x-20,sp.y+10,40,15,7); ctx.fill();
+ctx.fillStyle='#fff'; ctx.font='800 10px Nunito'; ctx.fillText('H2014', sp.x, sp.y+21);
+// top fade for status bar legibility
+const fade = ctx.createLinearGradient(0,0,0,90); fade.addColorStop(0,'rgba(0,0,0,.55)'); fade.addColorStop(1,'rgba(0,0,0,0)');
+ctx.fillStyle=fade; ctx.fillRect(0,0,W,90);
+// Legal
+ctx.fillStyle='rgba(255,255,255,.6)'; ctx.font='700 10px Nunito'; ctx.textAlign='left'; ctx.fillText('Legal', 16, 400);
+</script>
+</body>
+</html>

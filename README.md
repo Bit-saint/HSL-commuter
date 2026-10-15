@@ -65,3 +65,9 @@ There's no server. When you start live tracking (from the app, a reminder notifi
 ## Data and credits
 
 Data from HSL / Digitransit (CC BY 4.0) and Fintraffic Digitraffic (CC BY 4.0). HSL colours are used for a personal, unofficial app. This app is not affiliated with HSL.
+
+## UI mockups
+
+![Screens](docs/mockups/all.png)
+
+These are HTML/CSS mockups of the SwiftUI screens, rendered in headless Chromium. They are not screenshots of the running app. The map uses a JavaScript port of the app's vehicle renderer, but it is drawn on a stand-in city, not Apple Maps. Source: `docs/mockups/index.html`.
