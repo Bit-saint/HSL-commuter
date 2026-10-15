@@ -81,3 +81,46 @@ jobs:
           cd Packages/CommuterKit && swift test 2>&1 | tail -120
       - name: Station builder tests
         run: python3 -m unittest discover -s tools/stations
+
+  # Launches the app on an iPad simulator and reports crashes (console output + crash report).
+  simulator-smoke:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode + XcodeGen
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
+          brew install xcodegen
+          xcodegen generate
+      - name: Build for simulator
+        run: |
+          set -o pipefail
+          xcodebuild -project HSLCommuter.xcodeproj -scheme HSLCommuter -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath simbuild \
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= build 2>&1 | tail -5
+      - name: Launch on iPad simulator
+        run: |
+          RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "import json,sys; r=[x for x in json.load(sys.stdin)['runtimes'] if x['platform']=='iOS' and x['isAvailable']]; print(r[-1]['identifier'])")
+          DEVTYPE=$(xcrun simctl list devicetypes -j | python3 -c "import json,sys; d=[x['identifier'] for x in json.load(sys.stdin)['devicetypes'] if 'iPad' in x['name']]; print(d[-1])")
+          echo "runtime $RUNTIME device $DEVTYPE"
+          UDID=$(xcrun simctl create smoke "$DEVTYPE" "$RUNTIME")
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          APP=$(find simbuild/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app" | head -1)
+          BUNDLE=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist")
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl privacy "$UDID" grant location-always "$BUNDLE" || true
+          (xcrun simctl launch --console-pty "$UDID" "$BUNDLE" > console.log 2>&1 &)
+          sleep 25
+          echo "=== console (last 80 lines) ==="; tail -80 console.log || true
+          if xcrun simctl spawn "$UDID" launchctl list | grep -q "$BUNDLE"; then
+            echo "APP_ALIVE=yes"
+          else
+            echo "APP_ALIVE=no"
+          fi
+          echo "=== crash reports ==="
+          for f in $(ls -t ~/Library/Logs/DiagnosticReports/HSLCommuter* 2>/dev/null | head -2); do
+            echo "--- $f"; head -c 12000 "$f"; echo
+          done
+          xcrun simctl spawn "$UDID" launchctl list | grep -q "$BUNDLE"
