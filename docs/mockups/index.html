@@ -97,6 +97,16 @@
   .timing { display:flex; gap:6px; align-items:center; font-size:12px; font-weight:700; color:var(--sec); margin-top:6px; }
   .timing i { width:8px; height:8px; border-radius:50%; display:block; }
   .mapbg { position:absolute; inset:0; background-size:393px 852px; filter:brightness(.8); }
+
+  .ban { display:flex; align-items:center; gap:12px; background:var(--surface); border-radius:16px; padding:11px 12px; margin-bottom:8px; }
+  .ban .t { font-size:15px; font-weight:800; } .ban .st { font-size:12px; font-weight:700; color:var(--sec); }
+  .chip { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:800; margin-top:5px; }
+  .chip svg { width:12px; height:12px; }
+  .notif { background:rgba(40,40,46,.78); backdrop-filter:blur(20px); border-radius:20px; padding:12px 14px; display:flex; gap:11px; margin:0 10px 8px; }
+  .appicon { width:38px; height:38px; border-radius:9px; background:linear-gradient(#0a8fe0,#006bb0); display:flex; align-items:center; justify-content:center; flex:none; }
+  .notif .nt { font-size:15px; font-weight:800; } .notif .nb { font-size:14px; font-weight:600; opacity:.92; line-height:1.3; }
+  .notif .tm { font-size:12px; color:var(--sec); font-weight:700; }
+  .nact { background:rgba(40,40,46,.78); backdrop-filter:blur(20px); border-radius:14px; margin:0 10px 6px; padding:13px; text-align:center; font-weight:700; font-size:15px; }
 </style>
 </head>
 <body>
@@ -108,7 +118,7 @@
   <div class="status"><span>7:42</span><span class="r">●●●● <div class="bat"><i></i></div></span></div>
   <div class="content">
     <h1>Good morning</h1>
-    <div class="row" style="margin-bottom:16px">
+    <div class="row" style="margin-bottom:10px">
       <div>
         <div class="sec" style="font-size:13px;font-weight:700">From Home</div>
         <div style="font-size:22px;font-weight:900">Work · Keilaniemi</div>
@@ -118,28 +128,30 @@
       <svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#007AC9"/><path d="M12 9v14m0 0-4-4m4 4 4-4M22 25V11m0 0-4 4m4-4 4 4" stroke="#000" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
 
-    <div class="card" style="background:linear-gradient(135deg, rgba(100,190,20,.95), rgba(100,190,20,.65));">
+    <div class="ban"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00B9E4" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7"/><path d="m9 4 3 2 3-2M9 20l3-2 3 2"/></svg><div><div class="t">Slippery today: leave about 2 min earlier</div><div class="st">−1°C · FMI forecast</div></div></div>
+    <div class="sec" style="display:flex;gap:6px;align-items:center;font-size:13px;font-weight:700;margin:2px 2px 10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 12h3v8h5v-5h4v5h5v-8h3z"/></svg>Working from home today</div>
+    <div class="card" style="padding:18px 20px;background:linear-gradient(135deg, rgba(100,190,20,.95), rgba(100,190,20,.65));">
       <div class="row"><span style="font-weight:700;opacity:.9">Leave in</span><div class="sp"></div><span class="live"><i></i>LIVE</span></div>
       <div style="display:flex;align-items:baseline;gap:6px;margin:4px 0 10px">
-        <span style="font-size:64px;font-weight:900;line-height:1">6</span><span style="font-size:22px;font-weight:800">min</span>
+        <span style="font-size:58px;font-weight:900;line-height:1">4</span><span style="font-size:22px;font-weight:800">min</span>
       </div>
       <div class="strip" id="s1"></div>
-      <div class="row" style="font-size:13px;font-weight:700;margin-top:12px;opacity:.95">
+      <div class="chip" style="color:#fff"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="7" r="3.2"/><circle cx="16.5" cy="8" r="2.7"/><path d="M1.5 20c0-3.6 2.9-6.3 6.5-6.3s6.5 2.7 6.5 6.3zM15 20c0-2.2-.7-4.1-2-5.4a6 6 0 0 1 9.5 5.4z"/></svg>Seats · 31% full</div>
+      <div class="row" style="font-size:13px;font-weight:700;margin-top:8px;opacity:.95">
         <span>550 from Pasila at 7:53</span><div class="sp"></div><span>Arrive 8:21</span>
       </div>
-      <div class="btn" style="background:rgba(255,255,255,.22);margin-top:14px;display:flex;justify-content:center;gap:8px;align-items:center">
+      <div class="btn" style="background:rgba(255,255,255,.22);margin-top:12px;display:flex;justify-content:center;gap:8px;align-items:center">
         <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2 4 21l8-4 8 4z" fill="#fff"/></svg>Start live tracking</div>
     </div>
 
-    <div style="font-size:18px;font-weight:900;margin:20px 0 10px">Other options</div>
-    <div class="opt"><div><div class="strip" id="s2"></div><div class="sec" style="font-size:12.5px;font-weight:700;margin-top:6px">Leave 7:51 · arrive 8:24</div></div><div class="sp"></div><b style="font-size:18px">33 min</b></div>
-    <div class="opt"><div><div class="strip" id="s3"></div><div class="sec" style="font-size:12.5px;font-weight:700;margin-top:6px">Leave 7:58 · arrive 8:27</div></div><div class="sp"></div><b style="font-size:18px">29 min</b></div>
-    <div class="opt"><div><div class="strip" id="s4"></div><div class="sec" style="font-size:12.5px;font-weight:700;margin-top:6px">Leave 8:03 · arrive 8:29</div></div><div class="sp"></div><b style="font-size:18px">26 min</b></div>
+    <div style="font-size:18px;font-weight:900;margin:16px 0 8px">Other options</div>
+    <div class="opt"><div><div class="strip" id="s2"></div><div class="sec" style="font-size:12.5px;font-weight:700;margin-top:6px">Leave 7:49 · arrive 8:24</div><div class="chip" style="color:var(--yellow)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 1 21h22z"/></svg>Metro M2 has big delays</div></div><div class="sp"></div><b style="font-size:18px">35 min</b></div>
+    <div class="opt"><div><div class="strip" id="s3"></div><div class="sec" style="font-size:12.5px;font-weight:700;margin-top:6px">Leave 7:58 · arrive 8:27</div><div class="chip" style="color:var(--yellow)"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="7" r="3.2"/><circle cx="16.5" cy="8" r="2.7"/><path d="M1.5 20c0-3.6 2.9-6.3 6.5-6.3s6.5 2.7 6.5 6.3zM15 20c0-2.2-.7-4.1-2-5.4a6 6 0 0 1 9.5 5.4z"/></svg>Standing · 64% full</div></div><div class="sp"></div><b style="font-size:18px">29 min</b></div>
   </div>
   <div class="tabbar" id="tb1"></div>
   <div class="home-ind"></div>
 </div>
-<div class="caption">Today: when to leave, picked from live data</div>
+<div class="caption">Today: weather, occupancy &amp; disruptions</div>
 </div>
 
 <!-- ============ 2. LIVE TRIP ============ -->
@@ -172,6 +184,7 @@
       <div>
         <div class="sec" style="font-size:13px;font-weight:700">Arrives at Aleksanterinkatu</div>
         <div style="font-size:19px;font-weight:900">Now near Senaatintori</div>
+        <div class="sec" style="font-size:12px;font-weight:700;margin-top:2px">850 m by rail</div>
       </div>
       <div class="sp"></div>
       <div style="text-align:right">
@@ -193,13 +206,14 @@
       <div class="tile"><div class="h">Arrive</div><div class="v">7:58</div><div class="s">Stockmann</div></div>
     </div>
     <div class="row" style="gap:10px;margin-top:10px">
-      <div class="btn" style="flex:1;background:rgba(255,255,255,.1)">Stop</div>
-      <div class="btn" style="flex:1;background:var(--green)">I'm on it</div>
+      <div class="btn" style="flex:1;background:rgba(255,255,255,.1);font-size:15px">Stop</div>
+      <div class="btn" style="flex:1;background:rgba(220,4,81,.85);font-size:15px">I missed it</div>
+      <div class="btn" style="flex:1;background:var(--green);font-size:15px">I'm on it</div>
     </div>
   </div>
   <div class="home-ind"></div>
 </div>
-<div class="caption">Live trip: 3D follow camera + pace advice</div>
+<div class="caption">Live trip: road/rail distance + pace advice</div>
 </div>
 
 <!-- ============ 3. HOME & WORK ============ -->
@@ -361,6 +375,145 @@
 <div class="caption">Your bus is late: faster option suggested</div>
 </div>
 
+<div>
+<div class="phone" id="train">
+  <div class="mapbg" id="bg3" style="filter:blur(7px) brightness(.5) saturate(.6)"></div>
+  <div class="island"></div>
+  <div class="status"><span>7:58</span><span class="r">●●●● <div class="bat"><i></i></div></span></div>
+  <div class="sheet" style="z-index:10">
+    <div class="grab"></div>
+    <div style="background:var(--orange);border-radius:16px;padding:11px 13px;display:flex;gap:10px;align-items:center;margin-bottom:10px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M7 4h2v12l3-3 1.4 1.4L8 19.8 2.6 14.4 4 13l3 3zM17 20h-2V8l-3 3-1.4-1.4L16 4.2l5.4 5.4L20 11l-3-3z"/></svg>
+      <div><div style="font-size:15px;font-weight:900">Track change: I now leaves from track 4</div><div style="font-size:12px;font-weight:700;opacity:.9">Was track 6 at Pasila</div></div>
+    </div>
+    <div class="card" style="padding:15px;border-radius:24px;background:linear-gradient(#8C4799, rgba(140,71,153,.72))">
+      <div class="row"><span id="b-trainI"></span><div class="sp"></div>
+        <svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="15" fill="rgba(0,0,0,.25)"/><path d="m10 10 10 10m0-10L10 20" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+      <div style="font-size:13px;font-weight:700;opacity:.88;margin-top:6px">Heading to</div>
+      <div style="font-size:28px;font-weight:900;line-height:1.15">Helsinki</div>
+      <div style="position:relative;height:16px;margin:9px 0 6px">
+        <div style="position:absolute;top:5.5px;left:0;right:0;height:5px;border-radius:3px;background:rgba(255,255,255,.3)"></div>
+        <div style="position:absolute;top:5.5px;left:0;width:82%;height:5px;border-radius:3px;background:#fff"></div>
+        <div style="position:absolute;left:calc(82% - 8px);top:0;width:16px;height:16px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center"><i style="width:8px;height:8px;border-radius:50%;background:#8C4799"></i></div>
+      </div>
+      <div class="row" style="font-size:12px;font-weight:700;opacity:.92"><span>from Pasila</span><div class="sp"></div><span style="text-decoration:underline">to Helsinki</span></div>
+    </div>
+    <div class="row" style="margin:11px 4px 9px">
+      <div>
+        <div class="sec" style="font-size:13px;font-weight:700">Arrives at Pasila</div>
+        <div style="font-size:19px;font-weight:900">Now near Ilmala</div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:3px">
+          <span style="background:var(--orange);border-radius:10px;padding:1px 8px;font-size:12px;font-weight:800">Track 4</span>
+          <span class="sec" style="font-size:12px;font-weight:700">2.1 km by rail</span>
+        </div>
+      </div>
+      <div class="sp"></div>
+      <div style="text-align:right">
+        <div><span style="font-size:40px;font-weight:900;line-height:1">3</span> <span style="font-size:15px;font-weight:700">min</span></div>
+        <div class="sec" style="font-size:11px;font-weight:700;display:flex;gap:4px;align-items:center;justify-content:flex-end"><i style="width:6px;height:6px;border-radius:50%;background:var(--green);display:block"></i>live position</div>
+      </div>
+    </div>
+    <div style="background:var(--green);border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:12px">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3" fill="#64BE14"/><path d="M12 13v5" stroke="#64BE14" stroke-width="2"/></svg>
+      <div><div style="font-size:18px;font-weight:900">At the stop</div><div style="font-size:13px;font-weight:700;opacity:.9">You're at the stop</div></div>
+    </div>
+    <div class="row" style="gap:8px;margin-top:9px">
+      <div class="tile"><div class="h"><i style="width:7px;height:7px;border-radius:50%;background:var(--green);display:block"></i>How full</div><div class="v" style="color:var(--green)">Seats</div><div class="s">18% full</div></div>
+      <div class="tile"><div class="h">Speed</div><div class="v">64</div><div class="s">km/h</div></div>
+      <div class="tile"><div class="h">Arrive</div><div class="v">8:07</div><div class="s">Helsinki</div></div>
+    </div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+<div class="caption">Train: live track change + distance by rail</div>
+</div>
+
+<div>
+<div class="phone" id="dayoff">
+  <div class="island"></div>
+  <div class="status"><span>7:35</span><span class="r">●●●● <div class="bat"><i></i></div></span></div>
+  <div class="content">
+    <h1>Good morning</h1>
+    <div style="background:rgba(0,122,201,.22);border-radius:20px;padding:14px;margin-bottom:14px">
+      <div style="display:flex;gap:8px;align-items:center;font-size:17px;font-weight:900">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2" stroke="#0b3a5a" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>Update your times?</div>
+      <div class="sec" style="font-size:14px;font-weight:700;margin:6px 0 10px">You usually arrive around 8:20 and leave around 16:35.</div>
+      <div style="display:flex;gap:8px">
+        <span style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px 14px;font-weight:800;font-size:14px;color:var(--blue)">Not now</span>
+        <span style="background:var(--blue);border-radius:10px;padding:8px 14px;font-weight:800;font-size:14px">Yes, use it</span>
+      </div>
+    </div>
+    <div class="row" style="margin-bottom:10px">
+      <div>
+        <div class="sec" style="font-size:13px;font-weight:700">From Home</div>
+        <div style="font-size:22px;font-weight:900">Work · Keilaniemi</div>
+        <div style="font-size:12px;font-weight:800;color:var(--blue)">Arrive by 8:30</div>
+      </div>
+      <div class="sp"></div>
+      <svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="16" fill="#007AC9"/><path d="M12 9v14m0 0-4-4m4 4 4-4M22 25V11m0 0-4 4m4-4 4 4" stroke="#000" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="ban"><span style="color:var(--green)"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 12h3v8h5v-5h4v5h5v-8h3z"/></svg></span><div style="flex:1"><div class="t">Working from home</div><div class="st">No reminders today. You can still plan a trip.</div></div><span style="color:var(--blue);font-weight:800;font-size:13px">Undo</span></div>
+    
+    <div class="card" style="padding:18px 20px;margin-top:6px;background:linear-gradient(135deg, rgba(100,190,20,.95), rgba(100,190,20,.65));">
+      <div class="row"><span style="font-weight:700;opacity:.9">Leave in</span><div class="sp"></div><span class="live"><i></i>LIVE</span></div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin:4px 0 10px"><span style="font-size:58px;font-weight:900;line-height:1">21</span><span style="font-size:22px;font-weight:800">min</span></div>
+      <div class="strip" id="s5"></div>
+      <div class="row" style="font-size:13px;font-weight:700;margin-top:8px;opacity:.95"><span>550 from Pasila at 8:00</span><div class="sp"></div><span>Arrive 8:21</span></div>
+    </div>
+  </div>
+  <div class="tabbar" id="tb5"></div>
+  <div class="home-ind"></div>
+</div>
+<div class="caption">Day off, working from home + learned times</div>
+</div>
+
+<div>
+<div class="phone" id="smart">
+  <div class="island"></div>
+  <div class="status"><span>9:14</span><span class="r">●●●● <div class="bat"><i></i></div></span></div>
+  <div class="content" style="padding:0 16px;background:#000">
+    <div style="font-size:34px;font-weight:900;margin:2px 0 0">Settings</div>
+    <div class="ghead" style="margin-top:12px">Automatic</div>
+    <div class="group"><div class="cell">Start tracking automatically<div class="sp"></div><div class="toggle"></div></div><div class="cell">Learn my places and times<div class="sp"></div><div class="toggle"></div></div></div>
+    <div class="gfoot">Tracking starts when you leave home or work, and detects when you get on and off.</div>
+    <div class="ghead">Cues</div>
+    <div class="group"><div class="cell">Spoken cues<div class="sp"></div><div class="toggle"></div></div><div class="cell">Only with headphones<div class="sp"></div><div class="toggle"></div></div>
+      <div class="cell">Voice<div class="sp"></div><span class="sec">Suomi ›</span></div>
+      <div class="cell" style="color:var(--blue)">Try it</div><div class="cell">Haptic taps<div class="sp"></div><div class="toggle"></div></div></div>
+    <div class="gfoot">One tap: time to go. Two taps: speed up. Three: run.</div>
+    <div class="ghead">Your day</div>
+    <div class="group"><div class="cell">Weather-aware pace<div class="sp"></div><div class="toggle"></div></div><div class="cell">Skip Finnish holidays<div class="sp"></div><div class="toggle"></div></div><div class="cell">Use my calendar<div class="sp"></div><div class="toggle off"></div></div></div>
+    <div class="gfoot">Ice and snow slow your pace and add margin (FMI forecast).</div>
+  </div>
+  <div class="tabbar" id="tb6"></div>
+  <div class="home-ind"></div>
+</div>
+<div class="caption">Settings: automatic, cues, your day</div>
+</div>
+
+<div>
+<div class="phone" id="notifs">
+  <div class="wall"></div>
+  <div class="island"></div>
+  <div class="lock-date">Thursday 15 October</div>
+  <div class="lock-time">7:44</div>
+  <div style="position:absolute;top:330px;left:0;right:0">
+    <div class="notif"><div class="appicon"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="17" rx="3" fill="#fff"/><rect x="6" y="5" width="12" height="6" rx="1" fill="#007AC9"/><circle cx="8" cy="15" r="1.4" fill="#007AC9"/><circle cx="16" cy="15" r="1.4" fill="#007AC9"/></svg></div><div style="flex:1"><div class="row"><span class="nt">Leaving in 10 minutes</span><div class="sp"></div><span class="tm">7:34</span></div><div class="nb">550 from Pasila to Keilaniemi. Slippery today: leave about 2 min earlier. Tap to start live tracking.</div></div></div>
+    <div class="nact">Start live tracking</div>
+    <div class="nact">Working from home today</div>
+    <div style="height:10px"></div>
+    <div class="notif"><div class="appicon"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="17" rx="3" fill="#fff"/><rect x="6" y="5" width="12" height="6" rx="1" fill="#007AC9"/><circle cx="8" cy="15" r="1.4" fill="#007AC9"/><circle cx="16" cy="15" r="1.4" fill="#007AC9"/></svg></div><div style="flex:1"><div class="row"><span class="nt">On your way to Keilaniemi</span><div class="sp"></div><span class="tm">now</span></div><div class="nb">Tracking 550 from Pasila. We'll tell you if you need to hurry.</div></div></div>
+    <div class="notif"><div class="appicon"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="17" rx="3" fill="#fff"/><rect x="6" y="5" width="12" height="6" rx="1" fill="#007AC9"/><circle cx="8" cy="15" r="1.4" fill="#007AC9"/><circle cx="16" cy="15" r="1.4" fill="#007AC9"/></svg></div><div style="flex:1"><div class="row"><span class="nt">A little faster</span><div class="sp"></div><span class="tm">now</span></div><div class="nb">550 at Pasila in 3 min · 240 m to go.</div></div></div>
+  </div>
+  <div style="position:absolute;bottom:36px;width:100%;display:flex;justify-content:space-between;padding:0 46px">
+    <div style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.15)"></div>
+    <div style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.15)"></div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+<div class="caption">Gentle notifications with quick actions</div>
+</div>
+
 <script>
 // ---------- icons ----------
 const I = {
@@ -384,7 +537,7 @@ const strip = parts => parts.map((p,i) => (i ? '<span class="chev">›</span>' :
 document.getElementById('s1').innerHTML = strip([walk(5), badge('trunk','550'), walk(2), badge('metro','M1'), walk(4)]);
 document.getElementById('s2').innerHTML = strip([walk(7), badge('train','I'), walk(1), badge('metro','M2'), walk(4)]);
 document.getElementById('s3').innerHTML = strip([walk(5), badge('trunk','550'), walk(3)]);
-document.getElementById('s4').innerHTML = strip([walk(3), badge('bus','23'), badge('metro','M1'), walk(4)]);
+document.getElementById('s4') && (document.getElementById('s4').innerHTML = strip([walk(3), badge('bus','23'), badge('metro','M1'), walk(4)]));
 document.getElementById('b-tram').outerHTML = badge('tram','4',true,15).replace('background:#00985F','background:rgba(255,255,255,.18)');
 for (const id of ['b-550b','b-550c']) document.getElementById(id).outerHTML = badge('trunk','550',true, id==='b-550c'?14:16);
 for (const id of ['walk2','walk3']) { const el=document.getElementById(id); el.outerHTML = I.walk.replace('<svg','<svg style="width:17px;height:17px;color:#fff"'); }
@@ -534,6 +687,12 @@ document.getElementById('r4').innerHTML = strip([walk(2), badge('bus','23'), bad
 document.getElementById('b-i').outerHTML = badge('train','I',true,13);
 const shot = document.getElementById('map').toDataURL();
 for (const id of ['bg1','bg2']) document.getElementById(id).style.backgroundImage = `url(${shot})`;
+
+document.getElementById('b-trainI').outerHTML = badge('train','I',true,15).replace('background:#8C4799','background:rgba(255,255,255,.18)');
+document.getElementById('s5').innerHTML = strip([walk(5), badge('trunk','550'), walk(2), badge('metro','M1'), walk(4)]);
+document.getElementById('tb5').innerHTML = tabs(0);
+document.getElementById('tb6').innerHTML = tabs(2);
+document.getElementById('bg3').style.backgroundImage = `url(${shot})`;
 </script>
 </body>
 </html>

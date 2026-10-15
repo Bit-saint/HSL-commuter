@@ -31,6 +31,7 @@ final class CommuteSession {
         /// Platform / track to board from (trains: live from Digitraffic).
         var platform: String?
         var platformChanged = false
+        var previousPlatform: String?
 
         var mode: TransitMode { leg.mode }
         var line: String { leg.route?.shortName ?? mode.displayName }
@@ -465,6 +466,7 @@ final class CommuteSession {
             legs[i]?.platform = track
             if let old, old != track {
                 legs[i]?.platformChanged = true
+                legs[i]?.previousPlatform = old
                 let fi = app?.smart.voiceLanguage == "fi"
                 alert(key: "track-\(i)-\(track)", title: "Track change: \(live.line) now leaves from track \(track)",
                       body: "Was track \(old) at \(live.leg.from.name).", chime: .hurry)

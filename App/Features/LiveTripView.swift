@@ -265,6 +265,20 @@ struct LiveTripSheet: View {
                     .buttonStyle(.plain)
                 }
             } else if let live = session.focusLeg {
+                if live.platformChanged, let p = live.platform, !riding {
+                    HStack(spacing: 10) {
+                        Image(systemName: "arrow.up.arrow.down")
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Track change: \(live.line) now leaves from track \(p)").font(HSLFont.body(15))
+                            if let old = live.previousPlatform {
+                                Text("Was track \(old) at \(live.leg.from.name)").font(HSLFont.caption(12)).opacity(0.9)
+                            }
+                        }
+                        Spacer()
+                    }
+                    .padding(12)
+                    .background(HSLColor.orange, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
                 if let d = session.disruptions.first {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: "exclamationmark.triangle.fill")
