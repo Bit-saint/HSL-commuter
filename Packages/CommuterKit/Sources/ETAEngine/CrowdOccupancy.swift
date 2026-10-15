@@ -29,7 +29,7 @@ public struct CrowdReport: Codable, Sendable, Equatable {
     }
 }
 
-public struct CrowdEstimate: Sendable, Equatable {
+public struct CrowdEstimate: Sendable, Hashable {
     public var level: CrowdLevel
     public var reports: Int
     public var newest: Date

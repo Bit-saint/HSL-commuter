@@ -48,6 +48,16 @@ public struct PaceAdvice: Sendable, Codable, Equatable {
     public var walkDistance: Double
     public var walkDuration: TimeInterval
 
+    public init(state: PaceState, leaveAt: Date?, margin: TimeInterval, requiredSpeed: Double?,
+                walkDistance: Double, walkDuration: TimeInterval) {
+        self.state = state
+        self.leaveAt = leaveAt
+        self.margin = margin
+        self.requiredSpeed = requiredSpeed
+        self.walkDistance = walkDistance
+        self.walkDuration = walkDuration
+    }
+
     public func message(now: Date) -> String {
         let m = Int((leaveAt?.timeIntervalSince(now) ?? 0) / 60)
         let dist = walkDistance >= 1000 ? String(format: "%.1f km", walkDistance / 1000) : "\(Int(walkDistance.rounded())) m"
