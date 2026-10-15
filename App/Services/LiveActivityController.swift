@@ -11,8 +11,10 @@ final class LiveActivityController {
 
     var isAvailable: Bool { ActivityAuthorizationInfo().areActivitiesEnabled }
 
-    func start(destination: String, state: CommuteActivityAttributes.ContentState) {
-        guard isAvailable else { return }
+    /// Returns false when it couldn't start (e.g. app in the background), so the caller can retry later.
+    @discardableResult
+    func start(destination: String, state: CommuteActivityAttributes.ContentState) -> Bool {
+        guard isAvailable else { return false }
         // Only one commute activity at a time.
         for a in Activity<CommuteActivityAttributes>.activities {
             Task { await a.end(nil, dismissalPolicy: .immediate) }
@@ -23,6 +25,7 @@ final class LiveActivityController {
                                          pushType: nil)
         lastState = state
         lastUpdate = Date()
+        return activity != nil
     }
 
     /// Pushes a new state when something visible changed. The countdown itself ticks on its own

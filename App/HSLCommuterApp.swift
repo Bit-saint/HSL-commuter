@@ -18,7 +18,11 @@ struct HSLCommuterApp: App {
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             Task {
+                // A tracking session started in the background (left home) gets its Live Activity now.
+                model.session?.ensureLiveActivity()
+                await model.refreshWeather()
                 await model.handlePendingStart()
+                await model.places.evaluate()
                 await LeaveReminderScheduler.refresh(app: model)
             }
         }
@@ -36,6 +40,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
+        // Also runs when iOS relaunches us in the background for a geofence exit or a visit.
+        MainActor.assumeIsolated { AppModel.shared.bootstrap() }
         return true
     }
 
@@ -46,10 +52,13 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        if response.notification.request.content.categoryIdentifier == NotificationService.reminderCategory {
-            SharedStore.defaults.set(Date().timeIntervalSince1970, forKey: SharedStore.pendingStartKey)
-            await AppModel.shared.handlePendingStart()
+        guard response.notification.request.content.categoryIdentifier == NotificationService.reminderCategory else { return }
+        if response.actionIdentifier == NotificationService.wfhAction {
+            await MainActor.run { AppModel.shared.setWorkingFromHome(true) }
+            return
         }
+        SharedStore.defaults.set(Date().timeIntervalSince1970, forKey: SharedStore.pendingStartKey)
+        await AppModel.shared.handlePendingStart()
     }
 }
 

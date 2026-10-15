@@ -265,6 +265,19 @@ struct LiveTripSheet: View {
                     .buttonStyle(.plain)
                 }
             } else if let live = session.focusLeg {
+                if let d = session.disruptions.first {
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(d.summary).font(HSLFont.body(15))
+                            Text(d.consequence).font(HSLFont.caption(12)).opacity(0.9)
+                        }
+                        Spacer()
+                    }
+                    .padding(12)
+                    .background((d.severity == .severe ? HSLColor.red : HSLColor.orange).opacity(0.85),
+                                in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
                 RouteCard(session: session, live: live, onStop: onStop)
                 etaRow(live)
                 paceBanner(live)
@@ -290,6 +303,18 @@ struct LiveTripSheet: View {
                     .font(HSLFont.caption()).foregroundStyle(.secondary)
                 Text(riding ? (session.nextStopName(for: live) ?? live.leg.to.name) : (session.nextStopName(for: live).map { "Now near \($0)" } ?? live.headsign))
                     .font(HSLFont.title(19)).lineLimit(1)
+                HStack(spacing: 6) {
+                    if !riding, let platform = live.platform {
+                        Text(live.mode == .rail ? "Track \(platform)" : "Platform \(platform)")
+                            .font(HSLFont.caption(12)).padding(.horizontal, 7).padding(.vertical, 2)
+                            .background(live.platformChanged ? HSLColor.orange : Color.white.opacity(0.15), in: Capsule())
+                    }
+                    if let d = eta?.distanceRemaining, d > 50, eta?.isPassed == false {
+                        let km = d >= 1000 ? String(format: "%.1f km", d / 1000) : "\(Int(d)) m"
+                        let by = [.metro, .rail, .tram, .lightRail].contains(live.mode) ? "by rail" : (live.mode == .ferry ? "by sea" : "by road")
+                        Text("\(km) \(by)").font(HSLFont.caption(12)).foregroundStyle(.secondary)
+                    }
+                }
             }
             Spacer()
             if let eta {
@@ -326,7 +351,7 @@ struct LiveTripSheet: View {
                 Image(systemName: icon(pace.state)).font(.system(size: 26, weight: .bold))
                 VStack(alignment: .leading, spacing: 2) {
                     Text(pace.state.title).font(HSLFont.title(18))
-                    Text(pace.message(now: session.now)).font(HSLFont.caption()).opacity(0.9)
+                    Text(session.paceMessage).font(HSLFont.caption()).opacity(0.9)
                 }
                 Spacer()
                 if let v = pace.requiredSpeed, v > 0, pace.state != .atStop {

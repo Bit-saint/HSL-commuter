@@ -122,13 +122,13 @@ public struct ETAEstimator: Sendable {
             }
             let segLen = max(stops[k + 1].distanceAlong - stops[k].distanceAlong, 1)
             let remaining = max(stops[k + 1].distanceAlong - s, 0)
-            var run = model.runTime(pattern: pattern, from: k, at: now) * (remaining / segLen)
-            // Close to the next stop and moving: trust physics more.
-            if speed > 3, remaining < 400 {
-                let physics = remaining / speed + min(remaining / 80, 6) // braking allowance
-                run = 0.5 * run + 0.5 * physics
-            }
-            cursor = run
+            let modelled = model.runTime(pattern: pattern, from: k, at: now) * (remaining / segLen)
+            // Drive the rest of the road/rail from the current speed: curves, braking into the stop.
+            let physics = RouteKinematics.travelTime(along: pattern.polyline, from: s, to: stops[k + 1].distanceAlong,
+                                                     initialSpeed: speed, profile: .for(pattern.mode))
+            // Close to the stop the vehicle's own motion dominates; further away, the learned/scheduled time.
+            let w = remaining < 400 ? 0.7 : (pattern.followsRealGeometry ? 0.4 : 0.2)
+            cursor = w * physics + (1 - w) * modelled
         }
 
         // Walk the remaining stops up to the target.

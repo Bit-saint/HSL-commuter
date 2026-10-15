@@ -12,6 +12,10 @@ struct PlannedOption: Identifiable, Hashable {
     var arrival: Date
     var firstTransit: Leg?
     var totalWait: TimeInterval
+    /// HSL disruptions that touch this option, in plain language.
+    var disruptions: [Disruption] = []
+    /// How full the first vehicle is (0–100), when it's already running.
+    var occupancy: Int?
 
     var id: String { itinerary.id }
     var isRealtime: Bool { firstTransit?.isRealtime ?? false }
@@ -35,8 +39,13 @@ enum Planner {
             time = .departAt(now)
         }
         let itineraries = try await app.client.plan(from: origin ?? commute.origin.point, to: commute.destination.point,
-                                                    time: time, count: 6, walkSpeed: app.walkingSpeed)
-        let options = itineraries.map { option(for: $0, app: app) }
+                                                    time: time, count: 6, walkSpeed: app.effectiveWalkingSpeed)
+        await app.refreshAlerts()
+        let options = itineraries.map { it -> PlannedOption in
+            var o = option(for: it, app: app)
+            o.disruptions = DisruptionDigest.relevant(app.alerts, to: it, at: now)
+            return o
+        }
         let ranked = DepartureOptimizer.rank(
             options.map { CommuteOption(id: $0.id, leaveAt: $0.leaveAt, arrival: $0.arrival, totalWait: $0.totalWait, risks: []) },
             arriveBy: target, now: now)
@@ -49,11 +58,23 @@ enum Planner {
         return result
     }
 
+    /// Peeks at the live feed for how full each option's first vehicle is.
+    static func withOccupancy(_ options: [PlannedOption]) async -> [PlannedOption] {
+        var keys: [String: HFP.TripKey] = [:]
+        for o in options { if let k = o.firstTransit?.hfpKey { keys[o.id] = k } }
+        let found = await OccupancyProbe.probe(keys)
+        return options.map { o in
+            var o = o
+            o.occupancy = found[o.id] ?? o.occupancy
+            return o
+        }
+    }
+
     static func option(for itinerary: Itinerary, app: AppModel) -> PlannedOption {
         let first = itinerary.firstTransitLeg
         // Shift by the realtime delay of the first vehicle, and keep a boarding buffer.
         let delay = first.map { $0.start.timeIntervalSince($0.scheduledStart) } ?? 0
-        let buffer = (first.map { ModeProfile.for($0.mode).boardingBuffer } ?? 0) + app.extraBuffer
+        let buffer = (first.map { ModeProfile.for($0.mode).boardingBuffer } ?? 0) + app.effectiveBuffer
         let leaveAt = itinerary.start.addingTimeInterval(delay - buffer)
         var wait: TimeInterval = buffer
         var previousEnd: Date?
@@ -76,7 +97,13 @@ enum LeaveReminderScheduler {
         await app.notifications.cancel(prefix: "reminder-")
         var earliestNextLeave: Date?
 
+        let isHomeWork = { (c: Commute) in c.id == HomeWorkSetup.toWorkID || c.id == HomeWorkSetup.toHomeID }
+        let workday = app.dayStatus(on: now).isWorkday
+        await app.refreshWeather()
+        let weatherNote = app.weatherImpact.headline.map { " \($0)." } ?? ""
         for commute in app.allCommutes(on: now) where commute.remindersEnabled && commute.isActive(on: now) {
+            // Holidays, working-from-home days and calendar days off: no home ↔ work reminders.
+            if isHomeWork(commute) && !workday { continue }
             // Arrive-by commutes (to work) and leave-at commutes (from work) both get reminders.
             guard let anchor = commute.arriveBy(on: now) ?? commute.leaveAt(on: now),
                   anchor > now.addingTimeInterval(15 * 60) else { continue }
@@ -86,12 +113,12 @@ enum LeaveReminderScheduler {
             let stop = leg.from.name
             app.notifications.schedule(
                 id: "reminder-\(commute.id)-pre", at: best.leaveAt.addingTimeInterval(-10 * 60),
-                title: "Leave in 10 min",
-                body: "\(line) from \(stop) to \(commute.destination.name). Tap to start live tracking.",
-                category: NotificationService.reminderCategory)
+                title: "Leaving in 10 minutes",
+                body: "\(line) from \(stop) to \(commute.destination.name).\(weatherNote) Tap to start live tracking.",
+                sound: .soft, category: NotificationService.reminderCategory)
             app.notifications.schedule(
                 id: "reminder-\(commute.id)-go", at: best.leaveAt,
-                title: "Time to leave for \(line)",
+                title: "Time to head out for \(line)",
                 body: "Departs \(stop) at \(best.firstTransit?.start.formatted(date: .omitted, time: .shortened) ?? ""). Tap for live tracking.",
                 category: NotificationService.reminderCategory)
             earliestNextLeave = min(earliestNextLeave ?? best.leaveAt, best.leaveAt)

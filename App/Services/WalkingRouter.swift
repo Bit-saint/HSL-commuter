@@ -31,6 +31,31 @@ final class WalkingRouter {
         return (straight * (straight > 30 ? Self.detourFactor : 1), [a, b])
     }
 
+    /// Street-following shape through a bus trip's stops (driving directions stop to stop),
+    /// used when Digitransit has no route geometry. Nil if it couldn't do better than straight lines.
+    func roadShape(through stops: [GeoPoint]) async -> [GeoPoint]? {
+        guard stops.count >= 2, stops.count <= 80 else { return nil }
+        var shape: [GeoPoint] = []
+        var routed = 0
+        for (a, b) in zip(stops, stops.dropFirst()) {
+            let request = MKDirections.Request()
+            request.source = MKMapItem(placemark: MKPlacemark(coordinate: a.coordinate))
+            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: b.coordinate))
+            request.transportType = .automobile
+            var piece = [a, b]
+            if let route = try? await MKDirections(request: request).calculate().routes.first,
+               route.distance < a.distance(to: b) * 3 {  // reject wild detours (one-way systems etc.)
+                let poly = route.polyline
+                var coords = [CLLocationCoordinate2D](repeating: kCLLocationCoordinate2DInvalid, count: poly.pointCount)
+                poly.getCoordinates(&coords, range: NSRange(location: 0, length: poly.pointCount))
+                piece = coords.map { GeoPoint($0) }
+                routed += 1
+            }
+            shape.append(contentsOf: shape.isEmpty ? piece : Array(piece.dropFirst()))
+        }
+        return routed > 0 && shape.count > stops.count ? shape : nil
+    }
+
     func distance(from a: GeoPoint, to b: GeoPoint) async -> Double {
         let straight = a.distance(to: b)
         if straight < 60 { return straight }

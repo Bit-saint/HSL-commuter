@@ -50,6 +50,46 @@ struct SettingsView: View {
             }
 
             Section {
+                Toggle(isOn: $app.smart.autoStart) {
+                    Label("Start tracking automatically", systemImage: "location.circle.fill")
+                }
+                Toggle(isOn: $app.smart.learnPlaces) {
+                    Label("Learn my places and times", systemImage: "sparkles")
+                }
+            } header: { Text("Automatic") } footer: {
+                Text("Tracking starts when you leave home or work in your commute window, and detects when you get on and off. Learning stays on this phone.")
+            }
+
+            Section {
+                Toggle(isOn: $app.smart.voiceCues) { Label("Spoken cues", systemImage: "speaker.wave.2.fill") }
+                if app.smart.voiceCues {
+                    Toggle("Only with headphones", isOn: $app.smart.voiceHeadphonesOnly)
+                    Picker("Voice", selection: $app.smart.voiceLanguage) {
+                        Text("English").tag("en")
+                        Text("Suomi").tag("fi")
+                    }
+                    Button("Try it") {
+                        app.cues.say(app.smart.voiceLanguage == "fi"
+                                     ? "Kävele vähän reippaammin. Bussi 550 tulee 3 minuutin päästä."
+                                     : "Walk a bit faster. Bus 550 in 3 minutes.",
+                                     settings: SmartSettings(voiceHeadphonesOnly: false, voiceLanguage: app.smart.voiceLanguage),
+                                     urgent: true)
+                    }
+                }
+                Toggle(isOn: $app.smart.haptics) { Label("Haptic taps", systemImage: "iphone.radiowaves.left.and.right") }
+            } header: { Text("Cues") } footer: {
+                Text("One tap: time to go. Two taps: speed up. Three: run. Voice briefly lowers your music.")
+            }
+
+            Section {
+                Toggle(isOn: $app.smart.weatherAware) { Label("Weather-aware pace", systemImage: "cloud.snow.fill") }
+                Toggle(isOn: $app.smart.holidayAware) { Label("Skip Finnish holidays", systemImage: "flag.fill") }
+                Toggle(isOn: $app.smart.useCalendar) { Label("Use my calendar", systemImage: "calendar") }
+            } header: { Text("Your day") } footer: {
+                Text("Ice and snow slow your walking pace and add margin (FMI forecast). With the calendar on, an early first meeting moves your arrive-by time, and all-day “WFH”, “Loma” or “Vacation” events skip the day.")
+            }
+
+            Section {
                 SecureField("Digitransit API key", text: $app.apiKey)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()

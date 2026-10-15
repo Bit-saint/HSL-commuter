@@ -28,6 +28,9 @@ final class CommuteSession {
         var boardingETA: ETAEstimate?
         var alightingETA: ETAEstimate?
         var loadError: String?
+        /// Platform / track to board from (trains: live from Digitraffic).
+        var platform: String?
+        var platformChanged = false
 
         var mode: TransitMode { leg.mode }
         var line: String { leg.route?.shortName ?? mode.displayName }
@@ -45,6 +48,10 @@ final class CommuteSession {
     private(set) var missedLeg: Int?
     /// Set when a vehicle or connection is missed: the fastest alternatives and where to go.
     private(set) var recovery: RecoveryState?
+    /// Disruptions on this trip, in plain language.
+    private(set) var disruptions: [Disruption] = []
+    /// Started by leaving home/work, not by a tap.
+    let automatic: Bool
     /// Bumped every tick so views can animate.
     private(set) var tick = 0
     private(set) var now = Date()
@@ -61,8 +68,15 @@ final class CommuteSession {
     @ObservationIgnored private var lastFasterCheck = Date.distantPast
     /// Minutes saved by a suggestion the user turned down; only suggest again if clearly better.
     @ObservationIgnored private var declinedSaving = 0
+    @ObservationIgnored private var boarding = BoardingDetector()
+    @ObservationIgnored private var serviceSession: CLServiceSession?
+    @ObservationIgnored private var needsLiveActivity = true
+    @ObservationIgnored private var lastPlatformCheck = Date.distantPast
+    @ObservationIgnored private var lastAlertsCheck = Date.distantPast
+    @ObservationIgnored private var spoken: Set<String> = []
 
-    init(itinerary: Itinerary, destinationName: String, app: AppModel) {
+    init(itinerary: Itinerary, destinationName: String, app: AppModel, automatic: Bool = false) {
+        self.automatic = automatic
         self.itinerary = itinerary
         self.destinationName = destinationName
         self.app = app
@@ -70,7 +84,7 @@ final class CommuteSession {
         let first = itinerary.legs.firstIndex { $0.mode.isTransit } ?? 0
         self.phase = .walking(toLeg: first)
         for (i, leg) in itinerary.legs.enumerated() where leg.mode.isTransit {
-            legs[i] = LiveLeg(index: i, leg: leg)
+            legs[i] = LiveLeg(index: i, leg: leg, platform: leg.from.stop?.platform)
         }
     }
 
@@ -92,8 +106,11 @@ final class CommuteSession {
 
     func start() async {
         guard let app else { return }
-        // Keep running in the background like a navigation app.
+        // Keep running in the background like a navigation app. When we were started by a
+        // geofence in the background, the "Always" service session keeps location flowing.
         backgroundSession = CLBackgroundActivitySession()
+        serviceSession = CLServiceSession(authorization: .always)
+        app.motion.start()
         await feed.start()
 
         tasks.append(Task { [weak self] in await self?.consumeFeed() })
@@ -107,10 +124,22 @@ final class CommuteSession {
 
         await loadTrips(client: app.client)
         recompute()
-        if let state = activityState() {
-            app.liveActivity.start(destination: destinationName, state: state)
+        ensureLiveActivity()
+        if let live = focusLeg, !automatic {
+            let fi = app.smart.voiceLanguage == "fi"
+            app.cues.say(fi ? "Seuraan matkaasi. \(CueSpeaker.noun(live.mode, fi: true)) \(live.line)."
+                            : "Tracking your trip. \(CueSpeaker.noun(live.mode, fi: false)) \(live.line).", settings: app.smart)
         }
     }
+
+    /// Live Activities can only start while the app is in the foreground. If we started in the
+    /// background (geofence), this runs again when the app is opened.
+    func ensureLiveActivity() {
+        guard needsLiveActivity, let app, let state = activityState() else { return }
+        needsLiveActivity = !app.liveActivity.start(destination: destinationName, state: state)
+    }
+
+    var wantsLiveActivity: Bool { needsLiveActivity }
 
     func stop() {
         recoveryTask?.cancel()
@@ -118,6 +147,9 @@ final class CommuteSession {
         tasks.removeAll()
         backgroundSession?.invalidate()
         backgroundSession = nil
+        serviceSession?.invalidate()
+        serviceSession = nil
+        app?.motion.stop()
         let feed = self.feed
         Task { await feed.stop() }
         app?.liveActivity.end(final: activityState())
@@ -126,7 +158,9 @@ final class CommuteSession {
     /// User tapped "I'm on it".
     func confirmOnBoard() {
         switch phase {
-        case .walking(let i), .waiting(let i): phase = .riding(leg: i)
+        case .walking(let i), .waiting(let i):
+            phase = .riding(leg: i)
+            boarding = BoardingDetector(onBoard: true)
         default: break
         }
         recompute()
@@ -144,8 +178,14 @@ final class CommuteSession {
         for i in transitIndices {
             guard let leg = legs[i]?.leg, let trip = leg.trip else { continue }
             do {
-                let details = try await client.tripDetails(tripId: trip.tripId, serviceDate: trip.serviceDate)
-                let pattern = details.pattern()
+                var details = try await client.tripDetails(tripId: trip.tripId, serviceDate: trip.serviceDate)
+                var pattern = details.pattern()
+                // No real shape from Digitransit: route the bus along actual streets with MapKit.
+                if !pattern.followsRealGeometry, [.bus, .trunkBus, .uBus].contains(pattern.mode),
+                   let road = await app?.walking.roadShape(through: details.stops.map(\.location)) {
+                    details.shape = road
+                    pattern = details.pattern()
+                }
                 let tracker = TripTracker(pattern: pattern, learner: app?.learnedSegments)
                 legs[i]?.details = details
                 legs[i]?.tracker = tracker
@@ -227,8 +267,12 @@ final class CommuteSession {
             if let a = legs[i]?.alightIndex { legs[i]?.alightingETA = est.estimate(tracker, stop: a, target: .arrival, now: now) }
         }
 
+        detectBoarding()
         updatePhase()
         updateAdvice()
+        speakRideCues()
+        if now.timeIntervalSince(lastPlatformCheck) > 30 { lastPlatformCheck = now; Task { await checkPlatforms() } }
+        if now.timeIntervalSince(lastAlertsCheck) > 120 { lastAlertsCheck = now; Task { await checkDisruptions() } }
         // Alternatives go stale quickly; re-plan every minute while they're shown.
         if let r = recovery, !r.loading, !r.isSuggestion, now.timeIntervalSince(r.updatedAt) > 60 { refreshRecovery() }
         checkForFasterOption()
@@ -349,6 +393,125 @@ final class CommuteSession {
 
     private var user: GeoPoint? { userLocation.map { GeoPoint($0.coordinate) } }
 
+    // MARK: - Automatic boarding / alighting
+
+    private func detectBoarding() {
+        guard let app else { return }
+        let index: Int
+        switch phase {
+        case .walking(let i), .waiting(let i), .riding(let i): index = i
+        case .arrived: return
+        }
+        guard let live = legs[index], let tracker = live.tracker else { return }
+        let sample = BoardingDetector.Sample(
+            time: now, user: user, userAccuracy: userLocation?.horizontalAccuracy ?? 50,
+            userSpeed: userLocation.map { max($0.speed, 0) }, vehicle: tracker.displayLocation(at: now),
+            vehicleSpeed: tracker.currentSpeed, activity: app.motion.activity)
+        guard boarding.update(sample) else { return }
+        let riding: Bool = { if case .riding = phase { return true }; return false }()
+        if boarding.isOnBoard && !riding {
+            phase = .riding(leg: index)
+            app.cues.haptic(.gentle, settings: app.smart)
+        } else if !boarding.isOnBoard && riding {
+            // Got off (at your stop or elsewhere).
+            advance(after: index)
+        }
+    }
+
+    // MARK: - Spoken cues while riding / waiting
+
+    private func speakRideCues() {
+        guard let app, let live = focusLeg, let tracker = live.tracker else { return }
+        let fi = app.smart.voiceLanguage == "fi"
+        switch phase {
+        case .riding(let i):
+            // "Your stop is next" when the next stop is where you get off.
+            if let a = live.alightIndex, tracker.nextStopIndex(at: now) == a, !tracker.hasPassed(stop: a) {
+                var text = fi ? "Seuraava pysäkki on sinun: \(live.leg.to.name)." : "Your stop is next: \(live.leg.to.name)."
+                if let nextIndex = transitIndices.first(where: { $0 > i }), let next = legs[nextIndex],
+                   let dep = next.boardingETA {
+                    let m = Int(dep.expected.timeIntervalSince(now) / 60)
+                    let where_ = next.platform.map { fi ? ", laituri \($0)" : ", platform \($0)" } ?? ""
+                    text += fi ? " Sitten \(CueSpeaker.noun(next.mode, fi: true)) \(next.line) \(CueSpeaker.minutes(m, fi: true))\(where_)."
+                               : " Then \(CueSpeaker.noun(next.mode, fi: false)) \(next.line) \(CueSpeaker.minutes(m, fi: false))\(where_)."
+                }
+                speakOnce("next-stop-\(i)", text, haptic: .gentle)
+            }
+        case .waiting(let i):
+            // Vehicle about to pull in.
+            if let eta = live.boardingETA, !eta.isPassed, eta.expected.timeIntervalSince(now) < 50 {
+                let v = "\(CueSpeaker.noun(live.mode, fi: fi)) \(live.line)"
+                speakOnce("arriving-\(i)", fi ? "\(v) saapuu." : "\(v) is arriving.", haptic: .gentle)
+            }
+        default:
+            break
+        }
+    }
+
+    private func speakOnce(_ key: String, _ text: String, haptic: CueSpeaker.Haptic? = nil, urgent: Bool = false) {
+        guard let app, spoken.insert(key).inserted else { return }
+        app.cues.say(text, settings: app.smart, urgent: urgent)
+        if let haptic { app.cues.haptic(haptic, settings: app.smart) }
+    }
+
+    // MARK: - Platforms that change
+
+    private func checkPlatforms() async {
+        for i in transitIndices {
+            guard let live = legs[i], live.mode == .rail, let trip = live.details?.tripId,
+                  live.boardingETA?.isPassed != true else { continue }
+            guard let track = await feed.departureTrack(tripId: trip), !track.isEmpty else { continue }
+            let old = legs[i]?.platform
+            legs[i]?.platform = track
+            if let old, old != track {
+                legs[i]?.platformChanged = true
+                let fi = app?.smart.voiceLanguage == "fi"
+                alert(key: "track-\(i)-\(track)", title: "Track change: \(live.line) now leaves from track \(track)",
+                      body: "Was track \(old) at \(live.leg.from.name).", chime: .hurry)
+                speakOnce("track-\(i)-\(track)", fi ? "Raidemuutos. Junasi lähtee raiteelta \(track)."
+                                                     : "Track change. Your train now leaves from track \(track).",
+                          haptic: .attention, urgent: true)
+            }
+        }
+    }
+
+    // MARK: - Disruptions
+
+    private func checkDisruptions() async {
+        guard let app else { return }
+        await app.refreshAlerts()
+        let found = DisruptionDigest.relevant(app.alerts, to: itinerary, at: now)
+        disruptions = found
+        // A leg that won't run at all and that we haven't ridden yet: find another way.
+        let upcoming: Set<Int> = {
+            switch phase {
+            case .walking(let i), .waiting(let i): return Set(transitIndices.filter { $0 >= i })
+            case .riding(let i): return Set(transitIndices.filter { $0 > i })
+            case .arrived: return []
+            }
+        }()
+        for d in found where upcoming.contains(d.legIndex) {
+            alert(key: "disruption-\(d.id)", title: d.summary, body: d.consequence,
+                  chime: d.severity == .severe ? .hurry : .soft)
+            if d.alert.stopsService, recovery == nil {
+                startRecovery(.disruption(summary: d.summary), from: user ?? itinerary.legs[d.legIndex].from.location,
+                              readyAt: now)
+            }
+        }
+    }
+
+    // MARK: - Messages
+
+    /// Pace message with weather in mind ("Stay inside · leave in 4 min").
+    var paceMessage: String {
+        guard let pace else { return "" }
+        if let app, app.weatherImpact.waitIndoors, pace.state == .relax || pace.state == .leaveSoon {
+            let m = Int((pace.leaveAt?.timeIntervalSince(now) ?? 0) / 60)
+            return m > 0 ? "Stay inside · leave in \(m) min" : "Stay inside, almost time"
+        }
+        return pace.message(now: now)
+    }
+
     private func updatePhase() {
         switch phase {
         case .walking(let i), .waiting(let i):
@@ -359,8 +522,9 @@ final class CommuteSession {
             }
             // The vehicle left the boarding stop: did we get on?
             if let tracker = live.tracker, let b = live.boardIndex, tracker.hasPassed(stop: b) {
-                if userIsAboard(live) {
+                if userIsAboard(live) || boarding.isOnBoard {
                     phase = .riding(leg: i)
+                    boarding = BoardingDetector(onBoard: true)
                 } else if missedLeg != i {
                     missedLeg = i
                     startRecovery(.missed(line: live.line, stop: live.leg.from.name),
@@ -378,6 +542,7 @@ final class CommuteSession {
     }
 
     private func advance(after i: Int) {
+        boarding = BoardingDetector()
         if let next = transitIndices.first(where: { $0 > i }) {
             phase = .walking(toLeg: next)
             missedLeg = nil
@@ -406,8 +571,8 @@ final class CommuteSession {
             let stop = live.leg.from.location
             let distance = user.map { walkTracker.distance(from: $0, to: stop) } ?? live.leg.from.location.distance(to: stop)
             walkDistance = distance
-            let advisor = PaceAdvisor(walkingSpeed: app.walkingSpeed)
-            let buffer = ModeProfile.for(live.mode).boardingBuffer + app.extraBuffer
+            let advisor = PaceAdvisor(walkingSpeed: app.effectiveWalkingSpeed)
+            let buffer = ModeProfile.for(live.mode).boardingBuffer + app.effectiveBuffer
             let previous = pace?.state
             let advice = advisor.advise(walkDistance: user == nil ? 0 : distance, eta: eta, buffer: buffer,
                                         now: now, previous: previous)
@@ -421,7 +586,7 @@ final class CommuteSession {
             let walk = itinerary.legs[(i + 1)..<nextIndex].reduce(0.0) { $0 + $1.distance }
             let gap = walk > 0 ? walk : current.leg.to.location.distance(to: next.leg.from.location) * WalkingRouter.detourFactor
             let assessment = TransferGuard.assess(arrival: arrive, departure: depart, walkDistance: gap,
-                                                  walkingSpeed: app.walkingSpeed)
+                                                  walkingSpeed: app.effectiveWalkingSpeed)
             transfer = assessment
             switch assessment.risk {
             case .needsHurry:
@@ -442,18 +607,28 @@ final class CommuteSession {
 
     private func notifyIfEscalated(_ advice: PaceAdvice, live: LiveLeg, previous: PaceState?) {
         guard advice.state != previous else { return }
+        if let app {
+            let m = Int(((live.boardingETA?.expected ?? now).timeIntervalSince(now) / 60).rounded())
+            if let text = CueSpeaker.phrase(for: advice.state, previous: previous, mode: live.mode, line: live.line,
+                                            minutes: m, distance: advice.walkDistance,
+                                            waitIndoors: app.weatherImpact.waitIndoors,
+                                            fi: app.smart.voiceLanguage == "fi") {
+                app.cues.say(text, settings: app.smart, urgent: advice.state.urgency >= PaceState.run.urgency)
+            }
+            if let h = CueSpeaker.haptic(for: advice.state, previous: previous) { app.cues.haptic(h, settings: app.smart) }
+        }
         let stop = live.leg.from.name
         let mins = live.boardingETA.map { $0.minutesLabel(from: now) } ?? "?"
         switch advice.state {
         case .goNow:
-            alert(key: "go-\(live.index)", title: "Start walking to \(stop)",
-                  body: "\(live.line) arrives in \(mins) min. \(advice.message(now: now)).")
+            alert(key: "go-\(live.index)", title: "Time to head out",
+                  body: "\(live.line) reaches \(stop) in \(mins) min. A normal pace gets you there.", chime: .go)
         case .walkBriskly:
-            alert(key: "brisk-\(live.index)", title: "Walk briskly",
-                  body: "\(live.line) at \(stop) in \(mins) min · \(Int(advice.walkDistance)) m to go.")
+            alert(key: "brisk-\(live.index)", title: "A little faster",
+                  body: "\(live.line) at \(stop) in \(mins) min · \(Int(advice.walkDistance)) m to go.", chime: .hurry)
         case .run:
-            alert(key: "run-\(live.index)", title: "Run! \(live.line) in \(mins) min",
-                  body: "\(Int(advice.walkDistance)) m to \(stop).")
+            alert(key: "run-\(live.index)", title: "Run to make \(live.line)",
+                  body: "\(mins) min left, \(Int(advice.walkDistance)) m to \(stop).", chime: .hurry)
         case .willMiss:
             if previous != nil, recovery == nil {
                 startRecovery(.connectionAtRisk(line: live.line, stop: live.leg.from.name),
@@ -464,9 +639,9 @@ final class CommuteSession {
     }
 
     /// Posts each alert once per session, also as a Live Activity alert.
-    private func alert(key: String, title: String, body: String) {
+    private func alert(key: String, title: String, body: String, chime: NotificationService.Chime = .soft) {
         guard notified.insert(key).inserted, let app else { return }
-        app.notifications.post(id: "commute-\(key)", title: title, body: body)
+        app.notifications.post(id: "commute-\(key)", title: title, body: body, sound: chime)
         if let state = activityState() {
             app.liveActivity.update(state, alert: (title, body))
         }
@@ -541,10 +716,11 @@ final class CommuteSession {
         }
         return CommuteActivityAttributes.ContentState(
             phase: phaseValue, line: live.line, mode: live.mode, headsign: live.headsign,
-            stopName: riding ? live.leg.to.name : live.leg.from.name,
+            stopName: riding ? live.leg.to.name
+                : live.leg.from.name + (live.platform.map { live.mode == .rail ? " · track \($0)" : " · pl. \($0)" } ?? ""),
             eta: eta.expected, etaEarliest: eta.earliest, etaLatest: eta.latest,
             isLive: eta.source == .liveVehicle, pace: pace?.state ?? .relax,
-            paceMessage: pace?.message(now: now) ?? "", leaveAt: pace?.leaveAt,
+            paceMessage: paceMessage, leaveAt: pace?.leaveAt,
             progress: progress(for: live), nextStopName: nextStopName(for: live),
             occupancy: live.tracker?.occupancyPercent, transferNote: transferNote)
     }

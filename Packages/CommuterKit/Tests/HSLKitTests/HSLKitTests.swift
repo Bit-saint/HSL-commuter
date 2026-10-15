@@ -113,3 +113,48 @@ final class DigitransitDecodingTests: XCTestCase {
         XCTAssertEqual(bus.estimatedStart!.timeIntervalSince(bus.scheduledStart), 70, accuracy: 0.1)
     }
 }
+
+final class DisruptionTests: XCTestCase {
+    func testPlainLanguageForRouteOnTrip() {
+        let stop = StopRef(id: "HSL:1", name: "Kamppi", location: GeoPoint(latitude: 60.169, longitude: 24.932))
+        let leg = Leg(mode: .metro, scheduledStart: Date(), scheduledEnd: Date().addingTimeInterval(600), distance: 3000,
+                      from: Place(name: "Kamppi", location: stop.location, stop: stop),
+                      to: Place(name: "Ruoholahti", location: GeoPoint(latitude: 60.163, longitude: 24.914)),
+                      geometry: [], route: RouteRef(id: "HSL:31M2", shortName: "M2", mode: .metro))
+        let it = Itinerary(start: Date(), end: Date().addingTimeInterval(900), legs: [leg], walkDistance: 0)
+        let alerts = [
+            ServiceAlert(id: "a", header: "Metro M2 not running", description: "", severity: .warning, effect: "NO_SERVICE",
+                         routeId: "HSL:31M2", routeName: "M2", stopId: nil, stopName: nil, start: nil, end: nil),
+            ServiceAlert(id: "b", header: "Bus 550 detour", description: "", severity: .warning, effect: "DETOUR",
+                         routeId: "HSL:2550", routeName: "550", stopId: nil, stopName: nil, start: nil, end: nil),
+        ]
+        let d = DisruptionDigest.relevant(alerts, to: it)
+        XCTAssertEqual(d.count, 1)
+        XCTAssertEqual(d.first?.summary, "Metro M2 isn't running")
+        XCTAssertEqual(d.first?.severity, .severe)
+    }
+}
+
+final class FMIParserTests: XCTestCase {
+    func testParsesSimpleFeatures() {
+        let xml = """
+        <wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs/2.0" xmlns:BsWfs="http://xml.fmi.fi/schema/wfs/2.0">
+          <wfs:member><BsWfs:BsWfsElement>
+            <BsWfs:Time>2026-10-15T09:00:00Z</BsWfs:Time>
+            <BsWfs:ParameterName>Temperature</BsWfs:ParameterName>
+            <BsWfs:ParameterValue>-1.5</BsWfs:ParameterValue>
+          </BsWfs:BsWfsElement></wfs:member>
+          <wfs:member><BsWfs:BsWfsElement>
+            <BsWfs:Time>2026-10-15T09:00:00Z</BsWfs:Time>
+            <BsWfs:ParameterName>Precipitation1h</BsWfs:ParameterName>
+            <BsWfs:ParameterValue>NaN</BsWfs:ParameterValue>
+          </BsWfs:BsWfsElement></wfs:member>
+        </wfs:FeatureCollection>
+        """
+        let els = FMISimpleParser.parse(Data(xml.utf8))
+        XCTAssertEqual(els.count, 2)
+        XCTAssertEqual(els[0].name, "Temperature")
+        XCTAssertEqual(els[0].value, -1.5)
+        XCTAssertTrue(els[1].value.isNaN)
+    }
+}

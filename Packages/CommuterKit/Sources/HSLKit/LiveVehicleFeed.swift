@@ -14,7 +14,7 @@ public actor LiveVehicleFeed {
     private let rail: MQTTClient
     private let railAPI = DigitrafficRailClient()
     private var hfpTrips: [String: HFP.TripKey] = [:]           // tripId -> key
-    private var railTrips: [String: (number: Int, date: String)] = [:]
+    private var railTrips: [String: (number: Int, date: String, station: String)] = [:]
     private var stationsCache: [DigitrafficRailClient.Station]?
     private var pumps: [Task<Void, Never>] = []
     private var started = false
@@ -75,7 +75,7 @@ public actor LiveVehicleFeed {
                                                         scheduledDeparture: scheduledBoarding,
                                                         stations: stationsCache ?? []) {
                 let number = match.train.trainNumber, date = match.train.departureDate
-                railTrips[details.tripId] = (number, date)
+                railTrips[details.tripId] = (number, date, match.station.stationShortCode)
                 await rail.connect()
                 await rail.subscribe(DigitrafficRailClient.locationTopic(trainNumber: number, date: date))
                 // Seed with the latest known location right away.
@@ -95,6 +95,16 @@ public actor LiveVehicleFeed {
         if let t = railTrips.removeValue(forKey: tripId) {
             await rail.unsubscribe(DigitrafficRailClient.locationTopic(trainNumber: t.number, date: t.date))
         }
+    }
+
+    /// Current departure track at your boarding station, for trains (Digitraffic).
+    /// Returns nil for non-train trips or when unknown.
+    public func departureTrack(tripId: String) async -> String? {
+        guard let t = railTrips[tripId],
+              let train = try? await railAPI.train(number: t.number, date: t.date) else { return nil }
+        return train.timeTableRows.first {
+            $0.stationShortCode == t.station && $0.type == "DEPARTURE"
+        }?.commercialTrack
     }
 
     private func routeHFP(topic: HFP.Topic, obs: VehicleObservation) {

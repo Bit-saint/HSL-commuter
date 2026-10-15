@@ -84,6 +84,12 @@ public struct DigitransitClient: Sendable {
         } ?? []
     }
 
+    /// Current HSL service alerts (disruptions, detours, stop changes).
+    public func alerts() async throws -> [ServiceAlert] {
+        let data: GQLAlertsData = try await query(Queries.alerts, variables: [:])
+        return data.alerts?.compactMap { $0.toDomain() } ?? []
+    }
+
     // MARK: - Transport
 
     func query<T: Decodable>(_ query: String, variables: [String: Any]) async throws -> T {
@@ -92,6 +98,7 @@ public struct DigitransitClient: Sendable {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(apiKey, forHTTPHeaderField: "digitransit-subscription-key")
+        request.setValue("en", forHTTPHeaderField: "Accept-Language")
         request.httpBody = try JSONSerialization.data(withJSONObject: ["query": query, "variables": variables])
         request.timeoutInterval = 15
         let (data, response) = try await session.data(for: request)
@@ -144,7 +151,7 @@ enum Queries {
             to { name lat lon stop { gtfsId name code platformCode lat lon vehicleMode } }
             legGeometry { points }
             route { gtfsId shortName longName mode type }
-            trip { gtfsId directionId tripHeadsign }
+            trip { gtfsId directionId tripHeadsign departureStoptime { scheduledDeparture } }
           }
         } }
       }
@@ -157,6 +164,7 @@ enum Queries {
         gtfsId directionId tripHeadsign
         route { gtfsId shortName longName mode type }
         pattern { code geometry { lat lon } }
+        tripGeometry { points }
         stoptimesForDate(serviceDate: $date) {
           stop { gtfsId name code platformCode lat lon }
           scheduledArrival scheduledDeparture realtimeArrival realtimeDeparture
@@ -174,6 +182,17 @@ enum Queries {
           scheduledDeparture realtimeDeparture realtime serviceDay headsign
           trip { gtfsId directionId route { gtfsId shortName longName mode type } }
         }
+      }
+    }
+    """
+
+    static let alerts = """
+    query Alerts {
+      alerts(feeds: ["HSL"]) {
+        id alertHeaderText alertDescriptionText alertSeverityLevel alertEffect
+        effectiveStartDate effectiveEndDate
+        route { gtfsId shortName }
+        stop { gtfsId name }
       }
     }
     """
@@ -249,7 +268,13 @@ struct GQLPlace: Decodable {
 
 struct GQLLeg: Decodable {
     struct Geometry: Decodable { var points: String? }
-    struct Trip: Decodable { var gtfsId: String; var directionId: String?; var tripHeadsign: String? }
+    struct Trip: Decodable {
+        struct FirstStop: Decodable { var scheduledDeparture: Int? }
+        var gtfsId: String
+        var directionId: String?
+        var tripHeadsign: String?
+        var departureStoptime: FirstStop?
+    }
     var mode: String
     var distance: Double?
     var realTime: Bool?
@@ -270,7 +295,8 @@ struct GQLLeg: Decodable {
         let mode = routeRef?.mode ?? TransitMode.from(digitransitMode: self.mode)
         let tripRef = trip.map {
             TripRef(tripId: $0.gtfsId, directionId: Int($0.directionId ?? "0") ?? 0,
-                    serviceDate: (serviceDate ?? "").filter(\.isNumber), headsign: $0.tripHeadsign)
+                    serviceDate: (serviceDate ?? "").filter(\.isNumber), headsign: $0.tripHeadsign,
+                    firstDepartureSeconds: $0.departureStoptime?.scheduledDeparture)
         }
         return Leg(mode: mode, scheduledStart: s, scheduledEnd: e,
                    estimatedStart: DigitransitClient.parseDate(start.estimated?.time),
@@ -316,11 +342,17 @@ struct GQLTripData: Decodable {
         var directionId: String?
         var tripHeadsign: String?
         var route: GQLRoute
+        struct Geometry: Decodable { var points: String? }
         var pattern: Pattern?
+        var tripGeometry: Geometry?
         var stoptimesForDate: [Stoptime]?
 
         func toDomain(serviceDate: String) throws -> TripDetails {
             guard let times = stoptimesForDate, let first = times.first else { throw DigitransitError.notFound }
+            // The trip's own shape follows the actual streets/tracks; fall back to the pattern's.
+            let tripShape = tripGeometry?.points.map { Polyline.decodeGoogle($0) } ?? []
+            let patternShape = pattern?.geometry?.map { GeoPoint(latitude: $0.lat, longitude: $0.lon) } ?? []
+            let bestShape = tripShape.count >= patternShape.count ? tripShape : patternShape
             let stops: [PatternStop] = times.map { st in
                 let day = TimeInterval(st.serviceDay)
                 let hasRealtime = (st.realtime ?? false) && st.realtimeState != "CANCELED"
@@ -336,7 +368,7 @@ struct GQLTripData: Decodable {
             return TripDetails(
                 tripId: gtfsId, route: route.ref, directionId: Int(directionId ?? "0") ?? 0,
                 headsign: tripHeadsign ?? stops.last?.name ?? "", serviceDate: serviceDate,
-                shape: pattern?.geometry?.map { GeoPoint(latitude: $0.lat, longitude: $0.lon) } ?? [],
+                shape: bestShape,
                 stops: stops, firstDepartureSeconds: first.scheduledDeparture)
         }
     }
@@ -387,4 +419,32 @@ struct GQLNearbyData: Decodable {
     struct Edge: Decodable { var node: Node }
     struct Node: Decodable { var distance: Int?; var stop: GQLStop? }
     var stopsByRadius: Connection?
+}
+
+
+struct GQLAlertsData: Decodable {
+    struct Alert: Decodable {
+        struct Route: Decodable { var gtfsId: String; var shortName: String? }
+        struct Stop: Decodable { var gtfsId: String; var name: String? }
+        var id: String
+        var alertHeaderText: String?
+        var alertDescriptionText: String?
+        var alertSeverityLevel: String?
+        var alertEffect: String?
+        var effectiveStartDate: Double?
+        var effectiveEndDate: Double?
+        var route: Route?
+        var stop: Stop?
+
+        func toDomain() -> ServiceAlert? {
+            guard let header = alertHeaderText ?? alertDescriptionText else { return nil }
+            return ServiceAlert(
+                id: id, header: header, description: alertDescriptionText ?? "",
+                severity: ServiceAlert.Severity(raw: alertSeverityLevel), effect: alertEffect,
+                routeId: route?.gtfsId, routeName: route?.shortName, stopId: stop?.gtfsId, stopName: stop?.name,
+                start: effectiveStartDate.map { Date(timeIntervalSince1970: $0) },
+                end: effectiveEndDate.map { Date(timeIntervalSince1970: $0) })
+        }
+    }
+    var alerts: [Alert]?
 }

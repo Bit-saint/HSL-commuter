@@ -19,6 +19,24 @@ final class AppModel {
     /// Extra commutes (gym, school…), in addition to home ↔ work.
     var commutes: [Commute] { didSet { save() } }
     var hasCompletedSetup: Bool { didSet { save() } }
+    var smart: SmartSettings { didSet { save(); smartSettingsChanged(from: oldValue) } }
+
+    // MARK: Live context
+
+    /// Current weather and what it means for walking (FMI forecast).
+    var weather: WeatherConditions?
+    var weatherImpact: WeatherImpact {
+        guard smart.weatherAware, let weather else { return .neutral }
+        return WeatherImpact.assess(weather)
+    }
+    /// Your walking speed adjusted for today's weather.
+    var effectiveWalkingSpeed: Double { walkingSpeed * weatherImpact.walkingFactor }
+    /// Margin at the stop, including weather.
+    var effectiveBuffer: Double { extraBuffer + weatherImpact.extraBuffer }
+    /// Latest HSL alerts (refreshed every few minutes while the app runs).
+    var alerts: [ServiceAlert] = []
+    @ObservationIgnored private var alertsFetchedAt = Date.distantPast
+    @ObservationIgnored private var weatherFetchedAt = Date.distantPast
 
     // MARK: Services
 
@@ -26,6 +44,11 @@ final class AppModel {
     let walking = WalkingRouter()
     let notifications = NotificationService()
     let liveActivity = LiveActivityController()
+    let cues = CueSpeaker()
+    let motion = MotionService()
+    let calendarService = CalendarService()
+    let places = PlaceLearningService()
+    let autoStart = AutoStartMonitor()
     let learnedSegments: LearnedSegmentStore
 
     /// The running live commute, if any.
@@ -51,7 +74,26 @@ final class AppModel {
         } else {
             commutes = []
         }
+        if let data = defaults.data(forKey: "smart"), let s = try? JSONDecoder().decode(SmartSettings.self, from: data) {
+            smart = s
+        } else {
+            smart = SmartSettings()
+        }
         learnedSegments = Persistence.loadLearnedSegments()
+    }
+
+    /// Call once at launch (also on background relaunches for geofence/visit events).
+    func bootstrap() {
+        if smart.learnPlaces { places.start(app: self) }
+        Task { await autoStart.configure(app: self) }
+    }
+
+    private func smartSettingsChanged(from old: SmartSettings) {
+        if old.learnPlaces != smart.learnPlaces {
+            if smart.learnPlaces { places.start(app: self) } else { places.stop() }
+        }
+        if old.autoStart != smart.autoStart { Task { await autoStart.configure(app: self) } }
+        if smart.useCalendar && !old.useCalendar { Task { await calendarService.requestAccess() } }
     }
 
     private func save() {
@@ -61,6 +103,7 @@ final class AppModel {
         defaults.set(hasCompletedSetup, forKey: "hasCompletedSetup")
         if let data = try? JSONEncoder().encode(commutes) { defaults.set(data, forKey: "commutes") }
         if let data = try? JSONEncoder().encode(homeWork) { defaults.set(data, forKey: "homeWork") }
+        if let data = try? JSONEncoder().encode(smart) { defaults.set(data, forKey: "smart") }
     }
 
     func persistLearning() {
@@ -68,8 +111,54 @@ final class AppModel {
     }
 
     /// Home ↔ work for the given day (with that day's times) followed by the extra commutes.
+    /// With the calendar on, an early first meeting moves the arrive-by time earlier.
     func allCommutes(on date: Date = Date()) -> [Commute] {
-        homeWork.commutes(on: date) + commutes
+        var hw = homeWork.commutes(on: date)
+        if smart.useCalendar, hw.count == 2, let arrive = hw[0].arriveByMinutes,
+           let meeting = calendarService.firstMeetingMinutes(on: date, before: arrive + 60), meeting - 10 < arrive {
+            hw[0].arriveByMinutes = max(meeting - 10, 0)
+        }
+        return hw + commutes
+    }
+
+    /// Is this a commute day? Weekends, Finnish holidays, working-from-home and calendar days off are not.
+    func dayStatus(on date: Date = Date()) -> DayStatus {
+        let weekday = Calendar.current.component(.weekday, from: date)
+        if smart.holidayAware, let h = FinnishCalendar.holiday(on: date) {
+            return .dayOff(reason: h.name, symbol: "sparkles")
+        }
+        if homeWork.wfhDays.contains(FinnishCalendar.dayKey(date)) {
+            return .dayOff(reason: "Working from home", symbol: "house.fill")
+        }
+        if !homeWork.workdays.contains(weekday) {
+            return .dayOff(reason: "Not a workday", symbol: "sun.max.fill")
+        }
+        if smart.useCalendar, let title = calendarService.dayOffEvent(on: date) {
+            return .dayOff(reason: title, symbol: "calendar")
+        }
+        return .workday
+    }
+
+    func setWorkingFromHome(_ on: Bool, date: Date = Date()) {
+        let key = FinnishCalendar.dayKey(date)
+        if on { homeWork.wfhDays.insert(key) } else { homeWork.wfhDays.remove(key) }
+        // Keep the set small.
+        let cutoff = FinnishCalendar.dayKey(date.addingTimeInterval(-7 * 86_400))
+        homeWork.wfhDays = homeWork.wfhDays.filter { $0 >= cutoff }
+        Task { await LeaveReminderScheduler.refresh(app: self) }
+    }
+
+    func refreshWeather(near point: GeoPoint? = nil) async {
+        guard smart.weatherAware, Date().timeIntervalSince(weatherFetchedAt) > 15 * 60 else { return }
+        guard let p = point ?? location.current ?? homeWork.home?.point else { return }
+        weatherFetchedAt = Date()
+        weather = try? await FMIWeatherClient().conditions(at: p)
+    }
+
+    func refreshAlerts() async {
+        guard Date().timeIntervalSince(alertsFetchedAt) > 120, !apiKey.isEmpty else { return }
+        alertsFetchedAt = Date()
+        if let list = try? await client.alerts() { alerts = list }
     }
 
     /// The commute that makes sense right now: to work in the morning, home after the
@@ -94,9 +183,9 @@ final class AppModel {
 
     // MARK: Live sessions
 
-    func startSession(itinerary: Itinerary, destinationName: String) {
+    func startSession(itinerary: Itinerary, destinationName: String, automatic: Bool = false) {
         session?.stop()
-        let s = CommuteSession(itinerary: itinerary, destinationName: destinationName, app: self)
+        let s = CommuteSession(itinerary: itinerary, destinationName: destinationName, app: self, automatic: automatic)
         session = s
         Task { await s.start() }
     }
@@ -113,7 +202,7 @@ final class AppModel {
         let origin = await location.currentLocation().map { GeoPoint($0.coordinate) }
             ?? current.itinerary.legs.first?.from.location
         guard let origin,
-              let itineraries = try? await client.plan(from: origin, to: destination, count: 4, walkSpeed: walkingSpeed),
+              let itineraries = try? await client.plan(from: origin, to: destination, count: 4, walkSpeed: effectiveWalkingSpeed),
               let best = itineraries.map({ Planner.option(for: $0, app: self) })
                 .first(where: { $0.leaveAt > Date().addingTimeInterval(-60) }) else { return }
         startSession(itinerary: best.itinerary, destinationName: current.destinationName)
@@ -135,8 +224,10 @@ final class AppModel {
 
     /// Nudges the personal walking speed towards an observed one.
     func observeWalkingSpeed(_ v: Double) {
-        guard (0.7...2.3).contains(v) else { return }
-        walkingSpeed = walkingSpeed * 0.98 + v * 0.02
+        // Undo today's weather slowdown so icy days don't teach us you're a slow walker.
+        let normalized = v / weatherImpact.walkingFactor
+        guard (0.7...2.3).contains(normalized) else { return }
+        walkingSpeed = walkingSpeed * 0.98 + normalized * 0.02
     }
 }
 

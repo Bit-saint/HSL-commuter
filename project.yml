@@ -48,10 +48,12 @@ targets:
         UIUserInterfaceStyle: Dark
         NSSupportsLiveActivities: true
         NSSupportsLiveActivitiesFrequentUpdates: true
-        UIBackgroundModes: [location, fetch]
+        UIBackgroundModes: [location, fetch, audio]
         BGTaskSchedulerPermittedIdentifiers: [fi.hslcommuter.refresh]
         NSLocationWhenInUseUsageDescription: Your location is used to tell you when to leave and how fast to walk to your stop.
-        NSLocationAlwaysAndWhenInUseUsageDescription: Lets live tracking keep running with the screen locked during your commute.
+        NSLocationAlwaysAndWhenInUseUsageDescription: Lets tracking start by itself when you leave home or work, and keep running with the screen locked.
+        NSMotionUsageDescription: Motion tells the app when you get on and off, so you don't have to tap anything.
+        NSCalendarsFullAccessUsageDescription: Your first meeting can set the time you need to be at work, and days marked off skip reminders. Nothing is changed or shared.
         AppGroupID: $(APP_GROUP_ID)
         DigitransitAPIKey: $(DIGITRANSIT_API_KEY)
     settings:

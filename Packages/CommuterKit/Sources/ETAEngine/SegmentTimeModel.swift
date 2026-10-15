@@ -18,12 +18,15 @@ public struct ScheduleSegmentModel: SegmentTimeModel {
         let scheduled = b.scheduledArrival.timeIntervalSince(a.scheduledDeparture)
         let distance = max(b.distanceAlong - a.distanceAlong, 0)
         let profile = pattern.profile
-        // HSL timetables have minute precision; consecutive stops often share a minute.
-        // Never go below physics (top speed) and spread zero-minute segments by distance.
-        let physical = distance / profile.maxSpeed
-        let fallback = distance / (profile.maxSpeed * 0.45)
-        let raw = scheduled > 0 ? scheduled - dwellTime(pattern: pattern, at: index, at: time) * 0.5 : fallback
-        return max(raw, physical, 5)
+        // Physics along the real road/rail: curves, acceleration and braking.
+        let physics = index < pattern.physicsRunTimes.count ? pattern.physicsRunTimes[index] : distance / (profile.maxSpeed * 0.45)
+        // HSL timetables have minute precision; consecutive stops often share a minute,
+        // so a zero-minute segment falls back to physics alone.
+        guard scheduled > 0 else { return max(physics, 5) }
+        let scheduledRun = scheduled - dwellTime(pattern: pattern, at: index, at: time) * 0.5
+        // Trust the geometry more when we have the real shape.
+        let w = pattern.followsRealGeometry ? 0.45 : 0.15
+        return max(w * physics + (1 - w) * scheduledRun, distance / profile.maxSpeed, 5)
     }
 
     public func dwellTime(pattern: TripPattern, at index: Int, at time: Date) -> TimeInterval {

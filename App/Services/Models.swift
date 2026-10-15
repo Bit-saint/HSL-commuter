@@ -71,6 +71,8 @@ struct HomeWorkSetup: Codable, Hashable {
     var usesPerDayTimes = false
     var workdays: Set<Int> = [2, 3, 4, 5, 6]
     var remindersEnabled = true
+    /// Days marked "working from home" ("yyyy-MM-dd", Helsinki time).
+    var wfhDays: Set<String> = []
 
     static let toWorkID = UUID(uuidString: "00000000-0000-0000-0000-00000000A001")!
     static let toHomeID = UUID(uuidString: "00000000-0000-0000-0000-00000000A002")!
@@ -116,4 +118,34 @@ extension Int {
 extension GeoPoint {
     var coordinate: CLLocationCoordinate2D { CLLocationCoordinate2D(latitude: latitude, longitude: longitude) }
     init(_ c: CLLocationCoordinate2D) { self.init(latitude: c.latitude, longitude: c.longitude) }
+}
+
+
+/// Toggles for the automatic, "it just knows" features.
+struct SmartSettings: Codable, Hashable {
+    /// Start live tracking when you leave home/work in your commute window.
+    var autoStart = true
+    /// Spoken cues ("Walk a bit faster…").
+    var voiceCues = true
+    /// Only speak when headphones are connected.
+    var voiceHeadphonesOnly = true
+    /// "en" or "fi"
+    var voiceLanguage = "en"
+    var haptics = true
+    /// Slow walking pace and add margin for snow, ice, rain and wind.
+    var weatherAware = true
+    /// Skip Finnish public holidays.
+    var holidayAware = true
+    /// Use the first meeting as arrive-by time, and skip days marked off in the calendar.
+    var useCalendar = false
+    /// Learn home, work and your usual times from where you spend time.
+    var learnPlaces = true
+}
+
+/// Whether today is a commute day, and if not, why.
+enum DayStatus: Equatable {
+    case workday
+    case dayOff(reason: String, symbol: String)
+
+    var isWorkday: Bool { self == .workday }
 }

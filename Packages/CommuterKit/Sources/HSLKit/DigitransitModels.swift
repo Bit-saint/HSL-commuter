@@ -83,6 +83,13 @@ public struct Leg: Sendable, Codable, Hashable, Identifiable {
     }
 
     public var start: Date { estimatedStart ?? scheduledStart }
+
+    /// HFP key for this leg's vehicle, when the trip's first departure is known.
+    public var hfpKey: HFP.TripKey? {
+        guard let trip, let route, let first = trip.firstDepartureSeconds else { return nil }
+        return HFP.TripKey(routeGtfsId: route.id, gtfsDirectionId: trip.directionId,
+                           firstDepartureSeconds: first, serviceDay: trip.serviceDate)
+    }
     public var end: Date { estimatedEnd ?? scheduledEnd }
     public var duration: TimeInterval { end.timeIntervalSince(start) }
 }
@@ -92,12 +99,16 @@ public struct TripRef: Sendable, Codable, Hashable {
     public var directionId: Int
     public var serviceDate: String     // "yyyyMMdd"
     public var headsign: String?
+    /// Scheduled departure of the trip's first stop, seconds after service-day midnight.
+    public var firstDepartureSeconds: Int?
 
-    public init(tripId: String, directionId: Int, serviceDate: String, headsign: String? = nil) {
+    public init(tripId: String, directionId: Int, serviceDate: String, headsign: String? = nil,
+                firstDepartureSeconds: Int? = nil) {
         self.tripId = tripId
         self.directionId = directionId
         self.serviceDate = serviceDate
         self.headsign = headsign
+        self.firstDepartureSeconds = firstDepartureSeconds
     }
 }
 

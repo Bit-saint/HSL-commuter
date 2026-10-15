@@ -43,6 +43,8 @@ struct RecoveryState {
         case manual
         /// Your planned vehicle is running late and another route gets you there sooner.
         case fasterOption(line: String, minutesLate: Int, minutesSaved: Int)
+        /// A leg of your trip isn't running (HSL disruption).
+        case disruption(summary: String)
     }
 
     var reason: Reason
@@ -58,6 +60,7 @@ struct RecoveryState {
         case .connectionAtRisk(let line, let stop): return "You'll likely miss \(line) at \(stop)"
         case .manual: return "Missed your connection?"
         case .fasterOption(let line, let late, _): return "\(line) is running \(late) min late"
+        case .disruption(let summary): return summary
         }
     }
 
@@ -85,7 +88,7 @@ enum RecoveryPlanner {
     static func options(from origin: GeoPoint, readyAt: Date, to destination: GeoPoint,
                         originalArrival: Date, app: AppModel) async throws -> [RecoveryOption] {
         let itineraries = try await app.client.plan(from: origin, to: destination, time: .departAt(readyAt),
-                                                    count: 8, walkSpeed: app.walkingSpeed)
+                                                    count: 8, walkSpeed: app.effectiveWalkingSpeed)
         // Measure the real walk to each first stop.
         var walks: [String: (Double, [GeoPoint])] = [:]
         for it in itineraries {
@@ -104,9 +107,9 @@ enum RecoveryPlanner {
             return ConnectionRecovery.Candidate(
                 id: it.id, firstDeparture: leg.start, arrival: it.end, walkDistance: walk.0,
                 transfers: max(it.transitLegs.count - 1, 0),
-                boardingBuffer: ModeProfile.for(leg.mode).boardingBuffer + app.extraBuffer)
+                boardingBuffer: ModeProfile.for(leg.mode).boardingBuffer + app.effectiveBuffer)
         }
-        let ranked = ConnectionRecovery.rank(candidates, readyAt: readyAt, walkingSpeed: app.walkingSpeed)
+        let ranked = ConnectionRecovery.rank(candidates, readyAt: readyAt, walkingSpeed: app.effectiveWalkingSpeed)
         let byId = Dictionary(itineraries.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
 
         return ranked.prefix(4).compactMap { r in

@@ -219,3 +219,147 @@ final class RecoveryTests: XCTestCase {
         XCTAssertEqual(ConnectionRecovery.compassDirection(200), "south")
     }
 }
+
+final class KinematicsTests: XCTestCase {
+    func testStraightRoadTime() {
+        let p = makePattern(start: Date())
+        let t = RouteKinematics.travelTime(along: p.polyline, from: 0, to: 1000, profile: .for(.bus))
+        // Pure cruise would be 1000 / 12.5 / 0.78 ≈ 103 s; accelerating and braking add a bit.
+        XCTAssertGreaterThan(t, 103)
+        XCTAssertLessThan(t, 140)
+    }
+
+    func testCurvesAreSlowerThanStraight() {
+        // Zig-zag through intersections vs a straight road of the same length.
+        let o = GeoPoint(latitude: 60.17, longitude: 24.90)
+        let dLat = 100 / 111_195.0, dLon = 100 / (111_195.0 * cos(60.17 * .pi / 180))
+        var zig: [GeoPoint] = [o]
+        for i in 1...10 {
+            let last = zig.last!
+            zig.append(i % 2 == 1 ? GeoPoint(latitude: last.latitude + dLat, longitude: last.longitude)
+                                  : GeoPoint(latitude: last.latitude, longitude: last.longitude + dLon))
+        }
+        let curvy = Polyline(zig)
+        let straight = Polyline([o, GeoPoint(latitude: o.latitude + dLat * 10, longitude: o.longitude)])
+        let tc = RouteKinematics.travelTime(along: curvy, from: 0, to: curvy.length, profile: .for(.bus))
+        let ts = RouteKinematics.travelTime(along: straight, from: 0, to: straight.length, profile: .for(.bus))
+        XCTAssertEqual(curvy.length, straight.length, accuracy: 5)
+        XCTAssertGreaterThan(tc, ts * 1.2)
+    }
+
+    func testPatternHasPhysicsTimes() {
+        let p = makePattern(start: Date())
+        XCTAssertEqual(p.physicsRunTimes.count, p.stops.count - 1)
+        XCTAssertTrue(p.followsRealGeometry)
+    }
+}
+
+final class BoardingTests: XCTestCase {
+    func testBoardAndAlight() {
+        var d = BoardingDetector()
+        let base = GeoPoint(latitude: 60.17, longitude: 24.94)
+        var t = Date()
+        // Riding along: close to the vehicle, both moving.
+        for i in 0..<4 {
+            let p = GeoPoint(latitude: base.latitude + Double(i) * 0.0001, longitude: base.longitude)
+            d.update(.init(time: t, user: p, userSpeed: 8, vehicle: p, vehicleSpeed: 8, activity: .automotive))
+            t += 1
+        }
+        XCTAssertTrue(d.isOnBoard)
+        // Walking away after getting off.
+        let off = GeoPoint(latitude: base.latitude, longitude: base.longitude + 0.003)
+        for _ in 0..<4 {
+            d.update(.init(time: t, user: base, userSpeed: 1.3, vehicle: off, vehicleSpeed: 9, activity: .walking))
+            t += 1
+        }
+        XCTAssertFalse(d.isOnBoard)
+    }
+
+    func testWaitingNextToStoppedBusIsNotBoarding() {
+        var d = BoardingDetector()
+        let p = GeoPoint(latitude: 60.17, longitude: 24.94)
+        for _ in 0..<10 {
+            d.update(.init(time: Date(), user: p, userSpeed: 0, vehicle: p, vehicleSpeed: 0, activity: .stationary))
+        }
+        XCTAssertFalse(d.isOnBoard)
+    }
+}
+
+final class CalendarTests: XCTestCase {
+    func date(_ y: Int, _ m: Int, _ d: Int, _ h: Int = 12) -> Date {
+        FinnishCalendar.calendar.date(from: DateComponents(year: y, month: m, day: d, hour: h))!
+    }
+
+    func testEaster() {
+        XCTAssertTrue(FinnishCalendar.easter(2026) == (4, 5))
+        XCTAssertTrue(FinnishCalendar.easter(2025) == (4, 20))
+        XCTAssertTrue(FinnishCalendar.easter(2027) == (3, 28))
+    }
+
+    func testHolidays2026() {
+        XCTAssertEqual(FinnishCalendar.holiday(on: date(2026, 4, 3))?.name, "Good Friday")
+        XCTAssertEqual(FinnishCalendar.holiday(on: date(2026, 5, 14))?.name, "Ascension Day")
+        XCTAssertEqual(FinnishCalendar.holiday(on: date(2026, 6, 19))?.name, "Midsummer Eve")
+        XCTAssertEqual(FinnishCalendar.holiday(on: date(2026, 10, 31))?.name, "All Saints' Day")
+        XCTAssertEqual(FinnishCalendar.holiday(on: date(2026, 12, 6))?.name, "Independence Day")
+        XCTAssertNil(FinnishCalendar.holiday(on: date(2026, 10, 15)))
+    }
+}
+
+final class VisitLearnerTests: XCTestCase {
+    let home = GeoPoint(latitude: 60.20, longitude: 24.93)
+    let work = GeoPoint(latitude: 60.18, longitude: 24.83)
+
+    func at(_ day: Int, _ h: Int, _ m: Int = 0) -> Date {
+        // October 2026: 12th is a Monday.
+        FinnishCalendar.calendar.date(from: DateComponents(year: 2026, month: 10, day: day, hour: h, minute: m))!
+    }
+
+    func visits() -> [Visit] {
+        var v: [Visit] = []
+        for (i, day) in [12, 13, 14, 15, 16].enumerated() {
+            v.append(Visit(arrival: at(day - 1, 17, 30), departure: at(day, 7, 40), location: home))
+            v.append(Visit(arrival: at(day, 8, 20 + i), departure: at(day, 16, 35 + i), location: work))
+        }
+        return v
+    }
+
+    func testFindsHomeAndWork() {
+        let h = VisitLearner.suggestHome(from: visits())
+        XCTAssertNotNil(h)
+        XCTAssertLessThan(h!.distance(to: home), 20)
+        let w = VisitLearner.suggestWork(from: visits(), home: h)
+        XCTAssertNotNil(w)
+        XCTAssertLessThan(w!.distance(to: work), 20)
+    }
+
+    func testTypicalTimes() {
+        let t = VisitLearner.typicalTimes(from: visits(), work: work)
+        XCTAssertEqual(t.arrive, 8 * 60 + 20)   // median 8:22 → rounded to 8:20
+        XCTAssertEqual(t.leave, 16 * 60 + 35)   // median 16:37 → 16:35
+    }
+}
+
+final class WeatherTests: XCTestCase {
+    func testSlippery() {
+        let i = WeatherImpact.assess(WeatherConditions(temperature: -1, precipitation: 0.4, windSpeed: 3, time: Date()))
+        XCTAssertTrue(i.isSlippery)
+        XCTAssertLessThan(i.walkingFactor, 0.9)
+        XCTAssertGreaterThan(i.extraBuffer, 0)
+        XCTAssertTrue(i.waitIndoors)
+    }
+
+    func testMildDryDay() {
+        let i = WeatherImpact.assess(WeatherConditions(temperature: 12, precipitation: 0, windSpeed: 3, time: Date()))
+        XCTAssertEqual(i.walkingFactor, 1)
+        XCTAssertFalse(i.waitIndoors)
+        XCTAssertNil(i.headline)
+    }
+
+    func testDeepFreezeWaitsInside() {
+        let i = WeatherImpact.assess(WeatherConditions(temperature: -18, precipitation: 0, windSpeed: 2, time: Date()))
+        XCTAssertTrue(i.waitIndoors)
+        XCTAssertFalse(i.isSlippery)
+        XCTAssertNotNil(i.headline)
+    }
+}

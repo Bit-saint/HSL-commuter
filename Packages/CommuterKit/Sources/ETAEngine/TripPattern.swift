@@ -42,6 +42,10 @@ public struct TripPattern: Sendable {
     public var mode: TransitMode
     public var polyline: Polyline
     public var stops: [PatternStop]
+    /// Whether `polyline` follows the real road/rail or is just straight lines between stops.
+    public var followsRealGeometry: Bool
+    /// Physics-based running time between stop i and i+1 along the real geometry, seconds.
+    public private(set) var physicsRunTimes: [TimeInterval] = []
 
     public init(tripId: String, routeId: String, routeShortName: String, headsign: String, mode: TransitMode,
                 shape: [GeoPoint], stops: [PatternStop]) {
@@ -51,8 +55,11 @@ public struct TripPattern: Sendable {
         self.headsign = headsign
         self.mode = mode
         // Fall back to a straight-line shape through the stops when no geometry is available.
-        let line = Polyline(shape.count >= 2 ? shape : stops.map(\.location))
+        // A usable shape has more points than stops (otherwise it's just stop-to-stop lines).
+        let real = shape.count >= max(2, stops.count)
+        let line = Polyline(real ? shape : stops.map(\.location))
         self.polyline = line
+        self.followsRealGeometry = real
         // Place stops along the shape, keeping the order monotonic.
         var placed: [PatternStop] = []
         var hint: Double = 0
@@ -64,6 +71,17 @@ public struct TripPattern: Sendable {
             placed.append(stop)
         }
         self.stops = placed
+        let profile = SpeedProfile.for(mode)
+        self.physicsRunTimes = placed.indices.dropLast().map { i in
+            RouteKinematics.travelTime(along: line, from: placed[i].distanceAlong, to: placed[i + 1].distanceAlong,
+                                       profile: profile)
+        }
+    }
+
+    /// Meters left to drive along the road/rail from `s` to stop `index`.
+    public func remainingDistance(from s: Double, to index: Int) -> Double {
+        guard stops.indices.contains(index) else { return 0 }
+        return max(stops[index].distanceAlong - s, 0)
     }
 
     public var profile: ModeProfile { .for(mode) }
