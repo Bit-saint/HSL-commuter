@@ -31,10 +31,12 @@ struct RecoveryPanel: View {
                 Text(recovery.subtitle).font(HSLFont.caption()).opacity(0.9)
             }
             Spacer()
-            if recovery.loading { ProgressView().tint(.white) }
+            if recovery.loading { ProgressView().tint(recovery.isSuggestion ? .black : .white) }
         }
         .padding(14)
-        .background(recovery.isSuggestion ? HSLColor.blue : HSLColor.red,
+        // Running late is a heads-up (yellow); a miss or disruption is a problem (red).
+        .foregroundStyle(recovery.isSuggestion ? Color.black : Color.white)
+        .background(recovery.isSuggestion ? HSLColor.yellow : HSLColor.red,
                     in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 

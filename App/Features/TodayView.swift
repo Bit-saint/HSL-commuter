@@ -126,7 +126,7 @@ struct TodayView: View {
             let known = Dictionary(options.map { ($0.id, $0.occupancy) }, uniquingKeysWith: { a, _ in a })
             options = planned.map { o in var o = o; o.occupancy = known[o.id] ?? nil; return o }
             error = nil
-            options = await Planner.withOccupancy(options)
+            options = await Planner.withOccupancy(options, app: app)
         } catch {
             self.error = error.localizedDescription
         }
@@ -337,9 +337,17 @@ struct OptionExtras: View {
     let option: PlannedOption
 
     var body: some View {
-        if option.occupancy != nil || !option.disruptions.isEmpty {
+        if option.occupancy != nil || option.crowd != nil || !option.disruptions.isEmpty {
             VStack(alignment: .leading, spacing: 4) {
-                if let occ = option.occupancy {
+                if let crowd = option.crowd {
+                    // Rider reports beat the sensor: they're what people actually saw.
+                    HStack(spacing: 4) {
+                        Image(systemName: "person.2.fill")
+                        Text(crowd.label(now: Date()))
+                    }
+                    .font(HSLFont.caption(11))
+                    .foregroundStyle(Occupancy.color(crowd.level))
+                } else if let occ = option.occupancy {
                     let label = Occupancy.label(occ)
                     HStack(spacing: 4) {
                         Image(systemName: "person.2.fill")

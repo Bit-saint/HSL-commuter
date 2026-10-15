@@ -140,6 +140,10 @@ struct SmartSettings: Codable, Hashable {
     var useCalendar = false
     /// Learn home, work and your usual times from where you spend time.
     var learnPlaces = true
+    /// Now and then ask "how full is it?" while you ride.
+    var askOccupancy = true
+    /// Share those answers with other riders (needs CloudKit, see README).
+    var shareOccupancy = true
 }
 
 /// Whether today is a commute day, and if not, why.

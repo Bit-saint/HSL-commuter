@@ -49,6 +49,7 @@ final class AppModel {
     let calendarService = CalendarService()
     let places = PlaceLearningService()
     let autoStart = AutoStartMonitor()
+    let crowd = CrowdReportService()
     let learnedSegments: LearnedSegmentStore
 
     /// The running live commute, if any.
@@ -84,6 +85,10 @@ final class AppModel {
 
     /// Call once at launch (also on background relaunches for geofence/visit events).
     func bootstrap() {
+        // Lock Screen "how full?" buttons land here.
+        ReportOccupancyIntent.handler = { level in
+            AppModel.shared.session?.answerOccupancy(CrowdLevel(rawValue: level) ?? .standing)
+        }
         if smart.learnPlaces { places.start(app: self) }
         Task { await autoStart.configure(app: self) }
     }

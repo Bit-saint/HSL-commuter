@@ -16,7 +16,7 @@ See [PLAN.md](PLAN.md) for the design.
 - **Weather-aware.** FMI forecast and observations. Ice, snow and wind slow your assumed walking speed and add margin ("Slippery today: leave about 2 min earlier"). In cold, rain or wind it tells you to wait inside until it's time to leave.
 - **Platforms that change.** Train track from Digitraffic, shown prominently, with an alert and a spoken prompt if it changes.
 - **Disruptions in plain language.** HSL alerts matched to your exact trip ("Metro M2 isn't running. Your trip uses it. We'll find you another way."). A leg that isn't running triggers the fastest-alternative panel.
-- **How full it is.** Occupancy for the vehicle you're tracking, plus chips on the Today options for vehicles already on the road.
+- **How full it is, from riders.** On about 1 in 3 rides, a minute or so after you board, the app asks once: *How full is 550? Seats / Standing / Full*. You can answer with one tap in the app, on the notification, or with buttons right on the Lock Screen Live Activity. Answers are anonymous (trip, level and time only) and are shared with other riders through the CloudKit public database. Rider reports show on the trip view and on the Today options ("Standing · 3 riders, 4 min ago"); where no one has answered, the vehicle's own sensor reading (HFP) is used.
 - **Pace advice.** The app uses your walking distance (MapKit walking route) and your personal walking speed, which it learns while you walk. The states are: relax, leave soon, start walking, walk briskly, run, or you'll miss it.
 - **Transfer guard.** While you're on the first vehicle, the app checks whether you'll make the next one and warns you early.
 - **Home & Work setup.** Set your home, your work, the time you need to be at work and the time you leave work. You can use the same times every workday or different times per day. Mornings plan backwards from your arrival time; afternoons plan the first good departure after you leave work. The Today screen switches direction automatically at the middle of your working day.
@@ -44,8 +44,16 @@ Requirements: a Mac with **Xcode 16+**, an iPhone on **iOS 18+**, and a free or 
 
 **Free Apple ID notes**
 - The app has to be re-installed from Xcode every **7 days**. A paid account ($99/yr) makes it last a year.
-- If signing fails on the **Time Sensitive Notifications** entitlement, delete `com.apple.developer.usernotifications.time-sensitive` from `project.yml` and regenerate. Alerts then arrive as normal notifications.
-- If signing fails on **App Groups**, remove the `com.apple.security.application-groups` entries. Everything works except the home-screen widget, which will show "Open the app to plan". Live Activities don't need App Groups.
+- If signing fails on the **Time Sensitive Notifications** entitlement, delete that key from `Config/HSLCommuter.entitlements`. Alerts then arrive as normal notifications.
+- If signing fails on **App Groups**, remove the `com.apple.security.application-groups` entries from `Config/HSLCommuter.entitlements` and from `project.yml` (the widget target). Everything works except the home-screen widget, which will show "Open the app to plan". Live Activities don't need App Groups.
+
+**Sharing "how full is it?" with other riders (optional, paid account)**
+1. In `Config/Local.xcconfig` set `CROWD_SHARING = YES` and `ENTITLEMENTS_VARIANT = -CloudKit`, then run `xcodegen generate`.
+2. Build once and answer a "how full?" question, so CloudKit creates the `OccupancyReport` record type.
+3. In the CloudKit Console (container `iCloud.<your prefix>.commuter`), add indexes: `tripKey` queryable, `createdTimestamp` queryable and sortable.
+4. Friends who install your build (same team and container) see each other's reports.
+
+Without this, the app still asks, and your own answers are used on your phone.
 
 ## Project layout
 

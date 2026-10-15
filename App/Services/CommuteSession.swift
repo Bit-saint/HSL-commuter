@@ -49,6 +49,12 @@ final class CommuteSession {
     private(set) var missedLeg: Int?
     /// Set when a vehicle or connection is missed: the fastest alternatives and where to go.
     private(set) var recovery: RecoveryState?
+    /// "How full is it?" is being asked for this leg.
+    private(set) var occupancyAskLeg: Int?
+    /// Just answered: show a short thank-you.
+    private(set) var occupancyThanks = false
+    /// Rider reports per leg index.
+    private(set) var crowd: [Int: CrowdEstimate] = [:]
     /// Disruptions on this trip, in plain language.
     private(set) var disruptions: [Disruption] = []
     /// Started by leaving home/work, not by a tap.
@@ -75,6 +81,10 @@ final class CommuteSession {
     @ObservationIgnored private var lastPlatformCheck = Date.distantPast
     @ObservationIgnored private var lastAlertsCheck = Date.distantPast
     @ObservationIgnored private var spoken: Set<String> = []
+    @ObservationIgnored private var boardedAt: [Int: Date] = [:]
+    @ObservationIgnored private var askDecided: Set<Int> = []
+    @ObservationIgnored private var askedAt: Date?
+    @ObservationIgnored private var lastCrowdFetch = Date.distantPast
 
     init(itinerary: Itinerary, destinationName: String, app: AppModel, automatic: Bool = false) {
         self.automatic = automatic
@@ -272,6 +282,8 @@ final class CommuteSession {
         updatePhase()
         updateAdvice()
         speakRideCues()
+        maybeAskOccupancy()
+        if now.timeIntervalSince(lastCrowdFetch) > 60 { lastCrowdFetch = now; Task { await fetchCrowd() } }
         if now.timeIntervalSince(lastPlatformCheck) > 30 { lastPlatformCheck = now; Task { await checkPlatforms() } }
         if now.timeIntervalSince(lastAlertsCheck) > 120 { lastAlertsCheck = now; Task { await checkDisruptions() } }
         // Alternatives go stale quickly; re-plan every minute while they're shown.
@@ -412,11 +424,86 @@ final class CommuteSession {
         let riding: Bool = { if case .riding = phase { return true }; return false }()
         if boarding.isOnBoard && !riding {
             phase = .riding(leg: index)
+            boardedAt[index] = now
             app.cues.haptic(.gentle, settings: app.smart)
         } else if !boarding.isOnBoard && riding {
             // Got off (at your stop or elsewhere).
             advance(after: index)
         }
+    }
+
+    // MARK: - "How full is it?"
+
+    private func tripKey(_ live: LiveLeg) -> String? { live.details?.hfpKey.id ?? live.leg.hfpKey?.id }
+
+    private func maybeAskOccupancy() {
+        guard let app, app.smart.askOccupancy else { return }
+        // Stop asking after 3 minutes without an answer.
+        if let at = askedAt, now.timeIntervalSince(at) > 180 { occupancyAskLeg = nil; askedAt = nil }
+        guard case .riding(let i) = phase, occupancyAskLeg == nil, let live = legs[i], tripKey(live) != nil else { return }
+        if boardedAt[i] == nil { boardedAt[i] = now }
+        let since = boardedAt[i] ?? now
+        guard let ask = CrowdOccupancy.shouldAsk(onBoardFor: now.timeIntervalSince(since),
+                                                 alreadyDecided: askDecided.contains(i),
+                                                 roll: Double.random(in: 0..<1)) else { return }
+        askDecided.insert(i)
+        guard ask else { return }
+        occupancyAskLeg = i
+        askedAt = now
+        // Gentle, no sound: answer from the notification or the Lock Screen without opening the app.
+        let content = (title: "How full is \(live.line)?", body: "One tap helps other riders pick their ride.")
+        app.notifications.post(id: "occupancy-\(i)", title: content.title, body: content.body, sound: .soft,
+                               timeSensitive: false, category: NotificationService.occupancyCategory)
+        publish()
+    }
+
+    func answerOccupancy(_ level: CrowdLevel) {
+        guard let app, let i = occupancyAskLeg ?? currentLegIndex, let live = legs[i], let key = tripKey(live) else { return }
+        app.crowd.submit(tripKey: key, level: level, share: app.smart.shareOccupancy)
+        occupancyAskLeg = nil
+        askedAt = nil
+        askDecided.insert(i)
+        occupancyThanks = true
+        lastCrowdFetch = .distantPast
+        app.cues.haptic(.gentle, settings: app.smart)
+        publish()
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 4_000_000_000)
+            self?.occupancyThanks = false
+        }
+    }
+
+    func dismissOccupancyAsk() {
+        occupancyAskLeg = nil
+        askedAt = nil
+        publish()
+    }
+
+    private var currentLegIndex: Int? {
+        switch phase {
+        case .walking(let i), .waiting(let i), .riding(let i): return i
+        case .arrived: return nil
+        }
+    }
+
+    private func fetchCrowd() async {
+        guard let app else { return }
+        var keyForLeg: [Int: String] = [:]
+        for i in transitIndices { if let live = legs[i], let k = tripKey(live) { keyForLeg[i] = k } }
+        let found = await app.crowd.estimates(for: Array(keyForLeg.values))
+        var out: [Int: CrowdEstimate] = [:]
+        for (i, k) in keyForLeg { if let e = found[k] { out[i] = e } }
+        crowd = out
+    }
+
+    /// Best fullness text for a leg: rider reports first, then the vehicle's own sensor.
+    func fullness(for live: LiveLeg) -> (text: String, level: CrowdLevel)? {
+        if let e = crowd[live.index] { return (e.label(now: now), e.level) }
+        if let p = live.tracker?.occupancyPercent {
+            let level = CrowdOccupancy.level(fromPercent: p)
+            return ("\(level.title) · \(p)% full", level)
+        }
+        return nil
     }
 
     // MARK: - Spoken cues while riding / waiting
@@ -724,6 +811,7 @@ final class CommuteSession {
             isLive: eta.source == .liveVehicle, pace: pace?.state ?? .relax,
             paceMessage: paceMessage, leaveAt: pace?.leaveAt,
             progress: progress(for: live), nextStopName: nextStopName(for: live),
-            occupancy: live.tracker?.occupancyPercent, transferNote: transferNote)
+            occupancy: live.tracker?.occupancyPercent, transferNote: transferNote,
+            fullness: fullness(for: live)?.text, askOccupancy: occupancyAskLeg == live.index)
     }
 }

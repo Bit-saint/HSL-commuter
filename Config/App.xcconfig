@@ -3,5 +3,8 @@ BUNDLE_ID_PREFIX = com.example
 APP_GROUP_ID = group.$(BUNDLE_ID_PREFIX).commuter
 DEVELOPMENT_TEAM =
 DIGITRANSIT_API_KEY =
+// Share "how full is it?" answers via CloudKit (needs a paid Apple Developer account).
+CROWD_SHARING = NO
+ENTITLEMENTS_VARIANT =
 
 #include? "Local.xcconfig"

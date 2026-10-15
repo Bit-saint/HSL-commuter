@@ -363,3 +363,36 @@ final class WeatherTests: XCTestCase {
         XCTAssertNotNil(i.headline)
     }
 }
+
+final class CrowdTests: XCTestCase {
+    func testRecentReportsWin() {
+        let now = Date()
+        let reports = [
+            CrowdReport(tripKey: "t", level: .seats, time: now.addingTimeInterval(-25 * 60)),
+            CrowdReport(tripKey: "t", level: .seats, time: now.addingTimeInterval(-24 * 60)),
+            CrowdReport(tripKey: "t", level: .full, time: now.addingTimeInterval(-60)),
+        ]
+        let e = CrowdOccupancy.estimate(reports, now: now)
+        XCTAssertEqual(e?.level, .full)
+        XCTAssertEqual(e?.reports, 3)
+    }
+
+    func testOldReportsIgnored() {
+        let now = Date()
+        XCTAssertNil(CrowdOccupancy.estimate([CrowdReport(tripKey: "t", level: .seats,
+                                                          time: now.addingTimeInterval(-3600))], now: now))
+    }
+
+    func testAskOncePerRideAfterAMinute() {
+        XCTAssertNil(CrowdOccupancy.shouldAsk(onBoardFor: 30, alreadyDecided: false, roll: 0.1))
+        XCTAssertEqual(CrowdOccupancy.shouldAsk(onBoardFor: 90, alreadyDecided: false, roll: 0.1), true)
+        XCTAssertEqual(CrowdOccupancy.shouldAsk(onBoardFor: 90, alreadyDecided: false, roll: 0.9), false)
+        XCTAssertNil(CrowdOccupancy.shouldAsk(onBoardFor: 90, alreadyDecided: true, roll: 0.1))
+    }
+
+    func testLabel() {
+        let now = Date()
+        let e = CrowdEstimate(level: .standing, reports: 3, newest: now.addingTimeInterval(-240))
+        XCTAssertEqual(e.label(now: now), "Standing · 3 riders, 4 min ago")
+    }
+}

@@ -13,3 +13,25 @@ struct StartCommuteIntent: AppIntent {
         return .result()
     }
 }
+
+/// "How full is it?" answered from the Live Activity on the Lock Screen.
+/// Runs in the app process; the app installs `handler` at launch.
+struct ReportOccupancyIntent: LiveActivityIntent {
+    static let title: LocalizedStringResource = "Report How Full"
+    static let isDiscoverable = false
+
+    /// 0 = seats, 1 = standing, 2 = full
+    @Parameter(title: "Level") var level: Int
+
+    /// Set by the app target; nil in the widget extension.
+    nonisolated(unsafe) static var handler: (@MainActor (Int) -> Void)?
+
+    init() {}
+    init(level: Int) { self.level = level }
+
+    func perform() async throws -> some IntentResult {
+        let level = self.level
+        await MainActor.run { Self.handler?(level) }
+        return .result()
+    }
+}

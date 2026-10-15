@@ -52,7 +52,15 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        guard response.notification.request.content.categoryIdentifier == NotificationService.reminderCategory else { return }
+        let category = response.notification.request.content.categoryIdentifier
+        if category == NotificationService.occupancyCategory {
+            if let i = NotificationService.occupancyActions.firstIndex(of: response.actionIdentifier),
+               let level = CrowdLevel(rawValue: i) {
+                await MainActor.run { AppModel.shared.session?.answerOccupancy(level) }
+            }
+            return
+        }
+        guard category == NotificationService.reminderCategory else { return }
         if response.actionIdentifier == NotificationService.wfhAction {
             await MainActor.run { AppModel.shared.setWorkingFromHome(true) }
             return

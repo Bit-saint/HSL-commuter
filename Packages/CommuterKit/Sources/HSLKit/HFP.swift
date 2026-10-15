@@ -44,6 +44,9 @@ public enum HFP {
             }
         }
 
+        /// Stable id for this trip, the same for every rider (used for shared occupancy reports).
+        public var id: String { "\(route)|\(direction)|\(startTime)|\(operatingDay)" }
+
         /// Topic filter that only matches this trip's vehicle (all event types).
         /// /hfp/v2/journey/ongoing/<event>/<mode>/<oper>/<veh>/<route>/<dir>/<headsign>/<start>/<next_stop>/<geohash…>
         public var topicFilter: String {

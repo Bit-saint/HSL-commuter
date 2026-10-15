@@ -9,6 +9,8 @@ final class NotificationService {
     static let reminderCategory = "COMMUTE_REMINDER"
     static let startAction = "START_TRACKING"
     static let wfhAction = "WFH_TODAY"
+    static let occupancyCategory = "OCCUPANCY_ASK"
+    static let occupancyActions = ["OCC_SEATS", "OCC_STANDING", "OCC_FULL"]
     static let thread = "commute"
 
     enum Chime {
@@ -30,7 +32,13 @@ final class NotificationService {
         let start = UNNotificationAction(identifier: Self.startAction, title: "Start live tracking", options: [.foreground])
         let wfh = UNNotificationAction(identifier: Self.wfhAction, title: "Working from home today", options: [])
         let category = UNNotificationCategory(identifier: Self.reminderCategory, actions: [start, wfh], intentIdentifiers: [])
-        center.setNotificationCategories([category])
+        let occ = UNNotificationCategory(
+            identifier: Self.occupancyCategory,
+            actions: zip(Self.occupancyActions, ["Seats free", "Standing room", "Full"]).map {
+                UNNotificationAction(identifier: $0.0, title: $0.1, options: [])
+            },
+            intentIdentifiers: [])
+        center.setNotificationCategories([category, occ])
     }
 
     func post(id: String, title: String, body: String, sound: Chime = .go, timeSensitive: Bool = true,

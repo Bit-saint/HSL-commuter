@@ -37,6 +37,7 @@ final class LiveActivityController {
             old.phase != state.phase || old.pace != state.pace || old.line != state.line ||
                 abs(old.eta.timeIntervalSince(state.eta)) >= 20 || old.stopName != state.stopName ||
                 old.transferNote != state.transferNote || old.nextStopName != state.nextStopName ||
+                old.askOccupancy != state.askOccupancy || old.fullness != state.fullness ||
                 abs(old.progress - state.progress) > 0.05
         } ?? true
         guard significant || alert != nil || now.timeIntervalSince(lastUpdate) > 60 else { return }

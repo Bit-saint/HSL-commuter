@@ -5,3 +5,8 @@ BUNDLE_ID_PREFIX = com.yourname
 DEVELOPMENT_TEAM = 
 // Free key from https://portal-api.digitransit.fi (can also be entered in the app)
 DIGITRANSIT_API_KEY = 
+// Share "how full is it?" answers with other riders through CloudKit.
+// Needs a paid Apple Developer account (iCloud capability). Friends share reports when
+// they install a build from the same team and container.
+// CROWD_SHARING = YES
+// ENTITLEMENTS_VARIANT = -CloudKit

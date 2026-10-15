@@ -63,7 +63,11 @@ private struct LockScreenView: View {
                 Countdown(state: state, size: 34)
             }
             ProgressBar(progress: state.progress, color: HSLColor.mode(state.mode))
-            PaceStrip(state: state)
+            if state.askOccupancy {
+                OccupancyButtons(line: state.line)
+            } else {
+                PaceStrip(state: state)
+            }
             if let note = state.transferNote {
                 Label(note, systemImage: "arrow.triangle.swap").font(HSLFont.caption(12)).foregroundStyle(.secondary)
             }
@@ -140,10 +144,29 @@ private struct PaceStrip: View {
                 Text("Next stop").font(HSLFont.caption(12)).foregroundStyle(.secondary)
                 Text(next).font(HSLFont.body(14))
                 Spacer()
-                if let occ = state.occupancy {
-                    let label = Occupancy.label(occ)
-                    Text(label.0).font(HSLFont.caption(12)).foregroundStyle(label.1)
+                if let full = state.fullness {
+                    Text(full).font(HSLFont.caption(12)).foregroundStyle(.secondary).lineLimit(1)
                 }
+            }
+        }
+    }
+}
+
+/// One-tap "how full is it?" right on the Lock Screen (runs in the app via ReportOccupancyIntent).
+private struct OccupancyButtons: View {
+    let line: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text("How full is \(line)?").font(HSLFont.caption(12)).lineLimit(1)
+            Spacer(minLength: 4)
+            ForEach(CrowdLevel.allCases, id: \.self) { level in
+                Button(intent: ReportOccupancyIntent(level: level.rawValue)) {
+                    Text(level.title).font(HSLFont.caption(12))
+                        .padding(.horizontal, 8).padding(.vertical, 5)
+                }
+                .buttonStyle(.plain)
+                .background(Occupancy.color(level).opacity(0.3), in: Capsule())
             }
         }
     }

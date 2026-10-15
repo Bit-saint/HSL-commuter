@@ -16,6 +16,8 @@ struct PlannedOption: Identifiable, Hashable {
     var disruptions: [Disruption] = []
     /// How full the first vehicle is (0–100), when it's already running.
     var occupancy: Int?
+    /// What riders on that vehicle reported.
+    var crowd: CrowdEstimate?
 
     var id: String { itinerary.id }
     var isRealtime: Bool { firstTransit?.isRealtime ?? false }
@@ -59,13 +61,16 @@ enum Planner {
     }
 
     /// Peeks at the live feed for how full each option's first vehicle is.
-    static func withOccupancy(_ options: [PlannedOption]) async -> [PlannedOption] {
+    static func withOccupancy(_ options: [PlannedOption], app: AppModel) async -> [PlannedOption] {
         var keys: [String: HFP.TripKey] = [:]
         for o in options { if let k = o.firstTransit?.hfpKey { keys[o.id] = k } }
-        let found = await OccupancyProbe.probe(keys)
+        async let sensors = OccupancyProbe.probe(keys)
+        let riders = await app.crowd.estimates(for: keys.values.map(\.id))
+        let found = await sensors
         return options.map { o in
             var o = o
             o.occupancy = found[o.id] ?? o.occupancy
+            o.crowd = keys[o.id].flatMap { riders[$0.id] }
             return o
         }
     }

@@ -77,8 +77,15 @@ struct SettingsView: View {
                     }
                 }
                 Toggle(isOn: $app.smart.haptics) { Label("Haptic taps", systemImage: "iphone.radiowaves.left.and.right") }
+                Toggle(isOn: $app.smart.askOccupancy) { Label("Ask how full it is", systemImage: "person.2.fill") }
+                if app.smart.askOccupancy {
+                    Toggle("Share answers with other riders", isOn: $app.smart.shareOccupancy)
+                        .disabled(!app.crowd.sharingAvailable)
+                }
             } header: { Text("Cues") } footer: {
-                Text("One tap: time to go. Two taps: speed up. Three: run. Voice briefly lowers your music.")
+                Text("One tap: time to go. Two taps: speed up. Three: run. Voice briefly lowers your music. "
+                     + "Now and then we ask how full your ride is; answers are anonymous"
+                     + (app.crowd.sharingAvailable ? " and shared with other riders." : ". Sharing needs iCloud (see README)."))
             }
 
             Section {

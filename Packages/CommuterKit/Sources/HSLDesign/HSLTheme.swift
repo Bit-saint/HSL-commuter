@@ -155,8 +155,24 @@ public struct InfoTile<Content: View>: View {
     }
 }
 
-/// HFP `occu` percent to a friendly label.
+/// HFP `occu` percent and rider reports to friendly labels and colours.
 public enum Occupancy {
+    public static func color(_ level: CrowdLevel) -> Color {
+        switch level {
+        case .seats: return HSLColor.green
+        case .standing: return HSLColor.yellow
+        case .full: return HSLColor.red
+        }
+    }
+
+    public static func symbol(_ level: CrowdLevel) -> String {
+        switch level {
+        case .seats: return "chair.fill"
+        case .standing: return "figure.stand"
+        case .full: return "person.3.fill"
+        }
+    }
+
     public static func label(_ percent: Int?) -> (String, Color) {
         guard let p = percent else { return ("No data", Color.gray) }
         switch p {

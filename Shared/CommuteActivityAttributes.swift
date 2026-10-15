@@ -30,6 +30,10 @@ struct CommuteActivityAttributes: ActivityAttributes {
         var occupancy: Int?
         /// e.g. "Metro M1 · 3 min to change · tight"
         var transferNote: String?
+        /// "Standing · 3 riders, 2 min ago" or "Seats · 31% full"
+        var fullness: String? = nil
+        /// Show the "How full is it?" buttons.
+        var askOccupancy: Bool = false
     }
 
     var destinationName: String

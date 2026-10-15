@@ -295,7 +295,7 @@ struct LiveTripSheet: View {
                 RouteCard(session: session, live: live, onStop: onStop)
                 etaRow(live)
                 paceBanner(live)
-                tiles(live)
+                OccupancyAskCard(session: session, live: live)
                 actions(live)
             } else {
                 arrivedView
@@ -328,6 +328,11 @@ struct LiveTripSheet: View {
                         let by = [.metro, .rail, .tram, .lightRail].contains(live.mode) ? "by rail" : (live.mode == .ferry ? "by sea" : "by road")
                         Text("\(km) \(by)").font(HSLFont.caption(12)).foregroundStyle(.secondary)
                     }
+                }
+                if let full = session.fullness(for: live) {
+                    Label(full.text, systemImage: "person.2.fill")
+                        .font(HSLFont.caption(12))
+                        .foregroundStyle(Occupancy.color(full.level))
                 }
             }
             Spacer()
@@ -423,28 +428,6 @@ struct LiveTripSheet: View {
     }
 
     @ViewBuilder
-    private func tiles(_ live: CommuteSession.LiveLeg) -> some View {
-        let occ = Occupancy.label(live.tracker?.occupancyPercent)
-        HStack(spacing: 8) {
-            InfoTile("How full", dot: occ.1) {
-                Text(occ.0).font(HSLFont.title(18)).foregroundStyle(occ.1)
-                if let p = live.tracker?.occupancyPercent {
-                    Text("\(p)% full").font(HSLFont.caption(11)).foregroundStyle(.secondary)
-                }
-            }
-            InfoTile("Speed") {
-                Text("\(Int(((live.tracker?.currentSpeed ?? 0) * 3.6).rounded()))").font(HSLFont.title(18))
-                Text("km/h").font(HSLFont.caption(11)).foregroundStyle(.secondary)
-            }
-            InfoTile("Arrive") {
-                let end = live.alightingETA?.expected ?? live.leg.end
-                Text(end.formatted(date: .omitted, time: .shortened)).font(HSLFont.title(18))
-                Text(live.leg.to.name).font(HSLFont.caption(11)).foregroundStyle(.secondary).lineLimit(1)
-            }
-        }
-    }
-
-    @ViewBuilder
     private func actions(_ live: CommuteSession.LiveLeg) -> some View {
         HStack(spacing: 10) {
             Button(action: onStop) {
@@ -529,5 +512,52 @@ struct RouteCard: View {
         .background(
             LinearGradient(colors: [color, color.opacity(0.7)], startPoint: .top, endPoint: .bottom),
             in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+}
+
+
+/// "How full is 550?" asked now and then while you ride. One tap, shared with other riders.
+struct OccupancyAskCard: View {
+    let session: CommuteSession
+    let live: CommuteSession.LiveLeg
+
+    var body: some View {
+        if session.occupancyThanks {
+            Label("Thanks! That helps other riders.", systemImage: "heart.fill")
+                .font(HSLFont.body(14))
+                .frame(maxWidth: .infinity)
+                .padding(12)
+                .background(HSLColor.green.opacity(0.25), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .transition(.opacity)
+        } else if session.occupancyAskLeg == live.index {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("How full is \(live.line)?").font(HSLFont.title(17))
+                    Spacer()
+                    Button { session.dismissOccupancyAsk() } label: {
+                        Image(systemName: "xmark").font(.system(size: 12, weight: .bold)).opacity(0.6)
+                    }
+                    .buttonStyle(.plain)
+                }
+                HStack(spacing: 8) {
+                    ForEach(CrowdLevel.allCases, id: \.self) { level in
+                        Button { session.answerOccupancy(level) } label: {
+                            VStack(spacing: 4) {
+                                Image(systemName: Occupancy.symbol(level)).font(.system(size: 18, weight: .semibold))
+                                Text(level.title).font(HSLFont.caption(13))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(Occupancy.color(level).opacity(0.22), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .foregroundStyle(Occupancy.color(level))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .padding(12)
+            .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
     }
 }
