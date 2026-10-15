@@ -8,6 +8,13 @@ public struct StationMap: Codable, Sendable {
     public var attribution: String?
     public var stations: [Station]
 
+    public init(version: Int, generated: String?, attribution: String?, stations: [Station]) {
+        self.version = version
+        self.generated = generated
+        self.attribution = attribution
+        self.stations = stations
+    }
+
     public static func decode(_ data: Data) throws -> StationMap {
         try JSONDecoder().decode(StationMap.self, from: data)
     }
