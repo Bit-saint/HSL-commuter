@@ -12,3 +12,7 @@ Packages/CommuterKit/.build/
 Config/Local.xcconfig
 
 .DS_Store
+
+# Station builder download cache
+tools/stations/.cache/
+__pycache__/

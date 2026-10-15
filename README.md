@@ -55,6 +55,19 @@ Requirements: a Mac with **Xcode 16+**, an iPhone on **iOS 18+**, and a free or 
 
 Without this, the app still asks, and your own answers are used on your phone.
 
+## Station maps (indoor walking directions)
+
+`tools/stations/build_stations.py` builds the indoor layout of every metro station, train station and major bus terminal from OpenStreetMap and Digitransit: entrances, levels, platforms, escalators, stairs, lifts and a walkable path network. The app bundles the result and routes through it ("Take the escalator down to level -1, walk 60 m to platform 2"), with a step-free option.
+
+```
+export DIGITRANSIT_API_KEY=...
+python3 tools/stations/build_stations.py                 # all stations (~10 min, cached in tools/stations/.cache)
+python3 tools/stations/build_stations.py --only Kamppi   # quick look at one
+python3 -m unittest discover -s tools/stations            # offline tests
+```
+
+It writes `App/Resources/Stations/stations.json` and `docs/stations/coverage.md`. The report rates each station *complete*, *partial* or *empty* and lists exactly what's missing in OpenStreetMap (entrances, platform levels, escalators, lifts, gaps in corridors), so you know where hand-mapping is needed.
+
 ## Project layout
 
 ```

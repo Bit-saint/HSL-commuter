@@ -396,3 +396,48 @@ final class CrowdTests: XCTestCase {
         XCTAssertEqual(e.label(now: now), "Standing · 3 riders, 4 min ago")
     }
 }
+
+final class StationMapTests: XCTestCase {
+    /// Entrance (0) → escalator down (0;-1) → corridor → platform 1, plus a lift and a stairs alternative.
+    let json = """
+    {"version":1,"stations":[{"id":"HSL:1000005","name":"Kamppi","kind":"metro","center":[60.169,24.931],
+     "levels":[-1,0],"status":"complete","score":1,
+     "entrances":[{"id":"n1","pos":[60.169,24.931],"level":0,"ref":"A","graphNode":0}],
+     "platforms":[{"id":"w110","ref":"1","level":-1,"line":[[60.1698,24.9308],[60.1698,24.9316]],"gtfsStops":["HSL:1040601"]}],
+     "connectors":[{"id":"w101","kind":"escalator","levels":[-1,0],"line":[[60.169,24.931],[60.1693,24.931]]}],
+     "graph":{"nodes":[[60.169,24.931,0],[60.1693,24.931,-1],[60.1696,24.931,-1],[60.1698,24.9312,-1],
+                       [60.1690,24.9312,0],[60.1693,24.9312,-1]],
+              "edges":[[0,1,33.4,"escalator",0],[1,2,33.4,"walk",0],[2,3,25,"walk",0],
+                       [0,4,11,"walk",0],[4,5,33.4,"elevator",0],[5,2,33.4,"walk",0]]},
+     "stops":[{"id":"HSL:1040601","platform":"1","pos":[60.1698,24.9312]}],
+     "missing":[]}]}
+    """
+
+    func map() throws -> StationMap { try StationMap.decode(Data(json.utf8)) }
+
+    func testDecodeAndLookup() throws {
+        let m = try map()
+        let s = try XCTUnwrap(m.station(servingStop: "HSL:1040601"))
+        XCTAssertEqual(s.name, "Kamppi")
+        XCTAssertEqual(s.graph.edges.first?.kind, .escalator)
+        XCTAssertNotNil(m.station(near: GeoPoint(latitude: 60.1691, longitude: 24.9311)))
+        XCTAssertNil(m.station(near: GeoPoint(latitude: 60.20, longitude: 25.0)))
+    }
+
+    func testRouteUsesEscalator() throws {
+        let s = try XCTUnwrap(try map().stations.first)
+        let r = try XCTUnwrap(StationRouter().route(in: s, fromEntrance: s.entrances[0], toStop: "HSL:1040601"))
+        XCTAssertEqual(r.steps.first?.kind, .escalator)
+        XCTAssertEqual(r.steps.first?.instruction, "Take the escalator down to level -1")
+        XCTAssertEqual(r.steps.last?.kind, .walk)
+        XCTAssertTrue(r.steps.last?.instruction.hasPrefix("Walk ") ?? false)
+    }
+
+    func testStepFreeUsesLift() throws {
+        let s = try XCTUnwrap(try map().stations.first)
+        let r = try XCTUnwrap(StationRouter(stepFree: true).route(in: s, fromEntrance: s.entrances[0], toStop: "HSL:1040601"))
+        XCTAssertTrue(r.steps.contains { $0.kind == .elevator })
+        XCTAssertFalse(r.steps.contains { $0.kind == .escalator || $0.kind == .stairs })
+        XCTAssertGreaterThan(r.seconds, 35)
+    }
+}
