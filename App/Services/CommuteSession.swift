@@ -97,6 +97,8 @@ final class CommuteSession {
     let replay: TripReplay?
     @ObservationIgnored private var recorder: TripRecorder?
     var isDemo: Bool { replay != nil }
+    @ObservationIgnored private var tracedPhase: Phase?
+    @ObservationIgnored private var lastTrace = Date.distantPast
 
     init(itinerary: Itinerary, destinationName: String, app: AppModel, automatic: Bool = false,
          replay: TripReplay? = nil) {
@@ -237,6 +239,30 @@ final class CommuteSession {
         }
     }
 
+    /// Demo runs print what the session decides, so CI logs show why a phase changed.
+    private func traceDemo() {
+        guard isDemo, phase != tracedPhase || now.timeIntervalSince(lastTrace) >= 60 else { return }
+        let changed = phase != tracedPhase
+        tracedPhase = phase
+        lastTrace = now
+        var parts = ["[demo] \(Self.clock(now))", changed ? "PHASE \(phase)" : "\(phase)"]
+        if let live = focusLeg {
+            if let t = live.tracker {
+                let d = t.displayDistance(at: now).map { String(Int($0)) } ?? "-"
+                parts.append("vehicle d=\(d) next=\(t.nextStopIndex(at: now).map(String.init) ?? "-") dwell=\(t.dwellingAt.map(String.init) ?? "-")")
+                if let b = live.boardIndex { parts.append("board=\(b) passed=\(t.hasPassed(stop: b))") }
+                if let a = live.alightIndex { parts.append("alight=\(a) passed=\(t.hasPassed(stop: a))") }
+            } else {
+                parts.append("no tracker")
+            }
+            if let u = user { parts.append("userToStop=\(Int(u.distance(to: live.leg.from.location)))m") }
+            if let e = live.boardingETA { parts.append("eta=\(Self.clock(e.expected)) src=\(e.source)") }
+        }
+        if let p = pace { parts.append("pace=\(p.state)") }
+        parts.append("onBoard=\(boarding.isOnBoard)")
+        print(parts.joined(separator: " "))
+    }
+
     /// Builds the tracker for transit leg `i` and finds where you board and get off.
     private func install(_ details: TripDetails, leg i: Int) {
         guard let leg = legs[i]?.leg else { return }
@@ -330,6 +356,7 @@ final class CommuteSession {
         detectBoarding()
         updatePhase()
         updateAdvice()
+        traceDemo()
         speakRideCues()
         maybeAskOccupancy()
         guard !isDemo else { return }
