@@ -22,7 +22,7 @@ struct StopBoardView: View {
                             .frame(width: 28)
                         VStack(alignment: .leading) {
                             Text(nearby.stop.name).font(HSLFont.body())
-                            Text([nearby.stop.code, nearby.stop.platform.map { "Platform \($0)" }].compactMap { $0 }.joined(separator: " · "))
+                            Text([nearby.stop.code, nearby.stop.platform.map { String(localized: "Platform \($0)") }].compactMap { $0 }.joined(separator: " · "))
                                 .font(HSLFont.caption(12)).foregroundStyle(.secondary)
                         }
                         Spacer()
@@ -38,7 +38,7 @@ struct StopBoardView: View {
 
     private func load() async {
         guard let loc = await app.location.currentLocation() else {
-            error = "Location not available."
+            error = String(localized: "Location not available.")
             return
         }
         do {

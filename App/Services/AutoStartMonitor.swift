@@ -78,8 +78,8 @@ extension AppModel {
               let first = best.firstTransit else { return }
         startSession(itinerary: best.itinerary, destinationName: commute.destination.name, automatic: true)
         let line = first.route?.shortName ?? first.mode.rawValue
-        notifications.post(id: "autostart", title: "On your way to \(commute.destination.name)",
-                           body: "Tracking \(line) from \(first.from.name). We'll tell you if you need to hurry.",
+        notifications.post(id: "autostart", title: String(localized: "On your way to \(commute.destination.name)"),
+                           body: String(localized: "Tracking \(line) from \(first.from.name). We'll tell you if you need to hurry."),
                            sound: .soft, timeSensitive: false)
     }
 }

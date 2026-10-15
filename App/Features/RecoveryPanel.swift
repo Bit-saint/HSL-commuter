@@ -110,24 +110,24 @@ struct RecoveryOptionCard: View {
 
     private var timing: String {
         let mins = Int(option.departure.timeIntervalSince(now) / 60)
-        let when = mins <= 0 ? "leaves now" : "leaves in \(mins) min"
+        let when = mins <= 0 ? String(localized: "leaves now") : String(localized: "leaves in \(mins) min")
         let pace: String
         switch option.advice.state {
-        case .atStop: pace = "you're there"
-        case .relax, .leaveSoon: pace = "plenty of time"
-        case .goNow: pace = "walk now"
-        case .walkBriskly: pace = "walk briskly"
-        case .run: pace = "run"
-        default: pace = option.advice.state.title.lowercased()
+        case .atStop: pace = String(localized: "you're there")
+        case .relax, .leaveSoon: pace = String(localized: "plenty of time")
+        case .goNow: pace = String(localized: "walk now")
+        case .walkBriskly: pace = String(localized: "walk briskly")
+        case .run: pace = String(localized: "run")
+        default: pace = loc(option.advice.state.title).lowercased()
         }
         return "\(option.line) \(when) · \(pace)"
     }
 
     private var delayLabel: String {
         switch option.delayVsPlan {
-        case ..<0: return "\(-option.delayVsPlan) min sooner"
-        case 0: return "as planned"
-        default: return "+\(option.delayVsPlan) min vs plan"
+        case ..<0: return String(localized: "\(-option.delayVsPlan) min sooner")
+        case 0: return String(localized: "as planned")
+        default: return String(localized: "+\(option.delayVsPlan) min vs plan")
         }
     }
 

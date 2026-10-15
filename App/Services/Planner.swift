@@ -118,13 +118,13 @@ enum LeaveReminderScheduler {
             let stop = leg.from.name
             app.notifications.schedule(
                 id: "reminder-\(commute.id)-pre", at: best.leaveAt.addingTimeInterval(-10 * 60),
-                title: "Leaving in 10 minutes",
-                body: "\(line) from \(stop) to \(commute.destination.name).\(weatherNote) Tap to start live tracking.",
+                title: String(localized: "Leaving in 10 minutes"),
+                body: String(localized: "\(line) from \(stop) to \(commute.destination.name).\(weatherNote) Tap to start live tracking."),
                 sound: .soft, category: NotificationService.reminderCategory)
             app.notifications.schedule(
                 id: "reminder-\(commute.id)-go", at: best.leaveAt,
-                title: "Time to head out for \(line)",
-                body: "Departs \(stop) at \(best.firstTransit?.start.formatted(date: .omitted, time: .shortened) ?? ""). Tap for live tracking.",
+                title: String(localized: "Time to head out for \(line)"),
+                body: String(localized: "Departs \(stop) at \(best.firstTransit?.start.formatted(date: .omitted, time: .shortened) ?? ""). Tap for live tracking."),
                 category: NotificationService.reminderCategory)
             earliestNextLeave = min(earliestNextLeave ?? best.leaveAt, best.leaveAt)
         }

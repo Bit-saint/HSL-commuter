@@ -85,9 +85,9 @@ struct SettingsView: View {
                         .disabled(!app.crowd.sharingAvailable)
                 }
             } header: { Text("Cues") } footer: {
-                Text("One tap: time to go. Two taps: speed up. Three: run. Voice briefly lowers your music. "
-                     + "Now and then we ask how full your ride is; answers are anonymous"
-                     + (app.crowd.sharingAvailable ? " and shared with other riders." : ". Sharing needs iCloud (see README)."))
+                Text(app.crowd.sharingAvailable
+                     ? "One tap: time to go. Two taps: speed up. Three: run. Voice briefly lowers your music. Now and then we ask how full your ride is; answers are anonymous and shared with other riders."
+                     : "One tap: time to go. Two taps: speed up. Three: run. Voice briefly lowers your music. Now and then we ask how full your ride is; answers are anonymous and stay on this device (sharing needs iCloud, see README).")
             }
 
             Section {
@@ -164,7 +164,7 @@ struct SettingsView: View {
 
     private func subtitle(_ c: Commute) -> String {
         let days = c.weekdays.sorted().map { Calendar.current.shortWeekdaySymbols[$0 - 1] }.joined(separator: " ")
-        let time = c.arriveByMinutes.map { String(format: "arrive by %d:%02d", $0 / 60, $0 % 60) } ?? "leave any time"
+        let time = c.arriveByMinutes.map { String(localized: "arrive by \($0.clockString)") } ?? String(localized: "leave any time")
         return "\(days) · \(time)"
     }
 }
@@ -184,7 +184,7 @@ struct CommuteEditor: View {
     init(commute: Commute?, onSave: @escaping (Commute) -> Void) {
         self.onSave = onSave
         id = commute?.id ?? UUID()
-        _name = State(initialValue: commute?.name ?? "Home → Work")
+        _name = State(initialValue: commute?.name ?? String(localized: "Home → Work"))
         _origin = State(initialValue: commute?.origin)
         _destination = State(initialValue: commute?.destination)
         _hasArriveBy = State(initialValue: commute?.arriveByMinutes != nil)

@@ -82,6 +82,10 @@ jobs:
           cd Packages/CommuterKit && swift test 2>&1 | tail -120
       - name: Station builder tests
         run: python3 -m unittest discover -s tools/stations
+      - name: Translations complete and catalogs up to date
+        run: |
+          python3 tools/l10n/build_catalogs.py
+          git diff --exit-code -- App/Localizable.xcstrings Widgets/Localizable.xcstrings
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -179,7 +183,9 @@ jobs:
             xcrun simctl status_override "$UDID" --time "07:47" --batteryState charged --batteryLevel 100 || true
           done < sims.txt
           while read NAME UDID; do
-            xcrun simctl launch "$UDID" "$BUNDLE" -demo -demoSpeed 12 > /dev/null
+            # The iPhone runs in Finnish to check the translations.
+            LANG_ARGS=""; [ $NAME = iphone ] && LANG_ARGS="-AppleLanguages (fi) -AppleLocale fi_FI"
+            xcrun simctl launch "$UDID" "$BUNDLE" -demo -demoSpeed 12 $LANG_ARGS > /dev/null
           done < sims.txt
           START=$(date +%s)
           # Real seconds after launch at 12x: leave time, walking, at the stop, riding, walking to work.

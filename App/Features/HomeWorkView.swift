@@ -94,7 +94,7 @@ struct WeekdayPicker: View {
 /// One-line summary for lists: "Home → Work · arrive 8:30 · leave 16:30".
 extension HomeWorkSetup {
     var summary: String {
-        guard let home, let work else { return "Not set" }
+        guard let home, let work else { return String(localized: "Not set") }
         let times = usesPerDayTimes
             ? "times vary by day"
             : "arrive \(defaultTimes.arriveAtWork.clockString) · leave \(defaultTimes.leaveWork.clockString)"

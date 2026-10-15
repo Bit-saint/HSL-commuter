@@ -104,10 +104,10 @@ final class PlaceLearningService: NSObject, CLLocationManagerDelegate {
 
         if let h = VisitLearner.suggestHome(from: visits),
            hw.home.map({ $0.point.distance(to: h) > 250 }) ?? true {
-            next = .home(await place(named: "Home", at: h))
+            next = .home(await place(named: String(localized: "Home"), at: h))
         } else if let w = VisitLearner.suggestWork(from: visits, home: hw.home?.point ?? VisitLearner.suggestHome(from: visits)),
                   hw.work.map({ $0.point.distance(to: w) > 250 }) ?? true {
-            next = .work(await place(named: "Work", at: w))
+            next = .work(await place(named: String(localized: "Work"), at: w))
         } else if let work = hw.work, !hw.usesPerDayTimes {
             let t = VisitLearner.typicalTimes(from: visits, work: work.point)
             // Only bother you when it's 10+ minutes off.

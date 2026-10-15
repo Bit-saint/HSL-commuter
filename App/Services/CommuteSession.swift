@@ -400,8 +400,8 @@ final class CommuteSession {
             self.recovery = RecoveryState(reason: .fasterOption(line: live.line, minutesLate: lateMinutes, minutesSaved: saved),
                                           options: better, loading: false, updatedAt: Date())
             self.alert(key: "faster-\(best.id)",
-                       title: "\(live.line) is \(lateMinutes) min late: \(best.line) is faster",
-                       body: "\(best.whereToGo). Arrive \(best.arrival.formatted(date: .omitted, time: .shortened)), \(saved) min sooner.")
+                       title: String(localized: "\(live.line) is \(lateMinutes) min late: \(best.line) is faster"),
+                       body: String(localized: "\(best.whereToGo). Arrive \(best.arrival.formatted(date: .omitted, time: .shortened)), \(saved) min sooner."))
         }
     }
 
@@ -434,7 +434,7 @@ final class CommuteSession {
                 guard let self, !Task.isCancelled, self.recovery != nil else { return }
                 self.recovery?.options = options
                 self.recovery?.loading = false
-                self.recovery?.error = options.isEmpty ? "No reachable options right now." : nil
+                self.recovery?.error = options.isEmpty ? String(localized: "No reachable options right now.") : nil
                 self.recovery?.updatedAt = Date()
                 if let id = self.recovery?.selectedId, !options.contains(where: { $0.id == id }) {
                     self.recovery?.selectedId = nil
@@ -442,8 +442,8 @@ final class CommuteSession {
                 if notify, let best = options.first, let title = self.recovery?.title {
                     let later = best.delayVsPlan > 0 ? " (+\(best.delayVsPlan) min)" : ""
                     self.alert(key: "recovery-\(title)",
-                               title: "\(title) → fastest: \(best.line) from \(best.boardingStop.name)",
-                               body: "\(best.whereToGo). Departs \(best.departure.formatted(date: .omitted, time: .shortened)), arrive \(best.arrival.formatted(date: .omitted, time: .shortened))\(later).")
+                               title: String(localized: "\(title) → fastest: \(best.line) from \(best.boardingStop.name)"),
+                               body: String(localized: "\(best.whereToGo). Departs \(best.departure.formatted(date: .omitted, time: .shortened)), arrive \(best.arrival.formatted(date: .omitted, time: .shortened))\(later)."))
                 }
             } catch {
                 guard let self, !Task.isCancelled else { return }
@@ -501,7 +501,7 @@ final class CommuteSession {
         occupancyAskLeg = i
         askedAt = now
         // Gentle, no sound: answer from the notification or the Lock Screen without opening the app.
-        let content = (title: "How full is \(live.line)?", body: "One tap helps other riders pick their ride.")
+        let content = (title: String(localized: "How full is \(live.line)?"), body: String(localized: "One tap helps other riders pick their ride."))
         app.notifications.post(id: "occupancy-\(i)", title: content.title, body: content.body, sound: .soft,
                                timeSensitive: false, category: NotificationService.occupancyCategory)
         publish()
@@ -548,10 +548,13 @@ final class CommuteSession {
 
     /// Best fullness text for a leg: rider reports first, then the vehicle's own sensor.
     func fullness(for live: LiveLeg) -> (text: String, level: CrowdLevel)? {
-        if let e = crowd[live.index] { return (e.label(now: now), e.level) }
+        if let e = crowd[live.index] {
+            let mins = max(Int(now.timeIntervalSince(e.newest) / 60), 0)
+            return (String(localized: "\(loc(e.level.title)) · \(e.reports) riders, \(mins) min ago"), e.level)
+        }
         if let p = live.tracker?.occupancyPercent {
             let level = CrowdOccupancy.level(fromPercent: p)
-            return ("\(level.title) · \(p)% full", level)
+            return (String(localized: "\(loc(level.title)) · \(Int(p))% full"), level)
         }
         return nil
     }
@@ -605,8 +608,8 @@ final class CommuteSession {
                 legs[i]?.platformChanged = true
                 legs[i]?.previousPlatform = old
                 let fi = app?.smart.voiceLanguage == "fi"
-                alert(key: "track-\(i)-\(track)", title: "Track change: \(live.line) now leaves from track \(track)",
-                      body: "Was track \(old) at \(live.leg.from.name).", chime: .hurry)
+                alert(key: "track-\(i)-\(track)", title: String(localized: "Track change: \(live.line) now leaves from track \(track)"),
+                      body: String(localized: "Was track \(old) at \(live.leg.from.name)."), chime: .hurry)
                 speakOnce("track-\(i)-\(track)", fi ? "Raidemuutos. Junasi lähtee raiteelta \(track)."
                                                      : "Track change. Your train now leaves from track \(track).",
                           haptic: .attention, urgent: true)
@@ -642,6 +645,8 @@ final class CommuteSession {
     // MARK: - Messages
 
     /// Pace message with weather in mind ("Stay inside · leave in 4 min").
+    var waitIndoors: Bool { app?.weatherImpact.waitIndoors ?? false }
+
     /// One line for the Lock Screen: what to do, with clock times and where to.
     var paceMessage: String {
         guard let pace, let live = focusLeg else { return "" }
@@ -649,11 +654,11 @@ final class CommuteSession {
         let leave = pace.leaveAt.map(Self.clock)
         switch pace.state {
         case .relax, .leaveSoon:
-            if let app, app.weatherImpact.waitIndoors, let leave { return "Stay inside · leave at \(leave)" }
-            return leave.map { "Leave at \($0) · walk to \(stop)" } ?? "Leave soon · walk to \(stop)"
-        case .goNow: return "Start walking to \(stop)"
-        case .walkBriskly: return "Walk briskly to \(stop)"
-        case .run: return "Run to \(stop)"
+            if let app, app.weatherImpact.waitIndoors, let leave { return String(localized: "Stay inside · leave at \(leave)") }
+            return leave.map { String(localized: "Leave at \($0) · walk to \(stop)") } ?? String(localized: "Leave soon · walk to \(stop)")
+        case .goNow: return String(localized: "Start walking to \(stop)")
+        case .walkBriskly: return String(localized: "Walk briskly to \(stop)")
+        case .run: return String(localized: "Run to \(stop)")
         default: return pace.message(now: now)
         }
     }
@@ -747,8 +752,8 @@ final class CommuteSession {
             transfer = assessment
             switch assessment.risk {
             case .needsHurry:
-                alert(key: "transfer-hurry-\(nextIndex)", title: "Hurry for \(next.line)",
-                      body: "Connection at \(next.leg.from.name) is tight. Walk fast when you get off.")
+                alert(key: "transfer-hurry-\(nextIndex)", title: String(localized: "Hurry for \(next.line)"),
+                      body: String(localized: "Connection at \(next.leg.from.name) is tight. Walk fast when you get off."))
             case .missed:
                 // Plan from the stop we'll get off at, from the moment we get there.
                 if recovery == nil {
@@ -792,14 +797,14 @@ final class CommuteSession {
         let leaves = (live.boardingETA?.expected).map(Self.clock) ?? "?"
         switch advice.state {
         case .goNow:
-            alert(key: "go-\(live.index)", title: "Time to head out",
-                  body: "Walk to \(stop), be there by \(by). \(live.line) leaves \(leaves).", chime: .go)
+            alert(key: "go-\(live.index)", title: String(localized: "Time to head out"),
+                  body: String(localized: "Walk to \(stop), be there by \(by). \(live.line) leaves \(leaves)."), chime: .go)
         case .walkBriskly:
-            alert(key: "brisk-\(live.index)", title: "A little faster",
-                  body: "\(Int(advice.walkDistance)) m to \(stop), be there by \(by) for \(live.line).", chime: .hurry)
+            alert(key: "brisk-\(live.index)", title: String(localized: "A little faster"),
+                  body: String(localized: "\(Int(advice.walkDistance)) m to \(stop), be there by \(by) for \(live.line)."), chime: .hurry)
         case .run:
-            alert(key: "run-\(live.index)", title: "Run to make \(live.line)",
-                  body: "\(Int(advice.walkDistance)) m to \(stop). \(live.line) leaves \(leaves).", chime: .hurry)
+            alert(key: "run-\(live.index)", title: String(localized: "Run to make \(live.line)"),
+                  body: String(localized: "\(Int(advice.walkDistance)) m to \(stop). \(live.line) leaves \(leaves)."), chime: .hurry)
         case .willMiss:
             if previous != nil, recovery == nil {
                 startRecovery(.connectionAtRisk(line: live.line, stop: live.leg.from.name),
@@ -857,7 +862,7 @@ final class CommuteSession {
                 isLive: option.firstTransit.isRealtime, pace: option.advice.state,
                 paceMessage: option.whereToGo, leaveAt: option.advice.leaveAt, progress: 0,
                 nextStopName: nil, occupancy: nil,
-                transferNote: "Arrive \(option.arrival.formatted(date: .omitted, time: .shortened))\(option.isFastest ? " · fastest option" : "")")
+                transferNote: String(localized: "Arrive \(Self.clock(option.arrival))") + (option.isFastest ? String(localized: " · fastest option") : ""))
         }
         guard let live = focusLeg ?? transitIndices.last.flatMap({ legs[$0] }) else { return nil }
         let riding: Bool = { if case .riding = phase { return true }; return false }()
@@ -877,20 +882,20 @@ final class CommuteSession {
            let nextIndex = transitIndices.first(where: { $0 > i }), let next = legs[nextIndex] {
             let label: String
             switch transfer.risk {
-            case .comfortable: label = "on track"
-            case .tight: label = "tight"
-            case .needsHurry: label = "hurry"
-            case .missed: label = "at risk"
+            case .comfortable: label = String(localized: "on track")
+            case .tight: label = String(localized: "tight")
+            case .needsHurry: label = String(localized: "hurry")
+            case .missed: label = String(localized: "at risk")
             }
-            transferNote = "Then \(next.line) at \(next.leg.from.name) · \(label)"
+            transferNote = String(localized: "Then \(next.line) at \(next.leg.from.name) · \(label)")
         }
         if let r = recovery, r.isSuggestion, let best = r.options.first {
-            transferNote = "Faster: \(best.line) from \(best.boardingStop.name) · \(-best.delayVsPlan) min sooner"
+            transferNote = String(localized: "Faster: \(best.line) from \(best.boardingStop.name) · \(-best.delayVsPlan) min sooner")
         }
         return CommuteActivityAttributes.ContentState(
             phase: phaseValue, line: live.line, mode: live.mode, headsign: live.headsign,
             stopName: riding ? live.leg.to.name
-                : live.leg.from.name + (live.platform.map { live.mode == .rail ? " · track \($0)" : " · pl. \($0)" } ?? ""),
+                : live.leg.from.name + (live.platform.map { live.mode == .rail ? String(localized: " · track \($0)") : String(localized: " · pl. \($0)") } ?? ""),
             eta: eta.expected, etaEarliest: eta.earliest, etaLatest: eta.latest,
             isLive: eta.source == .liveVehicle, pace: pace?.state ?? .relax,
             paceMessage: paceMessage, leaveAt: pace?.leaveAt,

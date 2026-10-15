@@ -78,11 +78,11 @@ private struct LockScreenView: View {
 
     private var headline: String {
         switch state.phase {
-        case .walking: return "Walk to \(state.stopName)"
-        case .waiting: return "At \(state.stopName)"
-        case .transfer: return "Go to \(state.stopName)"
-        case .riding: return "To \(state.stopName) · \(destination)"
-        case .arrived: return "Arrived"
+        case .walking: return String(localized: "Walk to \(state.stopName)")
+        case .waiting: return String(localized: "At \(state.stopName)")
+        case .transfer: return String(localized: "Go to \(state.stopName)")
+        case .riding: return String(localized: "To \(state.stopName) · \(destination)")
+        case .arrived: return String(localized: "Arrived")
         }
     }
 }
@@ -164,7 +164,7 @@ private struct OccupancyButtons: View {
             Spacer(minLength: 4)
             ForEach(CrowdLevel.allCases, id: \.self) { level in
                 Button(intent: ReportOccupancyIntent(level: level.rawValue)) {
-                    Text(level.title).font(HSLFont.caption(12))
+                    Text(LocalizedStringKey(level.title)).font(HSLFont.caption(12))
                         .padding(.horizontal, 8).padding(.vertical, 5)
                 }
                 .buttonStyle(.plain)
@@ -193,11 +193,11 @@ extension CommuteActivityAttributes.ContentState {
     /// Before you leave, count down to leaving; after that, to the vehicle.
     var countdownTarget: (date: Date, label: String, isLeave: Bool) {
         if phase == .walking, let leave = leaveAt, leave > Date(), pace == .relax || pace == .leaveSoon {
-            return (leave, "until you leave", true)
+            return (leave, String(localized: "until you leave"), true)
         }
         switch phase {
-        case .riding: return (eta, isLive ? "live · to your stop" : "to your stop", false)
-        default: return (eta, isLive ? "live · leaves" : "leaves", false)
+        case .riding: return (eta, isLive ? String(localized: "live · to your stop") : String(localized: "to your stop"), false)
+        default: return (eta, isLive ? String(localized: "live · leaves") : String(localized: "leaves"), false)
         }
     }
 }

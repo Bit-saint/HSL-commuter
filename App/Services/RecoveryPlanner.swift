@@ -27,11 +27,11 @@ struct RecoveryOption: Identifiable {
 
     /// "Walk 240 m northeast to Rautatientori, platform 3"
     var whereToGo: String {
-        let platform = boardingStop.stop?.platform.map { ", platform \($0)" }
+        let platform = boardingStop.stop?.platform.map { String(localized: ", platform \($0)") }
             ?? boardingStop.stop?.code.map { " (\($0))" } ?? ""
-        if walkDistance < 35 { return "Stay here: \(boardingStop.name)\(platform)" }
+        if walkDistance < 35 { return String(localized: "Stay here: \(boardingStop.name)\(platform)") }
         let dist = walkDistance >= 1000 ? String(format: "%.1f km", walkDistance / 1000) : "\(Int(walkDistance.rounded())) m"
-        return "Walk \(dist) \(direction) to \(boardingStop.name)\(platform)"
+        return String(localized: "Walk \(dist) \(direction) to \(boardingStop.name)\(platform)")
     }
 }
 
@@ -56,18 +56,18 @@ struct RecoveryState {
 
     var title: String {
         switch reason {
-        case .missed(let line, let stop): return "Missed \(line) at \(stop)"
-        case .connectionAtRisk(let line, let stop): return "You'll likely miss \(line) at \(stop)"
-        case .manual: return "Missed your connection?"
-        case .fasterOption(let line, let late, _): return "\(line) is running \(late) min late"
+        case .missed(let line, let stop): return String(localized: "Missed \(line) at \(stop)")
+        case .connectionAtRisk(let line, let stop): return String(localized: "You'll likely miss \(line) at \(stop)")
+        case .manual: return String(localized: "Missed your connection?")
+        case .fasterOption(let line, let late, _): return String(localized: "\(line) is running \(late) min late")
         case .disruption(let summary): return summary
         }
     }
 
     var subtitle: String {
         switch reason {
-        case .fasterOption(_, _, let saved): return "There's a faster way: about \(saved) min sooner"
-        default: return "Fastest ways to get there from here"
+        case .fasterOption(_, _, let saved): return String(localized: "There's a faster way: about \(saved) min sooner")
+        default: return String(localized: "Fastest ways to get there from here")
         }
     }
 

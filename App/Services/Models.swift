@@ -92,10 +92,10 @@ struct HomeWorkSetup: Codable, Hashable {
         guard let home, let work else { return [] }
         let t = times(on: date)
         return [
-            Commute(id: Self.toWorkID, name: "To work", origin: home, destination: work,
+            Commute(id: Self.toWorkID, name: String(localized: "To work"), origin: home, destination: work,
                     arriveByMinutes: t.arriveAtWork, leaveAtMinutes: nil,
                     weekdays: workdays, remindersEnabled: remindersEnabled),
-            Commute(id: Self.toHomeID, name: "To home", origin: work, destination: home,
+            Commute(id: Self.toHomeID, name: String(localized: "To home"), origin: work, destination: home,
                     arriveByMinutes: nil, leaveAtMinutes: t.leaveWork,
                     weekdays: workdays, remindersEnabled: remindersEnabled),
         ]
@@ -153,3 +153,6 @@ enum DayStatus: Equatable {
 
     var isWorkday: Bool { self == .workday }
 }
+
+/// Looks up a string that comes from a package (e.g. `CrowdLevel.title`) in the app's String Catalog.
+func loc(_ key: String) -> String { Bundle.main.localizedString(forKey: key, value: nil, table: nil) }

@@ -427,10 +427,10 @@ struct LiveTripSheet: View {
 
     private func sourceLabel(_ eta: ETAEstimate) -> String {
         switch eta.source {
-        case .liveVehicle: return "live position"
-        case .realtimeFeed: return "realtime"
-        case .schedule: return "timetable"
-        case .passed: return "departed"
+        case .liveVehicle: return String(localized: "live position")
+        case .realtimeFeed: return String(localized: "realtime")
+        case .schedule: return String(localized: "timetable")
+        case .passed: return String(localized: "departed")
         }
     }
 
@@ -539,14 +539,14 @@ struct NextStepCard: View {
     private func title(_ state: PaceState) -> String {
         switch state {
         case .relax, .leaveSoon:
-            if let leave = session.pace?.leaveAt { return "Leave at \(CommuteSession.clock(leave))" }
-            return "Leave soon"
-        case .goNow: return "Start walking now"
-        case .walkBriskly: return "Walk briskly"
-        case .run: return "Run"
-        case .willMiss: return "You won't make this one"
-        case .atStop: return "At the stop"
-        case .onBoard: return "On board"
+            if let leave = session.pace?.leaveAt { return String(localized: "Leave at \(CommuteSession.clock(leave))") }
+            return String(localized: "Leave soon")
+        case .goNow: return String(localized: "Start walking now")
+        case .walkBriskly: return String(localized: "Walk briskly")
+        case .run: return String(localized: "Run")
+        case .willMiss: return String(localized: "You won't make this one")
+        case .atStop: return String(localized: "At the stop")
+        case .onBoard: return String(localized: "On board")
         }
     }
 
@@ -556,25 +556,28 @@ struct NextStepCard: View {
         var text = session.locationIsRough
             ? String(localized: "Walk about \(dist) to \(live.leg.from.name)")
             : String(localized: "Walk \(dist) to \(live.leg.from.name)")
-        if let p = live.platform { text += live.mode == .rail ? " · track \(p)" : " · platform \(p)" }
+        if let p = live.platform {
+            text += live.mode == .rail ? String(localized: " · track \(p)") : String(localized: " · platform \(p)")
+        }
         return text
     }
 
     private var beThereText: String {
         guard let by = session.boardBy else { return "" }
-        return "be there by \(CommuteSession.clock(by))"
+        return String(localized: "be there by \(CommuteSession.clock(by))")
     }
 
     private var departsText: String {
         guard let eta = live.boardingETA, !eta.isPassed else { return "" }
         let mins = Int(eta.expected.timeIntervalSince(now) / 60)
-        let platform = live.platform.map { live.mode == .rail ? "track \($0) · " : "platform \($0) · " } ?? ""
-        return platform + "leaves \(CommuteSession.clock(eta.expected))" + (mins < 10 ? " (\(max(mins, 0)) min)" : "")
+        let platform = live.platform.map { live.mode == .rail ? String(localized: "track \($0) · ") : String(localized: "platform \($0) · ") } ?? ""
+        let leaves = CommuteSession.clock(eta.expected)
+        return platform + (mins < 10 ? String(localized: "leaves \(leaves) (\(max(mins, 0)) min)") : String(localized: "leaves \(leaves)"))
     }
 
     private var indoorsHint: String? {
         guard let state = session.pace?.state, state == .relax || state == .leaveSoon else { return nil }
-        return session.paceMessage.hasPrefix("Stay inside") ? "Stay inside until then" : nil
+        return session.waitIndoors ? String(localized: "Stay inside until then") : nil
     }
 
     private func icon(_ s: PaceState) -> String {
@@ -629,10 +632,10 @@ struct NextStepCard: View {
     private func transferText(_ t: TransferAssessment) -> String {
         let mins = Int(t.slack / 60)
         switch t.risk {
-        case .comfortable: return "Change OK · \(mins) min to spare"
-        case .tight: return "Tight change · under 2 min to spare"
-        case .needsHurry: return "Hurry at the change: walk fast"
-        case .missed: return "You'll likely miss the change"
+        case .comfortable: return String(localized: "Change OK · \(mins) min to spare")
+        case .tight: return String(localized: "Tight change · under 2 min to spare")
+        case .needsHurry: return String(localized: "Hurry at the change: walk fast")
+        case .missed: return String(localized: "You'll likely miss the change")
         }
     }
 
@@ -781,7 +784,7 @@ struct TripTimeline: View {
                     if let a = nodes[nodes.count - 1].arrive {
                         nodes[nodes.count - 1].wait = max(Int((dep.timeIntervalSince(a) / 60).rounded()), 0)
                     }
-                    segments.append(Segment(line: live?.line ?? leg.route?.shortName ?? leg.mode.displayName,
+                    segments.append(Segment(line: live?.line ?? leg.route?.shortName ?? loc(leg.mode.displayName),
                                             mode: leg.mode, headsign: live?.headsign ?? leg.headsign, depart: dep,
                                             trust: done ? nil : trust,
                                             minutes: max(Int((arr.timeIntervalSince(dep) / 60).rounded()), 1),
@@ -1000,7 +1003,7 @@ struct OccupancyAskCard: View {
                         Button { session.answerOccupancy(level) } label: {
                             VStack(spacing: 4) {
                                 Image(systemName: Occupancy.symbol(level)).font(.system(size: 18, weight: .semibold))
-                                Text(level.title).font(HSLFont.caption(13))
+                                Text(LocalizedStringKey(level.title)).font(HSLFont.caption(13))
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)

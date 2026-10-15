@@ -1,0 +1,4390 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    " · fastest option": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · nopein vaihtoehto"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · snabbaste alternativet"
+          }
+        }
+      }
+    },
+    " · pl. %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · lait. %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · pl. %@"
+          }
+        }
+      }
+    },
+    " · platform %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · laituri %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · plattform %@"
+          }
+        }
+      }
+    },
+    " · track %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · raide %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · spår %@"
+          }
+        }
+      }
+    },
+    "%@ from %@ to %@.%@ Tap to start live tracking.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ pysäkiltä %2$@ kohteeseen %3$@.%4$@ Napauta aloittaaksesi seurannan."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ från %2$@ till %3$@.%4$@ Tryck för att starta live-spårning."
+          }
+        }
+      }
+    },
+    "%@ is %lld min late: %@ is faster": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ on %lld min myöhässä: %@ on nopeampi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ är %lld min sen: %@ är snabbare"
+          }
+        }
+      }
+    },
+    "%@ is running %lld min late": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ on %lld min myöhässä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ är %lld min försenad"
+          }
+        }
+      }
+    },
+    "%@ · %lld riders, %lld min ago": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %lld matkustajaa, %lld min sitten"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %lld resenärer, för %lld min sedan"
+          }
+        }
+      }
+    },
+    "%@ · %lld%% full": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %lld %% täynnä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %lld %% full"
+          }
+        }
+      }
+    },
+    "%@ → %@ at %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ → %2$@ klo %3$@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ → %2$@ kl. %3$@"
+          }
+        }
+      }
+    },
+    "%@ → fastest: %@ from %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ → nopein: %@ pysäkiltä %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ → snabbast: %@ från %@"
+          }
+        }
+      }
+    },
+    "%@. Arrive %@, %lld min sooner.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@. Perillä %@, %lld min aiemmin."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@. Framme %@, %lld min tidigare."
+          }
+        }
+      }
+    },
+    "%@. Departs %@, arrive %@%@.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@. Lähtee %@, perillä %@%@."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@. Avgår %@, framme %@%@."
+          }
+        }
+      }
+    },
+    "%lld": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld m": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld m"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld m"
+          }
+        }
+      }
+    },
+    "%lld m to %@, be there by %@ for %@.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld m pysäkille %2$@, ole perillä klo %3$@ ehtiäksesi linjaan %4$@."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld m till %2$@, var där senast %3$@ för %4$@."
+          }
+        }
+      }
+    },
+    "%lld m to %@. %@ leaves %@.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld m pysäkille %@. %@ lähtee %@."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld m till %@. %@ avgår %@."
+          }
+        }
+      }
+    },
+    "%lld min": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min"
+          }
+        }
+      }
+    },
+    "%lld min sooner": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min aiemmin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min tidigare"
+          }
+        }
+      }
+    },
+    "%lld more": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld lisää"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld till"
+          }
+        }
+      }
+    },
+    "%lld vehicle positions · %lld GPS fixes": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ajoneuvon sijaintia · %lld GPS-pistettä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld fordonspositioner · %lld GPS-punkter"
+          }
+        }
+      }
+    },
+    "%lld×": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld×"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld×"
+          }
+        }
+      }
+    },
+    "+%lld min vs plan": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld min suunniteltua myöhemmin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld min mot planen"
+          }
+        }
+      }
+    },
+    ", platform %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", laituri %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", plattform %@"
+          }
+        }
+      }
+    },
+    "1. Data access": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Tietojen käyttö"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Dataåtkomst"
+          }
+        }
+      }
+    },
+    "2. Permissions": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2. Käyttöoikeudet"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2. Behörigheter"
+          }
+        }
+      }
+    },
+    "2D": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2D"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2D"
+          }
+        }
+      }
+    },
+    "3. Your commute": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3. Työmatkasi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3. Din pendling"
+          }
+        }
+      }
+    },
+    "3D": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D"
+          }
+        }
+      }
+    },
+    "A heads-up 10 minutes before you should leave, and again when it's time, based on realtime departures.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ennakkovaroitus 10 minuuttia ennen lähtöä ja uudelleen, kun on aika lähteä, reaaliaikaisten lähtöjen mukaan."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En förvarning 10 minuter innan du ska gå, och igen när det är dags, baserat på avgångar i realtid."
+          }
+        }
+      }
+    },
+    "A little faster": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hieman ripeämmin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lite snabbare"
+          }
+        }
+      }
+    },
+    "Add commute": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisää matka"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lägg till resa"
+          }
+        }
+      }
+    },
+    "All Saints' Day": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pyhäinpäivä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alla helgons dag"
+          }
+        }
+      }
+    },
+    "Allow location": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salli sijainti"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tillåt plats"
+          }
+        }
+      }
+    },
+    "Allow notifications": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salli ilmoitukset"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tillåt notiser"
+          }
+        }
+      }
+    },
+    "Almost there: walk to %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melkein perillä: kävele kohteeseen %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nästan framme: gå till %@"
+          }
+        }
+      }
+    },
+    "Arrive": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perillä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Framme"
+          }
+        }
+      }
+    },
+    "Arrive %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perillä %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Framme %@"
+          }
+        }
+      }
+    },
+    "Arrive by": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perillä viimeistään"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Framme senast"
+          }
+        }
+      }
+    },
+    "Arrive by %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perillä viimeistään %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Framme senast %@"
+          }
+        }
+      }
+    },
+    "Arrives at %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saapuu pysäkille %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ankommer till %@"
+          }
+        }
+      }
+    },
+    "Ascension Day": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Helatorstai"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kristi himmelfärdsdag"
+          }
+        }
+      }
+    },
+    "Ask how full it is": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kysy, kuinka täynnä on"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fråga hur fullt det är"
+          }
+        }
+      }
+    },
+    "At the stop": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pysäkillä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vid hållplatsen"
+          }
+        }
+      }
+    },
+    "Automatic": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automaattinen"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatiskt"
+          }
+        }
+      }
+    },
+    "Automatic (by time of day)": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automaattinen (kellonajan mukaan)"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatiskt (efter tid på dagen)"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Takaisin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tillbaka"
+          }
+        }
+      }
+    },
+    "Bike": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pyörä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cykel"
+          }
+        }
+      }
+    },
+    "Boxing Day": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tapaninpäivä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annandag jul"
+          }
+        }
+      }
+    },
+    "Bus": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bussi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buss"
+          }
+        }
+      }
+    },
+    "Buy": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Osta"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Köp"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peruuta"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avbryt"
+          }
+        }
+      }
+    },
+    "Change": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaihda"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ändra"
+          }
+        }
+      }
+    },
+    "Change OK · %lld min to spare": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaihto onnistuu · %lld min aikaa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bytet går bra · %lld min marginal"
+          }
+        }
+      }
+    },
+    "Christmas Day": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joulupäivä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juldagen"
+          }
+        }
+      }
+    },
+    "Christmas Eve": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jouluaatto"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Julafton"
+          }
+        }
+      }
+    },
+    "Commute": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Työmatka"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendling"
+          }
+        }
+      }
+    },
+    "Connection at %@ is tight. Walk fast when you get off.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaihto pysäkillä %@ on tiukka. Kävele ripeästi, kun jäät pois."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bytet vid %@ är tight. Gå fort när du stiger av."
+          }
+        }
+      }
+    },
+    "Cues": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vihjeet"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaler"
+          }
+        }
+      }
+    },
+    "DEMO": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DEMO"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DEMO"
+          }
+        }
+      }
+    },
+    "Data": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiedot"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data"
+          }
+        }
+      }
+    },
+    "Data: HSL & Digitransit (CC BY 4.0), Fintraffic Digitraffic (CC BY 4.0). Unofficial personal app, not affiliated with HSL.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiedot: HSL ja Digitransit (CC BY 4.0), Fintraffic Digitraffic (CC BY 4.0). Epävirallinen henkilökohtainen sovellus, ei HSL:n tekemä."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data: HSL och Digitransit (CC BY 4.0), Fintraffic Digitraffic (CC BY 4.0). Inofficiell personlig app, inte kopplad till HSL."
+          }
+        }
+      }
+    },
+    "Demo": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esittely"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demo"
+          }
+        }
+      }
+    },
+    "Departs %@ at %@. Tap for live tracking.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähtee pysäkiltä %@ klo %@. Napauta seurataksesi."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avgår från %@ kl. %@. Tryck för live-spårning."
+          }
+        }
+      }
+    },
+    "Different times per day": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eri ajat eri päivinä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Olika tider per dag"
+          }
+        }
+      }
+    },
+    "Digitransit API key": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digitransit-API-avain"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digitransit API-nyckel"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valmis"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klar"
+          }
+        }
+      }
+    },
+    "E.g. gym or school. Home ↔ work is set above.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esim. sali tai koulu. Koti ↔ työ asetetaan yllä."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "T.ex. gym eller skola. Hem ↔ jobb anges ovan."
+          }
+        }
+      }
+    },
+    "Easter Monday": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2. pääsiäispäivä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annandag påsk"
+          }
+        }
+      }
+    },
+    "Easter Sunday": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pääsiäispäivä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Påskdagen"
+          }
+        }
+      }
+    },
+    "Enable notifications": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salli ilmoitukset"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tillåt notiser"
+          }
+        }
+      }
+    },
+    "English": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "English"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "English"
+          }
+        }
+      }
+    },
+    "Epiphany": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loppiainen"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trettondagen"
+          }
+        }
+      }
+    },
+    "Extra time at stop: %lld s": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisäaika pysäkillä: %lld s"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extra tid vid hållplatsen: %lld s"
+          }
+        }
+      }
+    },
+    "FASTEST": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NOPEIN"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SNABBAST"
+          }
+        }
+      }
+    },
+    "Faster: %@ from %@ · %lld min sooner": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nopeampi: %@ pysäkiltä %@ · %lld min aiemmin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snabbare: %@ från %@ · %lld min tidigare"
+          }
+        }
+      }
+    },
+    "Fastest ways to get there from here": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nopeimmat reitit täältä perille"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snabbaste vägarna dit härifrån"
+          }
+        }
+      }
+    },
+    "Ferry": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lautta"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Färja"
+          }
+        }
+      }
+    },
+    "From": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mistä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Från"
+          }
+        }
+      }
+    },
+    "From %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähtö: %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Från %@"
+          }
+        }
+      }
+    },
+    "Full": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Täynnä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full"
+          }
+        }
+      }
+    },
+    "Get a free key": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hanki ilmainen avain"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skaffa en gratis nyckel"
+          }
+        }
+      }
+    },
+    "Get a free key at portal-api.digitransit.fi": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hanki ilmainen avain osoitteesta portal-api.digitransit.fi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skaffa en gratis nyckel på portal-api.digitransit.fi"
+          }
+        }
+      }
+    },
+    "Get off at %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jää pois: %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stig av vid %@"
+          }
+        }
+      }
+    },
+    "Go!": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nyt!"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu!"
+          }
+        }
+      }
+    },
+    "Go: %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mene: %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kör: %@"
+          }
+        }
+      }
+    },
+    "Good Friday": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pitkäperjantai"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Långfredagen"
+          }
+        }
+      }
+    },
+    "Haptic taps": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Värinäkoputukset"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haptiska knackningar"
+          }
+        }
+      }
+    },
+    "Heading to": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Matkalla kohteeseen"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "På väg till"
+          }
+        }
+      }
+    },
+    "Heavy rain: wait inside, we'll time it": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rankkasade: odota sisällä, ajoitamme lähdön"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kraftigt regn: vänta inne, vi tajmar det"
+          }
+        }
+      }
+    },
+    "Home": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koti"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hem"
+          }
+        }
+      }
+    },
+    "Home & Work": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koti ja työ"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hem och jobb"
+          }
+        }
+      }
+    },
+    "Home → Work": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koti → Työ"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hem → Jobb"
+          }
+        }
+      }
+    },
+    "How full is %@?": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kuinka täynnä %@ on?"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hur full är %@?"
+          }
+        }
+      }
+    },
+    "Hurry at the change: walk fast": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiirehdi vaihdossa: kävele ripeästi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skynda vid bytet: gå fort"
+          }
+        }
+      }
+    },
+    "Hurry for %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiirehdi: %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skynda till %@"
+          }
+        }
+      }
+    },
+    "I got off": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jäin pois"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jag steg av"
+          }
+        }
+      }
+    },
+    "I missed it": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myöhästyin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jag missade den"
+          }
+        }
+      }
+    },
+    "I'm on it": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Olen kyydissä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jag är ombord"
+          }
+        }
+      }
+    },
+    "Ice and snow slow your walking pace and add margin (FMI forecast). With the calendar on, an early first meeting moves your arrive-by time, and all-day “WFH”, “Loma” or “Vacation” events skip the day.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jää ja lumi hidastavat kävelyä ja lisäävät pelivaraa (Ilmatieteen laitoksen ennuste). Kalenterin kanssa aikainen ensimmäinen palaveri aikaistaa perilläoloaikaa, ja koko päivän ”Etä”, ”Loma” tai ”Vacation” -tapahtumat ohittavat päivän."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Is och snö saktar ner gångtakten och ger extra marginal (Meteorologiska institutets prognos). Med kalendern på flyttar ett tidigt första möte din ankomsttid, och heldagshändelser som ”WFH”, ”Loma” eller ”Vacation” hoppar över dagen."
+          }
+        }
+      }
+    },
+    "Independence Day": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Itsenäisyyspäivä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Självständighetsdagen"
+          }
+        }
+      }
+    },
+    "Keep my plan": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pidä suunnitelma"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Behåll planen"
+          }
+        }
+      }
+    },
+    "Know exactly when your bus, tram, metro, train or ferry really arrives, and whether to walk, hurry or run.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiedä tarkalleen, milloin bussi, ratikka, metro, juna tai lautta oikeasti saapuu, ja pitääkö kävellä, kiirehtiä vai juosta."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vet exakt när bussen, spårvagnen, metron, tåget eller färjan verkligen kommer, och om du ska gå, skynda dig eller springa."
+          }
+        }
+      }
+    },
+    "LIVE": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LIVE"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LIVE"
+          }
+        }
+      }
+    },
+    "Learn my places and times": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opettele paikkani ja aikani"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lär dig mina platser och tider"
+          }
+        }
+      }
+    },
+    "Leave at %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähde klo %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå kl. %@"
+          }
+        }
+      }
+    },
+    "Leave at %@ · walk to %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähde klo %@ · kävele pysäkille %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå kl. %@ · till %@"
+          }
+        }
+      }
+    },
+    "Leave now": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähde nyt"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå nu"
+          }
+        }
+      }
+    },
+    "Leave soon": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähde pian"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå snart"
+          }
+        }
+      }
+    },
+    "Leave soon · walk to %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähde pian · kävele pysäkille %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå snart · till %@"
+          }
+        }
+      }
+    },
+    "Leaving at %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähtö %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avgång %@"
+          }
+        }
+      }
+    },
+    "Leaving in 10 minutes": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähtö 10 minuutin päästä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avgång om 10 minuter"
+          }
+        }
+      }
+    },
+    "Light rail": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pikaraitiotie"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snabbspårväg"
+          }
+        }
+      }
+    },
+    "Location is approximate (±%lld m), so walking times are rough": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sijainti on epätarkka (±%lld m), joten kävelyajat ovat suuntaa antavia"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Positionen är ungefärlig (±%lld m), så gångtiderna är ungefärliga"
+          }
+        }
+      }
+    },
+    "Location not available.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sijainti ei ole saatavilla."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Positionen är inte tillgänglig."
+          }
+        }
+      }
+    },
+    "Location: allow “Always”": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sijainti: salli ”Aina”"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plats: tillåt ”Alltid”"
+          }
+        }
+      }
+    },
+    "May Day": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vappu"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Första maj"
+          }
+        }
+      }
+    },
+    "Metro": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metro"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Metro"
+          }
+        }
+      }
+    },
+    "Midsummer Day": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juhannuspäivä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Midsommardagen"
+          }
+        }
+      }
+    },
+    "Midsummer Eve": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juhannusaatto"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Midsommarafton"
+          }
+        }
+      }
+    },
+    "Missed %@ at %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ meni ohi pysäkillä %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missade %@ vid %@"
+          }
+        }
+      }
+    },
+    "Missed change?": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaihto meni ohi?"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missade bytet?"
+          }
+        }
+      }
+    },
+    "Missed your connection?": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Myöhästyitkö vaihdosta?"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missade du bytet?"
+          }
+        }
+      }
+    },
+    "Mornings plan backwards from your arrival time. Afternoons plan the first good departure after you leave work.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aamulla suunnitellaan taaksepäin perilläoloajasta. Iltapäivällä etsitään ensimmäinen hyvä lähtö töistä lähdön jälkeen."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "På morgonen planeras bakåt från ankomsttiden. På eftermiddagen den första bra avgången efter att du lämnat jobbet."
+          }
+        }
+      }
+    },
+    "Name": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nimi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Namn"
+          }
+        }
+      }
+    },
+    "Nearby": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähellä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I närheten"
+          }
+        }
+      }
+    },
+    "New Year's Day": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uudenvuodenpäivä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nyårsdagen"
+          }
+        }
+      }
+    },
+    "Next stop": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seuraava pysäkki"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nästa hållplats"
+          }
+        }
+      }
+    },
+    "No commute yet": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ei vielä työmatkaa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingen pendling ännu"
+          }
+        }
+      }
+    },
+    "No reachable options right now.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juuri nyt ei löydy vaihtoehtoja."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inga nåbara alternativ just nu."
+          }
+        }
+      }
+    },
+    "No reminders today. You can still plan a trip.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ei muistutuksia tänään. Voit silti suunnitella matkan."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inga påminnelser i dag. Du kan ändå planera en resa."
+          }
+        }
+      }
+    },
+    "Not a workday": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ei työpäivä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingen arbetsdag"
+          }
+        }
+      }
+    },
+    "Not now": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ei nyt"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inte nu"
+          }
+        }
+      }
+    },
+    "Not set": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ei asetettu"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inte angivet"
+          }
+        }
+      }
+    },
+    "Now": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nyt"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu"
+          }
+        }
+      }
+    },
+    "On board": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kyydissä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ombord"
+          }
+        }
+      }
+    },
+    "On your way to %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Matkalla kohteeseen %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "På väg till %@"
+          }
+        }
+      }
+    },
+    "One tap helps other riders pick their ride.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yksi napautus auttaa muita valitsemaan kyytinsä."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ett tryck hjälper andra att välja sin resa."
+          }
+        }
+      }
+    },
+    "One tap: time to go. Two taps: speed up. Three: run. Voice briefly lowers your music. Now and then we ask how full your ride is; answers are anonymous and shared with other riders.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yksi napautus: aika lähteä. Kaksi: nopeammin. Kolme: juokse. Puhe hiljentää musiikkia hetkeksi. Kysymme välillä, kuinka täynnä kyytisi on; vastaukset ovat nimettömiä ja jaetaan muille matkustajille."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ett tryck: dags att gå. Två: öka takten. Tre: spring. Rösten sänker musiken en stund. Ibland frågar vi hur full din resa är; svaren är anonyma och delas med andra resenärer."
+          }
+        }
+      }
+    },
+    "One tap: time to go. Two taps: speed up. Three: run. Voice briefly lowers your music. Now and then we ask how full your ride is; answers are anonymous and stay on this device (sharing needs iCloud, see README).": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yksi napautus: aika lähteä. Kaksi: nopeammin. Kolme: juokse. Puhe hiljentää musiikkia hetkeksi. Kysymme välillä, kuinka täynnä kyytisi on; vastaukset ovat nimettömiä ja jäävät tähän laitteeseen (jakaminen vaatii iCloudin, ks. README)."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ett tryck: dags att gå. Två: öka takten. Tre: spring. Rösten sänker musiken en stund. Ibland frågar vi hur full din resa är; svaren är anonyma och stannar på den här enheten (delning kräver iCloud, se README)."
+          }
+        }
+      }
+    },
+    "Only with headphones": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vain kuulokkeilla"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bara med hörlurar"
+          }
+        }
+      }
+    },
+    "Other commutes": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muut matkat"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Andra resor"
+          }
+        }
+      }
+    },
+    "Other options": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muut vaihtoehdot"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Andra alternativ"
+          }
+        }
+      }
+    },
+    "Pause": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tauko"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paus"
+          }
+        }
+      }
+    },
+    "Permissions": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käyttöoikeudet"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Behörigheter"
+          }
+        }
+      }
+    },
+    "Platform %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laituri %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plattform %@"
+          }
+        }
+      }
+    },
+    "Play": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toista"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spela"
+          }
+        }
+      }
+    },
+    "Play the demo trip": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toista esittelymatka"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spela upp demoresan"
+          }
+        }
+      }
+    },
+    "Rain: wait inside until it's time to go": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sadetta: odota sisällä lähtöön asti"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regn: vänta inne tills det är dags"
+          }
+        }
+      }
+    },
+    "Record my trips": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tallenna matkani"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spela in mina resor"
+          }
+        }
+      }
+    },
+    "Relax": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ei kiirettä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ingen brådska"
+          }
+        }
+      }
+    },
+    "Run": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juokse"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spring"
+          }
+        }
+      }
+    },
+    "Run to %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juokse pysäkille %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spring till %@"
+          }
+        }
+      }
+    },
+    "Run to make %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juokse ehtiäksesi: %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spring för att hinna med %@"
+          }
+        }
+      }
+    },
+    "Run!": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juokse!"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spring!"
+          }
+        }
+      }
+    },
+    "Save": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tallenna"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spara"
+          }
+        }
+      }
+    },
+    "Schedule": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aikataulu"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schema"
+          }
+        }
+      }
+    },
+    "Search %@ address": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hae osoitetta: %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sök adress: %@"
+          }
+        }
+      }
+    },
+    "Seats": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Istumapaikkoja"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sittplatser"
+          }
+        }
+      }
+    },
+    "Seats free": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Istumapaikkoja"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lediga platser"
+          }
+        }
+      }
+    },
+    "Set Home & Work": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aseta koti ja työ"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ange hem och jobb"
+          }
+        }
+      }
+    },
+    "Set home, work and working hours": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aseta koti, työ ja työajat"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ange hem, jobb och arbetstider"
+          }
+        }
+      }
+    },
+    "Set your home, work and working hours to get leave-time advice.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aseta koti, työpaikka ja työajat, niin kerromme milloin lähteä."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ange hem, jobb och arbetstider så säger vi när du ska gå."
+          }
+        }
+      }
+    },
+    "Settings": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asetukset"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inställningar"
+          }
+        }
+      }
+    },
+    "Share answers with other riders": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jaa vastaukset muille matkustajille"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dela svaren med andra resenärer"
+          }
+        }
+      }
+    },
+    "Show less": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näytä vähemmän"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visa mindre"
+          }
+        }
+      }
+    },
+    "Show whole trip": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Näytä koko matka"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visa hela resan"
+          }
+        }
+      }
+    },
+    "Skip Finnish holidays": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohita suomalaiset pyhäpäivät"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoppa över finländska helgdagar"
+          }
+        }
+      }
+    },
+    "Skip a minute": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siirry minuutti eteenpäin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoppa fram en minut"
+          }
+        }
+      }
+    },
+    "Slippery today: leave about 2 min earlier": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liukasta tänään: lähde noin 2 min aiemmin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halt i dag: gå cirka 2 min tidigare"
+          }
+        }
+      }
+    },
+    "Snowing: we've slowed your walking pace": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lumisadetta: hidastimme kävelyvauhtiasi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snöfall: vi har sänkt din gångtakt"
+          }
+        }
+      }
+    },
+    "Spoken cues": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puheohjeet"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talade signaler"
+          }
+        }
+      }
+    },
+    "Standing": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seisomapaikkoja"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ståplatser"
+          }
+        }
+      }
+    },
+    "Standing room": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seisomatilaa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ståplats"
+          }
+        }
+      }
+    },
+    "Start": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähtö"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        }
+      }
+    },
+    "Start live tracking": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aloita seuranta"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starta live-spårning"
+          }
+        }
+      }
+    },
+    "Start tracking automatically": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aloita seuranta automaattisesti"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starta spårning automatiskt"
+          }
+        }
+      }
+    },
+    "Start walking": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähde kävelemään"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Börja gå"
+          }
+        }
+      }
+    },
+    "Start walking now": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähde kävelemään nyt"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Börja gå nu"
+          }
+        }
+      }
+    },
+    "Start walking to %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lähde kävelemään pysäkille %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Börja gå till %@"
+          }
+        }
+      }
+    },
+    "Stay here: %@%@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pysy tässä: %@%@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stanna här: %@%@"
+          }
+        }
+      }
+    },
+    "Stay inside until then": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odota sisällä siihen asti"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vänta inne tills dess"
+          }
+        }
+      }
+    },
+    "Stay inside · leave at %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odota sisällä · lähde klo %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vänta inne · gå kl. %@"
+          }
+        }
+      }
+    },
+    "Stop": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lopeta"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stopp"
+          }
+        }
+      }
+    },
+    "Stop tracking": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lopeta seuranta"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sluta spåra"
+          }
+        }
+      }
+    },
+    "Strong wind: walking a little slower": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kova tuuli: kävely hieman hitaampaa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hård vind: lite långsammare gång"
+          }
+        }
+      }
+    },
+    "Suomi": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suomi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suomi"
+          }
+        }
+      }
+    },
+    "Switch to %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaihda: %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Byt till %@"
+          }
+        }
+      }
+    },
+    "Thanks! That helps other riders.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiitos! Tämä auttaa muita matkustajia."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tack! Det hjälper andra resenärer."
+          }
+        }
+      }
+    },
+    "The demo replays a recorded commute, live vehicles and GPS included, faster than real time. Turn on recording to replay your own trips later.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esittely toistaa tallennetun työmatkan ajoneuvoineen ja GPS-sijainteineen todellista nopeammin. Ota tallennus käyttöön, niin voit toistaa omia matkojasi myöhemmin."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demon spelar upp en inspelad pendling, med fordon och GPS, snabbare än i verkligheten. Slå på inspelning för att spela upp dina egna resor senare."
+          }
+        }
+      }
+    },
+    "Then %@ at %@ · %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sitten %@ pysäkiltä %@ · %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sedan %@ vid %@ · %@"
+          }
+        }
+      }
+    },
+    "There's a faster way: about %lld min sooner": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nopeampi reitti: noin %lld min aiemmin perillä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Det finns ett snabbare sätt: cirka %lld min tidigare"
+          }
+        }
+      }
+    },
+    "Tight change · under 2 min to spare": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiukka vaihto · alle 2 min aikaa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tight byte · under 2 min marginal"
+          }
+        }
+      }
+    },
+    "Time to head out": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aika lähteä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dags att gå"
+          }
+        }
+      }
+    },
+    "Time to head out for %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aika lähteä: %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dags att gå till %@"
+          }
+        }
+      }
+    },
+    "To": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minne"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Till"
+          }
+        }
+      }
+    },
+    "To home": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kotiin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hem"
+          }
+        }
+      }
+    },
+    "To work": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Töihin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Till jobbet"
+          }
+        }
+      }
+    },
+    "Track %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raide %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spår %@"
+          }
+        }
+      }
+    },
+    "Track change: %@ now leaves from track %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raidemuutos: %@ lähtee nyt raiteelta %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spårändring: %@ avgår nu från spår %@"
+          }
+        }
+      }
+    },
+    "Tracking %@ from %@. We'll tell you if you need to hurry.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seuraan linjaa %@ pysäkiltä %@. Kerron, jos pitää kiirehtiä."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spårar %@ från %@. Vi säger till om du behöver skynda dig."
+          }
+        }
+      }
+    },
+    "Tracking starts when you leave home or work in your commute window, and detects when you get on and off. Learning stays on this phone.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seuranta alkaa, kun lähdet kotoa tai töistä työmatka-aikaan, ja tunnistaa, kun nouset kyytiin ja jäät pois. Opitut tiedot pysyvät tässä puhelimessa."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spårningen startar när du lämnar hemmet eller jobbet under din pendlingstid och känner av när du kliver på och av. Det inlärda stannar i telefonen."
+          }
+        }
+      }
+    },
+    "Train": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juna"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tåg"
+          }
+        }
+      }
+    },
+    "Tram": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raitiovaunu"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spårvagn"
+          }
+        }
+      }
+    },
+    "Transit": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joukkoliikenne"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kollektivtrafik"
+          }
+        }
+      }
+    },
+    "Trunk bus": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Runkolinja"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stomlinje"
+          }
+        }
+      }
+    },
+    "Try it": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kokeile"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prova"
+          }
+        }
+      }
+    },
+    "Try the demo trip": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kokeile esittelymatkaa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prova demoresan"
+          }
+        }
+      }
+    },
+    "U-bus": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "U-linja"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "U-linje"
+          }
+        }
+      }
+    },
+    "Undo": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kumoa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ångra"
+          }
+        }
+      }
+    },
+    "Use current location": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käytä nykyistä sijaintia"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Använd nuvarande plats"
+          }
+        }
+      }
+    },
+    "Use my calendar": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käytä kalenteriani"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Använd min kalender"
+          }
+        }
+      }
+    },
+    "Voice": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ääni"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Röst"
+          }
+        }
+      }
+    },
+    "Walk": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kävely"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gång"
+          }
+        }
+      }
+    },
+    "Walk %@ %@ to %@%@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kävele %1$@ %2$@ pysäkille %3$@%4$@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå %1$@ %2$@ till %3$@%4$@"
+          }
+        }
+      }
+    },
+    "Walk %@ to %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kävele %@ pysäkille %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå %@ till %@"
+          }
+        }
+      }
+    },
+    "Walk %lld min": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kävele %lld min"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå %lld min"
+          }
+        }
+      }
+    },
+    "Walk about %@ to %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kävele noin %@ pysäkille %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå cirka %@ till %@"
+          }
+        }
+      }
+    },
+    "Walk briskly": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kävele reippaasti"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå raskt"
+          }
+        }
+      }
+    },
+    "Walk briskly to %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kävele reippaasti pysäkille %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå raskt till %@"
+          }
+        }
+      }
+    },
+    "Walk to %@, be there by %@. %@ leaves %@.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kävele pysäkille %1$@, ole perillä klo %2$@. %3$@ lähtee %4$@."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gå till %1$@, var där senast %2$@. %3$@ avgår %4$@."
+          }
+        }
+      }
+    },
+    "Walking speed": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kävelynopeus"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gånghastighet"
+          }
+        }
+      }
+    },
+    "Walking speed is learned automatically while you walk to stops during live tracking.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kävelynopeus opitaan automaattisesti, kun kävelet pysäkeille seurannan aikana."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gånghastigheten lärs in automatiskt när du går till hållplatser under live-spårning."
+          }
+        }
+      }
+    },
+    "Was track %@ at %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oli raide %@ asemalla %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Var spår %@ vid %@"
+          }
+        }
+      }
+    },
+    "Was track %@ at %@.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oli raide %@ asemalla %@."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Var spår %@ vid %@."
+          }
+        }
+      }
+    },
+    "Weather-aware pace": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sää huomioiva kävelyvauhti"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Väderanpassat tempo"
+          }
+        }
+      }
+    },
+    "Work": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Työ"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jobb"
+          }
+        }
+      }
+    },
+    "Working from home": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etätöissä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distansarbete"
+          }
+        }
+      }
+    },
+    "Working from home today": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etätöissä tänään"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distansarbete i dag"
+          }
+        }
+      }
+    },
+    "Working hours": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Työajat"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arbetstider"
+          }
+        }
+      }
+    },
+    "Yes, use it": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kyllä, käytä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ja, använd"
+          }
+        }
+      }
+    },
+    "You": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sinä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du"
+          }
+        }
+      }
+    },
+    "You won't make this one": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et ehdi tähän"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du hinner inte med den här"
+          }
+        }
+      }
+    },
+    "You'll likely miss %@ at %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ menee todennäköisesti ohi pysäkillä %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du missar troligen %@ vid %@"
+          }
+        }
+      }
+    },
+    "You'll likely miss the change": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaihto todennäköisesti menee ohi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du missar troligen bytet"
+          }
+        }
+      }
+    },
+    "You'll miss it": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Et ehdi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du missar den"
+          }
+        }
+      }
+    },
+    "Your commute": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Työmatkasi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Din pendling"
+          }
+        }
+      }
+    },
+    "Your day": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Päiväsi"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Din dag"
+          }
+        }
+      }
+    },
+    "Zones %@ · single ticket": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyöhykkeet %@ · kertalippu"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoner %@ · enkelbiljett"
+          }
+        }
+      }
+    },
+    "Zones %@ · single ticket %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyöhykkeet %1$@ · kertalippu %2$@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoner %1$@ · enkelbiljett %2$@"
+          }
+        }
+      }
+    },
+    "arrive by %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "perillä viimeistään %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "framme senast %@"
+          }
+        }
+      }
+    },
+    "as planned": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "suunnitellusti"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "som planerat"
+          }
+        }
+      }
+    },
+    "at risk": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vaarassa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "i fara"
+          }
+        }
+      }
+    },
+    "be there by %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ole perillä klo %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "var där senast %@"
+          }
+        }
+      }
+    },
+    "dep %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lähtee %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avg. %@"
+          }
+        }
+      }
+    },
+    "departed": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lähtenyt"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avgått"
+          }
+        }
+      }
+    },
+    "https://www.hsl.fi/en/tickets-and-fares": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://www.hsl.fi/liput-ja-hinnat"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://www.hsl.fi/sv/biljetter-och-priser"
+          }
+        }
+      }
+    },
+    "hurry": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kiire"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "skynda"
+          }
+        }
+      }
+    },
+    "in": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ""
+          }
+        }
+      }
+    },
+    "in %lld min": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min päästä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "om %lld min"
+          }
+        }
+      }
+    },
+    "leave %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lähde %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gå %@"
+          }
+        }
+      }
+    },
+    "leave any time": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lähtö milloin vain"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avgång när som helst"
+          }
+        }
+      }
+    },
+    "leaves %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lähtee %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avgår %@"
+          }
+        }
+      }
+    },
+    "leaves %@ (%lld min)": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lähtee %@ (%lld min)"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avgår %@ (%lld min)"
+          }
+        }
+      }
+    },
+    "leaves in %lld min": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lähtee %lld min päästä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avgår om %lld min"
+          }
+        }
+      }
+    },
+    "leaves now": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lähtee nyt"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "avgår nu"
+          }
+        }
+      }
+    },
+    "live": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "live"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "live"
+          }
+        }
+      }
+    },
+    "live position": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sijainti livenä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "liveposition"
+          }
+        }
+      }
+    },
+    "min": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "min"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "min"
+          }
+        }
+      }
+    },
+    "next: %@": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "seuraava: %@"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nästa: %@"
+          }
+        }
+      }
+    },
+    "on track": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aikataulussa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "enligt plan"
+          }
+        }
+      }
+    },
+    "platform %@ · ": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "laituri %@ · "
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "plattform %@ · "
+          }
+        }
+      }
+    },
+    "plenty of time": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "hyvin aikaa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gott om tid"
+          }
+        }
+      }
+    },
+    "realtime": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ennuste"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "realtid"
+          }
+        }
+      }
+    },
+    "run": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "juokse"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "spring"
+          }
+        }
+      }
+    },
+    "tight": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tiukka"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tight"
+          }
+        }
+      }
+    },
+    "timetable": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aikataulu"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tidtabell"
+          }
+        }
+      }
+    },
+    "track %@ · ": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "raide %@ · "
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "spår %@ · "
+          }
+        }
+      }
+    },
+    "wait %lld min": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "odota %lld min"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vänta %lld min"
+          }
+        }
+      }
+    },
+    "walk briskly": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kävele reippaasti"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gå raskt"
+          }
+        }
+      }
+    },
+    "walk now": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "lähde nyt"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gå nu"
+          }
+        }
+      }
+    },
+    "you're there": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "olet perillä"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "du är där"
+          }
+        }
+      }
+    },
+    "“Always” location keeps live tracking running with the screen locked.": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”Aina”-sijainti pitää seurannan käynnissä näytön ollessa lukittuna."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Platsen ”Alltid” håller live-spårningen igång när skärmen är låst."
+          }
+        }
+      }
+    },
+    "“Leave now” reminders": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”Lähde nyt” -muistutukset"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "”Gå nu”-påminnelser"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

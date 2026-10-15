@@ -29,12 +29,12 @@ final class NotificationService {
 
     func requestAuthorization() async {
         _ = try? await center.requestAuthorization(options: [.alert, .sound, .badge])
-        let start = UNNotificationAction(identifier: Self.startAction, title: "Start live tracking", options: [.foreground])
-        let wfh = UNNotificationAction(identifier: Self.wfhAction, title: "Working from home today", options: [])
+        let start = UNNotificationAction(identifier: Self.startAction, title: String(localized: "Start live tracking"), options: [.foreground])
+        let wfh = UNNotificationAction(identifier: Self.wfhAction, title: String(localized: "Working from home today"), options: [])
         let category = UNNotificationCategory(identifier: Self.reminderCategory, actions: [start, wfh], intentIdentifiers: [])
         let occ = UNNotificationCategory(
             identifier: Self.occupancyCategory,
-            actions: zip(Self.occupancyActions, ["Seats free", "Standing room", "Full"]).map {
+            actions: zip(Self.occupancyActions, [String(localized: "Seats free"), String(localized: "Standing room"), String(localized: "Full")]).map {
                 UNNotificationAction(identifier: $0.0, title: $0.1, options: [])
             },
             intentIdentifiers: [])

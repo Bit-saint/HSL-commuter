@@ -27,6 +27,12 @@ See [PLAN.md](PLAN.md) for the design.
 - **"Leave now" reminders** using local notifications that are re-planned in background refresh. No server is needed.
 - **Widgets.** Next departure on the home and lock screen, plus a "Start live tracking" button.
 - **3D map.** Pitched follow camera with pre-rendered, camera-aligned vehicle sprites for every mode: bus, articulated trunk bus, U-bus, Artic tram, Raide-Jokeri light rail, M300 metro, Sm5 train and Suomenlinna-style ferry.
+- **Trip timeline.** Top to bottom: when to leave, the walk, each stop with its arrival time, the wait, and each vehicle's departure marked **live** (vehicle position), **realtime** (HSL's prediction) or **timetable**. Collapsed it shows the part you're on; tap "Show whole trip" for every stop.
+- **Fare zones and ticket.** "Zones AB · single ticket 3,20 €" from the stops' zones and HSL's fare data; **Buy** opens the HSL app (or HSL's ticket page).
+- **iPad layout.** On iPad the trip panel sits beside the map and Today uses two columns.
+- **Honest about rough locations.** Wi-Fi-only iPads and indoor fixes can be off by hundreds of metres. When accuracy is worse than 65 m the app says so, plans from the best case, and never tells you to walk briskly or run.
+- **Demo mode.** Settings › Demo › *Play the demo trip* replays a recorded commute (Kallio → Keilaniemi by metro), live vehicle positions and GPS included, on a virtual clock you can pause, speed up (1–20×) or skip. Turn on *Record my trips* to save your real commutes and replay or share them later. Launch argument `-demo [-demoSpeed 10]` starts it directly; CI uses that to screenshot the real app on iPad and iPhone (artifact **demo-screenshots**).
+- **English, Finnish and Swedish.** The app follows the iPhone's language (or Settings › Commuter › Language). Translations live in `tools/l10n/translations.py`; `python3 tools/l10n/build_catalogs.py` regenerates the String Catalogs and fails on anything missing.
 - **Every mode.** Bus, tram and metro positions come from HFP. Commuter trains also use Fintraffic Digitraffic GPS (matched automatically). Ferries use HFP or realtime data where available.
 
 ## Build and install (personal sideload)

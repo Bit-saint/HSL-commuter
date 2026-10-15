@@ -1,6 +1,7 @@
 # Generate the Xcode project with:  brew install xcodegen && xcodegen generate
 name: HSLCommuter
 options:
+  developmentLanguage: en
   deploymentTarget:
     iOS: "18.0"
   createIntermediateGroups: true
@@ -35,6 +36,8 @@ targets:
       path: Config/App-Info.plist
       properties:
         CFBundleDisplayName: Commuter
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, fi, sv]
         CFBundleShortVersionString: "0.1"
         CFBundleVersion: "1"
         UILaunchScreen: {}
@@ -82,6 +85,8 @@ targets:
       path: Config/Widgets-Info.plist
       properties:
         CFBundleDisplayName: Commuter Widgets
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, fi, sv]
         CFBundleShortVersionString: "0.1"
         CFBundleVersion: "1"
         NSExtension:

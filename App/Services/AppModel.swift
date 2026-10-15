@@ -154,13 +154,13 @@ final class AppModel {
     func dayStatus(on date: Date = Date()) -> DayStatus {
         let weekday = Calendar.current.component(.weekday, from: date)
         if smart.holidayAware, let h = FinnishCalendar.holiday(on: date) {
-            return .dayOff(reason: h.name, symbol: "sparkles")
+            return .dayOff(reason: loc(h.name), symbol: "sparkles")
         }
         if homeWork.wfhDays.contains(FinnishCalendar.dayKey(date)) {
-            return .dayOff(reason: "Working from home", symbol: "house.fill")
+            return .dayOff(reason: String(localized: "Working from home"), symbol: "house.fill")
         }
         if !homeWork.workdays.contains(weekday) {
-            return .dayOff(reason: "Not a workday", symbol: "sun.max.fill")
+            return .dayOff(reason: String(localized: "Not a workday"), symbol: "sun.max.fill")
         }
         if smart.useCalendar, let title = calendarService.dayOffEvent(on: date) {
             return .dayOff(reason: title, symbol: "calendar")

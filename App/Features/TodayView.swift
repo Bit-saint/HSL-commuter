@@ -135,8 +135,8 @@ struct TodayView: View {
     }
 
     private func timeLabel(_ c: Commute) -> String? {
-        if let m = c.arriveByMinutes { return "Arrive by \(m.clockString)" }
-        if let m = c.leaveAtMinutes { return "Leaving at \(m.clockString)" }
+        if let m = c.arriveByMinutes { return String(localized: "Arrive by \(m.clockString)") }
+        if let m = c.leaveAtMinutes { return String(localized: "Leaving at \(m.clockString)") }
         return nil
     }
 
@@ -194,7 +194,7 @@ struct BestOptionCard: View {
                     // Where to go first.
                     Label(firstStep(first), systemImage: "figure.walk")
                     // What to catch there, and when you're there.
-                    Label("\(first.route?.shortName ?? first.mode.displayName) → \(first.headsign ?? first.to.name) at \(clock(first.start))",
+                    Label("\(first.route?.shortName ?? loc(first.mode.displayName)) → \(first.headsign ?? first.to.name) at \(clock(first.start))",
                           systemImage: first.mode.symbolName)
                     Label("Arrive \(clock(option.arrival))", systemImage: "flag.checkered")
                 }
@@ -228,7 +228,9 @@ extension BestOptionCard {
     private func firstStep(_ first: Leg) -> String {
         let walk = option.itinerary.legs.prefix { !$0.mode.isTransit }.reduce(0) { $0 + $1.duration }
         var text = walk >= 60 ? "Walk \(Int((walk / 60).rounded())) min to \(first.from.name)" : "From \(first.from.name)"
-        if let p = first.from.stop?.platform { text += first.mode == .rail ? " · track \(p)" : " · platform \(p)" }
+        if let p = first.from.stop?.platform {
+            text += first.mode == .rail ? String(localized: " · track \(p)") : String(localized: " · platform \(p)")
+        }
         return text
     }
 }
@@ -314,8 +316,8 @@ struct ContextBanners: View {
                 switch app.dayStatus() {
                 case .dayOff(let reason, let symbol):
                     banner(symbol: symbol, color: HSLColor.green, title: reason,
-                           subtitle: "No reminders today. You can still plan a trip.") {
-                        if reason == "Working from home" {
+                           subtitle: String(localized: "No reminders today. You can still plan a trip.")) {
+                        if reason == String(localized: "Working from home") {
                             Button("Undo") { app.setWorkingFromHome(false) }.font(HSLFont.caption())
                         }
                     }
@@ -333,7 +335,7 @@ struct ContextBanners: View {
                 }
             }
             if let headline = app.weatherImpact.headline {
-                banner(symbol: app.weatherImpact.symbol, color: HSLColor.ferry, title: headline,
+                banner(symbol: app.weatherImpact.symbol, color: HSLColor.ferry, title: loc(headline),
                        subtitle: app.weather.map { String(format: "%.0f°C · FMI forecast", $0.temperature) } ?? "") {
                     EmptyView()
                 }
