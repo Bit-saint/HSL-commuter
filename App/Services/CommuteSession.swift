@@ -43,6 +43,8 @@ final class CommuteSession {
     private(set) var phase: Phase
     private(set) var legs: [Int: LiveLeg] = [:]
     private(set) var pace: PaceAdvice?
+    /// When you need to be at the next boarding stop (early estimate minus the boarding buffer).
+    private(set) var boardBy: Date?
     private(set) var transfer: TransferAssessment?
     private(set) var userLocation: CLLocation?
     private(set) var walkDistance: Double?
@@ -592,13 +594,20 @@ final class CommuteSession {
     // MARK: - Messages
 
     /// Pace message with weather in mind ("Stay inside · leave in 4 min").
+    /// One line for the Lock Screen: what to do, with clock times and where to.
     var paceMessage: String {
-        guard let pace else { return "" }
-        if let app, app.weatherImpact.waitIndoors, pace.state == .relax || pace.state == .leaveSoon {
-            let m = Int((pace.leaveAt?.timeIntervalSince(now) ?? 0) / 60)
-            return m > 0 ? "Stay inside · leave in \(m) min" : "Stay inside, almost time"
+        guard let pace, let live = focusLeg else { return "" }
+        let stop = live.leg.from.name
+        let leave = pace.leaveAt.map(Self.clock)
+        switch pace.state {
+        case .relax, .leaveSoon:
+            if let app, app.weatherImpact.waitIndoors, let leave { return "Stay inside · leave at \(leave)" }
+            return leave.map { "Leave at \($0) · walk to \(stop)" } ?? "Leave soon · walk to \(stop)"
+        case .goNow: return "Start walking to \(stop)"
+        case .walkBriskly: return "Walk briskly to \(stop)"
+        case .run: return "Run to \(stop)"
+        default: return pace.message(now: now)
         }
-        return pace.message(now: now)
     }
 
     private func updatePhase() {
@@ -656,18 +665,21 @@ final class CommuteSession {
         transfer = nil
         switch phase {
         case .walking(let i), .waiting(let i):
-            guard let live = legs[i], let eta = live.boardingETA else { pace = nil; return }
+            guard let live = legs[i], let eta = live.boardingETA else { pace = nil; boardBy = nil; return }
             let stop = live.leg.from.location
-            let distance = user.map { walkTracker.distance(from: $0, to: stop) } ?? live.leg.from.location.distance(to: stop)
+            // No GPS fix yet: assume you're where the plan starts walking from.
+            let distance = user.map { walkTracker.distance(from: $0, to: stop) } ?? plannedWalk(before: i)
             walkDistance = distance
             let advisor = PaceAdvisor(walkingSpeed: app.effectiveWalkingSpeed)
             let buffer = ModeProfile.for(live.mode).boardingBuffer + app.effectiveBuffer
+            boardBy = eta.earliest.addingTimeInterval(-buffer)
             let previous = pace?.state
-            let advice = advisor.advise(walkDistance: user == nil ? 0 : distance, eta: eta, buffer: buffer,
+            let advice = advisor.advise(walkDistance: distance, eta: eta, buffer: buffer,
                                         now: now, previous: previous)
             pace = advice
             notifyIfEscalated(advice, live: live, previous: previous)
         case .riding(let i):
+            boardBy = nil
             pace = PaceAdvice(state: .onBoard, leaveAt: nil, margin: 0, requiredSpeed: nil, walkDistance: 0, walkDuration: 0)
             // Check the next connection while still on board.
             guard let current = legs[i], let nextIndex = transitIndices.first(where: { $0 > i }),
@@ -691,7 +703,20 @@ final class CommuteSession {
             }
         case .arrived:
             pace = nil
+            boardBy = nil
         }
+    }
+
+    /// Walking distance the plan has before transit leg `i` (from the previous vehicle or the start).
+    func plannedWalk(before i: Int) -> Double {
+        let start = (transitIndices.last { $0 < i }).map { $0 + 1 } ?? 0
+        return itinerary.legs[start..<i].filter { !$0.mode.isTransit }.reduce(0) { $0 + $1.distance }
+    }
+
+    /// The walking path to transit leg `i`, for the map.
+    func walkPath(before i: Int) -> [GeoPoint] {
+        let start = (transitIndices.last { $0 < i }).map { $0 + 1 } ?? 0
+        return itinerary.legs[start..<i].filter { !$0.mode.isTransit }.flatMap(\.geometry)
     }
 
     private func notifyIfEscalated(_ advice: PaceAdvice, live: LiveLeg, previous: PaceState?) {
@@ -707,17 +732,18 @@ final class CommuteSession {
             if let h = CueSpeaker.haptic(for: advice.state, previous: previous) { app.cues.haptic(h, settings: app.smart) }
         }
         let stop = live.leg.from.name
-        let mins = live.boardingETA.map { $0.minutesLabel(from: now) } ?? "?"
+        let by = (boardBy ?? live.boardingETA?.earliest).map(Self.clock) ?? "?"
+        let leaves = (live.boardingETA?.expected).map(Self.clock) ?? "?"
         switch advice.state {
         case .goNow:
             alert(key: "go-\(live.index)", title: "Time to head out",
-                  body: "\(live.line) reaches \(stop) in \(mins) min. A normal pace gets you there.", chime: .go)
+                  body: "Walk to \(stop), be there by \(by). \(live.line) leaves \(leaves).", chime: .go)
         case .walkBriskly:
             alert(key: "brisk-\(live.index)", title: "A little faster",
-                  body: "\(live.line) at \(stop) in \(mins) min · \(Int(advice.walkDistance)) m to go.", chime: .hurry)
+                  body: "\(Int(advice.walkDistance)) m to \(stop), be there by \(by) for \(live.line).", chime: .hurry)
         case .run:
             alert(key: "run-\(live.index)", title: "Run to make \(live.line)",
-                  body: "\(mins) min left, \(Int(advice.walkDistance)) m to \(stop).", chime: .hurry)
+                  body: "\(Int(advice.walkDistance)) m to \(stop). \(live.line) leaves \(leaves).", chime: .hurry)
         case .willMiss:
             if previous != nil, recovery == nil {
                 startRecovery(.connectionAtRisk(line: live.line, stop: live.leg.from.name),
@@ -755,6 +781,8 @@ final class CommuteSession {
         let target = stops[b].distanceAlong
         return target > 0 ? min(max(s / target, 0), 1) : 1
     }
+
+    static func clock(_ d: Date) -> String { d.formatted(date: .omitted, time: .shortened) }
 
     func nextStopName(for live: LiveLeg) -> String? {
         guard let tracker = live.tracker, let i = tracker.nextStopIndex(at: now) else { return nil }

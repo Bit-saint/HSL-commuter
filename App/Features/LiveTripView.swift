@@ -59,9 +59,9 @@ struct LiveTripView: View {
                 heading = live.tracker?.displayHeading(at: now) ?? heading
                 distance = 420
             case .waiting:
-                // Show the approaching vehicle and your stop.
+                // Show the approaching vehicle and your stop, once it's near.
                 let stop = live.leg.from.location
-                if let v = live.tracker?.displayLocation(at: now) {
+                if let v = live.tracker?.displayLocation(at: now), v.distance(to: stop) < 3_000 {
                     center = GeoPoint(latitude: (v.latitude + stop.latitude) / 2, longitude: (v.longitude + stop.longitude) / 2)
                     distance = min(max(v.distance(to: stop) * 2.2, 500), 6_000)
                     heading = v.bearing(to: stop)
@@ -69,14 +69,14 @@ struct LiveTripView: View {
                     center = stop
                 }
             case .walking:
+                // The whole way from where you are to the stop, looking towards the stop.
                 let stop = live.leg.from.location
-                if let user = session.userLocation.map({ GeoPoint($0.coordinate) }) {
-                    center = GeoPoint(latitude: (user.latitude + stop.latitude) / 2, longitude: (user.longitude + stop.longitude) / 2)
-                    distance = min(max(user.distance(to: stop) * 2.4, 450), 4_000)
-                    heading = user.bearing(to: stop)
-                } else {
-                    center = stop
-                }
+                let path = session.walkPath(before: live.index)
+                let me = session.userLocation.map { GeoPoint($0.coordinate) } ?? path.first ?? stop
+                let fit = fitCamera([me, stop] + path)
+                center = fit.center
+                distance = min(max(fit.span * 2.2, 450), 5_000)
+                heading = me.distance(to: stop) > 30 ? me.bearing(to: stop) : heading
             case .arrived:
                 break
             }
@@ -90,6 +90,16 @@ struct LiveTripView: View {
             camera = .camera(target)
         }
     }
+}
+
+/// Centre and size (m) of the box around some points.
+private func fitCamera(_ pts: [GeoPoint]) -> (center: GeoPoint, span: Double) {
+    let lats = pts.map(\.latitude), lons = pts.map(\.longitude)
+    guard let a = lats.min(), let b = lats.max(), let c = lons.min(), let d = lons.max() else {
+        return (pts.first ?? GeoPoint(latitude: 60.17, longitude: 24.94), 500)
+    }
+    let span = GeoPoint(latitude: a, longitude: c).distance(to: GeoPoint(latitude: b, longitude: d))
+    return (GeoPoint(latitude: (a + b) / 2, longitude: (c + d) / 2), span)
 }
 
 struct CameraState: Equatable {
@@ -294,9 +304,8 @@ struct LiveTripSheet: View {
                     .background((d.severity == .severe ? HSLColor.red : HSLColor.orange).opacity(0.85),
                                 in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
+                NextStepCard(session: session, live: live)
                 RouteCard(session: session, live: live, onStop: onStop)
-                etaRow(live)
-                paceBanner(live)
                 OccupancyAskCard(session: session, live: live)
                 actions(live)
             } else {
@@ -361,70 +370,6 @@ struct LiveTripSheet: View {
     }
 
     @ViewBuilder
-    private func paceBanner(_ live: CommuteSession.LiveLeg) -> some View {
-        if let pace = session.pace, pace.state != .onBoard {
-            HStack(spacing: 12) {
-                Image(systemName: icon(pace.state)).font(.system(size: 26, weight: .bold))
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(pace.state.title).font(HSLFont.title(18))
-                    Text(session.paceMessage).font(HSLFont.caption()).opacity(0.9)
-                }
-                Spacer()
-                if let v = pace.requiredSpeed, v > 0, pace.state != .atStop {
-                    VStack(alignment: .trailing) {
-                        Text(String(format: "%.1f", v * 3.6)).font(HSLFont.number(22))
-                        Text("km/h needed").font(HSLFont.caption(10)).opacity(0.8)
-                    }
-                }
-            }
-            .padding(14)
-            .foregroundStyle(pace.state == .walkBriskly ? Color.black : Color.white)
-            .background(HSLColor.pace(pace.state), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .animation(.snappy, value: pace.state)
-        } else if let transfer = session.transfer {
-            HStack {
-                Image(systemName: "arrow.triangle.swap")
-                Text(transferText(transfer)).font(HSLFont.caption())
-                Spacer()
-            }
-            .padding(12)
-            .background(transferColor(transfer.risk).opacity(0.25), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        }
-    }
-
-    private func transferText(_ t: TransferAssessment) -> String {
-        let mins = Int(t.slack / 60)
-        switch t.risk {
-        case .comfortable: return "Connection OK · \(mins) min to spare"
-        case .tight: return "Tight connection · under 2 min to spare"
-        case .needsHurry: return "Hurry at the transfer: walk fast"
-        case .missed: return "You'll likely miss the connection"
-        }
-    }
-
-    private func transferColor(_ r: TransferRisk) -> Color {
-        switch r {
-        case .comfortable: return HSLColor.green
-        case .tight: return HSLColor.yellow
-        case .needsHurry: return HSLColor.orange
-        case .missed: return HSLColor.red
-        }
-    }
-
-    private func icon(_ s: PaceState) -> String {
-        switch s {
-        case .relax: return "cup.and.saucer.fill"
-        case .leaveSoon: return "clock.fill"
-        case .goNow: return "figure.walk"
-        case .walkBriskly: return "figure.walk.motion"
-        case .run: return "figure.run"
-        case .willMiss: return "xmark.octagon.fill"
-        case .atStop: return "mappin.circle.fill"
-        case .onBoard: return "tram.fill"
-        }
-    }
-
-    @ViewBuilder
     private func actions(_ live: CommuteSession.LiveLeg) -> some View {
         HStack(spacing: 10) {
             Button(action: onStop) {
@@ -465,99 +410,290 @@ struct LiveTripSheet: View {
     }
 }
 
-/// The coloured card: line badge with its seat light, headsign, and the whole trip as a timeline.
+/// What to do next, first: when to leave, which stop to walk to and when to be there.
+/// While riding: where and when to get off. No minute ranges, no speeds.
+struct NextStepCard: View {
+    let session: CommuteSession
+    let live: CommuteSession.LiveLeg
+
+    private var riding: Bool { if case .riding = session.phase { return true }; return false }
+    private var now: Date { session.now }
+
+    var body: some View {
+        if riding { ridingView } else { boardingView }
+    }
+
+    // MARK: Walking to / waiting at the stop
+
+    private var boardingView: some View {
+        let state = session.pace?.state ?? .relax
+        let atStop = state == .atStop || { if case .waiting = session.phase { return true }; return false }()
+        let fg: Color = state == .walkBriskly ? .black : .white
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline) {
+                Image(systemName: atStop ? "mappin.circle.fill" : icon(state)).font(.system(size: 22, weight: .bold))
+                Text(atStop ? "At \(live.leg.from.name)" : title(state)).font(HSLFont.title(22)).lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                Spacer()
+                if !atStop, let leave = session.pace?.leaveAt, leave.timeIntervalSince(now) >= 60,
+                   state == .relax || state == .leaveSoon {
+                    Text("in \(Int(leave.timeIntervalSince(now) / 60)) min").font(HSLFont.body(15)).opacity(0.85)
+                }
+            }
+            if !atStop {
+                // Where to go.
+                HStack(spacing: 6) {
+                    Image(systemName: "figure.walk")
+                    Text(walkLine).lineLimit(1).minimumScaleFactor(0.8)
+                }
+                .font(HSLFont.body(15))
+            }
+            HStack(spacing: 6) {
+                LineBadge(live.line, mode: live.mode, size: 13)
+                Text("→ \(live.headsign)").font(HSLFont.body(15)).lineLimit(1)
+                if let seat = session.fullness(for: live)?.level { SeatLight(seat, size: 11) }
+                Spacer(minLength: 4)
+                Text(atStop ? departsText : beThereText).font(HSLFont.caption(13)).opacity(0.9)
+            }
+            if !atStop, let app = indoorsHint {
+                Text(app).font(HSLFont.caption(12)).opacity(0.85)
+            }
+        }
+        .padding(14)
+        .foregroundStyle(atStop ? Color.white : fg)
+        .background(atStop ? Color.white.opacity(0.08) : HSLColor.pace(state),
+                    in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .animation(.snappy, value: state)
+    }
+
+    private func title(_ state: PaceState) -> String {
+        switch state {
+        case .relax, .leaveSoon:
+            if let leave = session.pace?.leaveAt { return "Leave at \(CommuteSession.clock(leave))" }
+            return "Leave soon"
+        case .goNow: return "Start walking now"
+        case .walkBriskly: return "Walk briskly"
+        case .run: return "Run"
+        case .willMiss: return "You won't make this one"
+        case .atStop: return "At the stop"
+        case .onBoard: return "On board"
+        }
+    }
+
+    private var walkLine: String {
+        let d = session.walkDistance ?? session.plannedWalk(before: live.index)
+        let dist = d >= 1000 ? String(format: "%.1f km", d / 1000) : "\(Int((d / 10).rounded()) * 10) m"
+        var text = "Walk \(dist) to \(live.leg.from.name)"
+        if let p = live.platform { text += live.mode == .rail ? " · track \(p)" : " · platform \(p)" }
+        return text
+    }
+
+    private var beThereText: String {
+        guard let by = session.boardBy else { return "" }
+        return "be there by \(CommuteSession.clock(by))"
+    }
+
+    private var departsText: String {
+        guard let eta = live.boardingETA, !eta.isPassed else { return "" }
+        let mins = Int(eta.expected.timeIntervalSince(now) / 60)
+        let platform = live.platform.map { live.mode == .rail ? "track \($0) · " : "platform \($0) · " } ?? ""
+        return platform + "leaves \(CommuteSession.clock(eta.expected))" + (mins < 10 ? " (\(max(mins, 0)) min)" : "")
+    }
+
+    private var indoorsHint: String? {
+        guard let state = session.pace?.state, state == .relax || state == .leaveSoon else { return nil }
+        return session.paceMessage.hasPrefix("Stay inside") ? "Stay inside until then" : nil
+    }
+
+    private func icon(_ s: PaceState) -> String {
+        switch s {
+        case .relax: return "cup.and.saucer.fill"
+        case .leaveSoon: return "clock.fill"
+        case .goNow: return "figure.walk"
+        case .walkBriskly: return "figure.walk.motion"
+        case .run: return "figure.run"
+        case .willMiss: return "xmark.octagon.fill"
+        case .atStop: return "mappin.circle.fill"
+        case .onBoard: return "tram.fill"
+        }
+    }
+
+    // MARK: On board
+
+    private var ridingView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline) {
+                Image(systemName: "arrow.down.right.circle.fill").font(.system(size: 22, weight: .bold))
+                Text("Get off at \(live.leg.to.name)").font(HSLFont.title(21)).lineLimit(1).minimumScaleFactor(0.7)
+                Spacer()
+                if let eta = live.alightingETA, !eta.isPassed {
+                    Text(CommuteSession.clock(eta.expected)).font(HSLFont.number(20))
+                }
+            }
+            HStack(spacing: 6) {
+                LineBadge(live.line, mode: live.mode, size: 13)
+                Text("→ \(live.headsign)").font(HSLFont.body(15)).lineLimit(1)
+                if let seat = session.fullness(for: live)?.level { SeatLight(seat, size: 11) }
+                Spacer(minLength: 4)
+                if let next = session.nextStopName(for: live) {
+                    Text("next: \(next)").font(HSLFont.caption(12)).foregroundStyle(.secondary).lineLimit(1)
+                }
+            }
+            if let t = session.transfer {
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.triangle.swap")
+                    Text(transferText(t)).font(HSLFont.caption(13))
+                    Spacer()
+                }
+                .padding(10)
+                .background(transferColor(t.risk).opacity(0.25), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+        }
+        .padding(14)
+        .foregroundStyle(.white)
+        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    private func transferText(_ t: TransferAssessment) -> String {
+        let mins = Int(t.slack / 60)
+        switch t.risk {
+        case .comfortable: return "Change OK · \(mins) min to spare"
+        case .tight: return "Tight change · under 2 min to spare"
+        case .needsHurry: return "Hurry at the change: walk fast"
+        case .missed: return "You'll likely miss the change"
+        }
+    }
+
+    private func transferColor(_ r: TransferRisk) -> Color {
+        switch r {
+        case .comfortable: return HSLColor.green
+        case .tight: return HSLColor.yellow
+        case .needsHurry: return HSLColor.orange
+        case .missed: return HSLColor.red
+        }
+    }
+}
+
+/// Where you're going and the whole trip as a timeline, walking included.
 struct RouteCard: View {
     let session: CommuteSession
     let live: CommuteSession.LiveLeg
     var onStop: () -> Void
 
     var body: some View {
-        let color = HSLColor.mode(live.mode)
+        let timeline = TripTimeline.Model(session: session)
         VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                LineBadge(live.line, mode: live.mode, showsIcon: true, size: 15)
-                    .background(.white.opacity(0.15), in: RoundedRectangle(cornerRadius: 8))
-                if let seat = session.fullness(for: live)?.level { SeatLight(seat, size: 13) }
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Heading to").font(HSLFont.caption()).foregroundStyle(.secondary)
+                    Text(session.destinationName).font(HSLFont.display(26)).lineLimit(1).minimumScaleFactor(0.6)
+                }
                 Spacer()
+                if let arrive = timeline.nodes.last?.arrive {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("Arrive").font(HSLFont.caption()).foregroundStyle(.secondary)
+                        Text(CommuteSession.clock(arrive)).font(HSLFont.number(22))
+                    }
+                }
                 Button(action: onStop) {
                     Image(systemName: "xmark").font(.system(size: 13, weight: .bold))
-                        .frame(width: 30, height: 30).background(.black.opacity(0.25), in: Circle())
+                        .frame(width: 30, height: 30).background(.white.opacity(0.12), in: Circle())
                 }
                 .buttonStyle(.plain)
+                .padding(.leading, 6)
             }
-            Text("Heading to").font(HSLFont.caption()).opacity(0.85)
-            Text(live.headsign).font(HSLFont.display(30)).lineLimit(1).minimumScaleFactor(0.6)
-            TripTimeline(session: session)
-                .padding(12)
-                .background(.black.opacity(0.55), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            TripTimeline(model: timeline)
         }
-        .padding(16)
-        .background(
-            LinearGradient(colors: [color, color.opacity(0.7)], startPoint: .top, endPoint: .bottom),
-            in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .padding(14)
+        .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 }
 
-/// Kilta 19:02 ── Kerava 19:20 ── Helsinki 20:00
-/// Arrivals in white; start times and waits at the changes in gray. Live estimates when we have them.
+/// Start 18:42 ┄walk 8┄ Kilta 18:58 ── R ── Kerava 19:20 ── K ── Helsinki 20:00
+/// Leave and arrival times in white; departures and waits at the stops in gray. Live where we can.
 struct TripTimeline: View {
-    let session: CommuteSession
+    let model: Model
 
-    struct Node: Identifiable {
-        var id: Int
+    struct Node {
         var name: String
         var arrive: Date?
         var depart: Date?
-        var walk: TimeInterval = 0
+        var isStart = false
         var passed = false
     }
 
     struct Segment {
-        var line: String
+        var line: String?
         var mode: TransitMode
+        var minutes: Int
         var current: Bool
         var done: Bool
     }
 
-    private var model: (nodes: [Node], segments: [Segment]) {
-        let legs = session.itinerary.legs
-        let transit = legs.indices.filter { legs[$0].mode.isTransit }
+    struct Model {
         var nodes: [Node] = []
         var segments: [Segment] = []
-        let focus = session.focusLeg?.index
-        let arrived: Bool = { if case .arrived = session.phase { return true }; return false }()
-        for (k, i) in transit.enumerated() {
-            let leg = legs[i]
-            let live = session.legs[i]
-            let depart = live?.boardingETA?.expected ?? leg.start
-            let arrive = live?.alightingETA?.expected ?? leg.end
-            let done = arrived || (focus.map { i < $0 } ?? false)
-            if k == 0 {
-                nodes.append(Node(id: i, name: leg.from.name, depart: depart, passed: done || focus.map { i < $0 || isRiding($0) } == true))
-            } else {
-                nodes[nodes.count - 1].depart = depart
-                let prev = transit[k - 1]
-                nodes[nodes.count - 1].walk = legs[(prev + 1)..<i].filter { !$0.mode.isTransit }.map(\.duration).reduce(0, +)
-            }
-            segments.append(Segment(line: live?.line ?? leg.route?.shortName ?? leg.mode.displayName, mode: leg.mode,
-                                    current: focus == i, done: done))
-            nodes.append(Node(id: i + 10_000, name: leg.to.name, arrive: arrive, passed: done))
-        }
-        return (nodes, segments)
-    }
 
-    private func isRiding(_ i: Int) -> Bool {
-        if case .riding(let r) = session.phase { return r == i }
-        return false
+        @MainActor
+        init(session: CommuteSession) {
+            let legs = session.itinerary.legs
+            guard !legs.isEmpty else { return }
+            // Which legs are behind you, and which one you're on.
+            let (currentRange, doneBefore): (Range<Int>, Int) = {
+                switch session.phase {
+                case .walking(let i):
+                    let start = (session.transitIndices.last { $0 < i }).map { $0 + 1 } ?? 0
+                    return (start..<i, start)
+                case .waiting(let i): return (i..<i, i)
+                case .riding(let i): return (i..<(i + 1), i)
+                case .arrived: return (legs.count..<legs.count, legs.count)
+                }
+            }()
+
+            // Before the first vehicle the trip starts when you leave, not when the plan said.
+            let beforeFirst: Bool = {
+                if case .walking(let i) = session.phase { return i == session.transitIndices.first }
+                return false
+            }()
+            var t = legs[0].start
+            if beforeFirst, let leave = session.pace?.leaveAt { t = leave }
+            let startName = legs[0].from.name
+            nodes.append(Node(name: startName.isEmpty || startName.lowercased() == "origin" ? "Start" : startName,
+                              depart: legs[0].mode.isTransit ? nil : t, isStart: true, passed: doneBefore > 0))
+            for (i, leg) in legs.enumerated() {
+                let done = i < doneBefore
+                if leg.mode.isTransit {
+                    let live = session.legs[i]
+                    let dep = live?.boardingETA?.expected ?? leg.start
+                    let arr = live?.alightingETA?.expected ?? leg.end
+                    nodes[nodes.count - 1].depart = dep
+                    segments.append(Segment(line: live?.line ?? leg.route?.shortName ?? leg.mode.displayName, mode: leg.mode,
+                                            minutes: Int(arr.timeIntervalSince(dep) / 60), current: currentRange.contains(i), done: done))
+                    nodes.append(Node(name: leg.to.name, arrive: arr, passed: done))
+                    t = arr
+                } else {
+                    let arr = t.addingTimeInterval(leg.duration)
+                    segments.append(Segment(line: nil, mode: .walk, minutes: max(Int((leg.duration / 60).rounded()), 1),
+                                            current: currentRange.contains(i), done: done))
+                    let name = i == legs.count - 1 ? session.destinationName : leg.to.name
+                    nodes.append(Node(name: name, arrive: arr, passed: done))
+                    t = arr
+                }
+            }
+            // The first stop: you need to be there by the boarding time, not when the plan's walk ends.
+            if beforeFirst, let first = legs.firstIndex(where: \.mode.isTransit), first > 0, nodes.count > first,
+               let by = session.boardBy {
+                nodes[first].arrive = by
+            }
+        }
     }
 
     var body: some View {
-        let m = model
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(alignment: .top, spacing: 0) {
-                ForEach(Array(m.nodes.enumerated()), id: \.element.id) { k, node in
-                    if k > 0 { connector(m.segments[k - 1]) }
-                    nodeView(node, first: k == 0, last: k == m.nodes.count - 1)
+                ForEach(Array(model.nodes.enumerated()), id: \.offset) { k, node in
+                    if k > 0 { connector(model.segments[k - 1]) }
+                    nodeView(node, first: k == 0, last: k == model.nodes.count - 1)
                 }
             }
         }
@@ -570,43 +706,61 @@ struct TripTimeline: View {
                 .frame(width: 12, height: 12)
                 .frame(height: 24)
             Text(node.name).font(HSLFont.caption(13)).foregroundStyle(.white).lineLimit(1)
-            if let arrive = node.arrive {
-                Text(time(arrive)).font(HSLFont.number(15)).foregroundStyle(.white)
-            }
-            if let depart = node.depart {
+            if node.isStart, let leave = node.depart {
+                // When to leave: the one time that matters most.
+                Text("leave \(CommuteSession.clock(leave))").font(HSLFont.number(15)).foregroundStyle(.white)
+            } else {
                 if let arrive = node.arrive {
-                    let wait = max(depart.timeIntervalSince(arrive) - node.walk, 0)
-                    Text("dep \(time(depart))").font(HSLFont.caption(12)).foregroundStyle(.gray)
-                    HStack(spacing: 3) {
-                        if node.walk >= 60 {
-                            Image(systemName: "figure.walk")
-                            Text("\(Int(node.walk / 60))")
-                        }
-                        Text("wait \(Int((wait / 60).rounded())) min")
+                    Text(CommuteSession.clock(arrive)).font(HSLFont.number(15)).foregroundStyle(.white)
+                }
+                if let depart = node.depart {
+                    Text("dep \(CommuteSession.clock(depart))").font(HSLFont.caption(12)).foregroundStyle(.gray)
+                    if let arrive = node.arrive {
+                        let wait = max(Int((depart.timeIntervalSince(arrive) / 60).rounded()), 0)
+                        Text("wait \(wait) min").font(HSLFont.caption(11)).foregroundStyle(.gray)
                     }
-                    .font(HSLFont.caption(11)).foregroundStyle(.gray)
-                } else {
-                    Text(time(depart)).font(HSLFont.number(15)).foregroundStyle(.gray)
                 }
             }
         }
         .fixedSize()
     }
 
+    @ViewBuilder
     private func connector(_ seg: Segment) -> some View {
         ZStack {
-            Capsule().fill(HSLColor.mode(seg.mode).opacity(seg.done ? 0.35 : 1))
-                .frame(height: seg.current ? 5 : 3)
-            LineBadge(seg.line, mode: seg.mode, showsIcon: true, size: 11)
-                .overlay(RoundedRectangle(cornerRadius: 5).stroke(.white.opacity(seg.current ? 0.9 : 0), lineWidth: 1.5))
-                .opacity(seg.done ? 0.5 : 1)
+            if seg.mode == .walk {
+                DashLine().stroke(Color.gray.opacity(seg.done ? 0.4 : 1),
+                              style: StrokeStyle(lineWidth: seg.current ? 3 : 2, lineCap: .round, dash: [2, 5]))
+                    .frame(height: 3)
+                HStack(spacing: 2) {
+                    Image(systemName: "figure.walk")
+                    Text("\(seg.minutes)")
+                }
+                .font(HSLFont.caption(11))
+                .foregroundStyle(seg.current ? Color.white : Color.gray)
+                .padding(.horizontal, 5).padding(.vertical, 2)
+                .background(Color(white: 0.12), in: Capsule())
+            } else {
+                Capsule().fill(HSLColor.mode(seg.mode).opacity(seg.done ? 0.35 : 1))
+                    .frame(height: seg.current ? 5 : 3)
+                LineBadge(seg.line ?? "", mode: seg.mode, showsIcon: true, size: 11)
+                    .overlay(RoundedRectangle(cornerRadius: 5).stroke(.white.opacity(seg.current ? 0.9 : 0), lineWidth: 1.5))
+                    .opacity(seg.done ? 0.5 : 1)
+            }
         }
-        .frame(minWidth: 70, maxWidth: .infinity)
+        .frame(minWidth: seg.mode == .walk ? 56 : 70, maxWidth: .infinity)
         .frame(height: 24)
         .padding(.horizontal, 4)
     }
+}
 
-    private func time(_ d: Date) -> String { d.formatted(date: .omitted, time: .shortened) }
+private struct DashLine: Shape {
+    func path(in rect: CGRect) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: rect.minX, y: rect.midY))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        return p
+    }
 }
 
 

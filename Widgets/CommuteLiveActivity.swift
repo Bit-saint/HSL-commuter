@@ -78,7 +78,9 @@ private struct LockScreenView: View {
 
     private var headline: String {
         switch state.phase {
-        case .walking, .waiting, .transfer: return "At \(state.stopName)"
+        case .walking: return "Walk to \(state.stopName)"
+        case .waiting: return "At \(state.stopName)"
+        case .transfer: return "Go to \(state.stopName)"
         case .riding: return "To \(state.stopName) · \(destination)"
         case .arrived: return "Arrived"
         }
@@ -90,9 +92,10 @@ private struct Countdown: View {
     let size: CGFloat
 
     var body: some View {
+        let target = state.countdownTarget
         VStack(alignment: .trailing, spacing: 0) {
-            if state.eta > Date() {
-                Text(timerInterval: Date()...state.eta, countsDown: true, showsHours: false)
+            if target.date > Date() {
+                Text(timerInterval: Date()...target.date, countsDown: true, showsHours: false)
                     .font(HSLFont.number(size))
                     .multilineTextAlignment(.trailing)
                     .frame(maxWidth: size * 3.2, alignment: .trailing)
@@ -100,8 +103,10 @@ private struct Countdown: View {
                 Text("Now").font(HSLFont.number(size))
             }
             HStack(spacing: 3) {
-                Circle().fill(state.isLive ? HSLColor.green : .gray).frame(width: 5, height: 5)
-                Text(state.isLive ? "live" : "timetable").font(.system(size: 10, weight: .semibold, design: .rounded))
+                if !target.isLeave {
+                    Circle().fill(state.isLive ? HSLColor.green : .gray).frame(width: 5, height: 5)
+                }
+                Text(target.label).font(.system(size: 10, weight: .semibold, design: .rounded))
                     .foregroundStyle(.secondary)
             }
         }
@@ -112,8 +117,8 @@ private struct CompactCountdown: View {
     let state: CommuteActivityAttributes.ContentState
 
     var body: some View {
-        if state.eta > Date() {
-            Text(timerInterval: Date()...state.eta, countsDown: true, showsHours: false)
+        if state.countdownTarget.date > Date() {
+            Text(timerInterval: Date()...state.countdownTarget.date, countsDown: true, showsHours: false)
                 .font(.system(size: 14, weight: .heavy, design: .rounded).monospacedDigit())
                 .foregroundStyle(HSLColor.pace(state.pace))
                 .frame(maxWidth: 48)
@@ -132,9 +137,6 @@ private struct PaceStrip: View {
                 Image(systemName: paceIcon(state.pace)).font(.system(size: 16, weight: .bold))
                 Text(state.paceMessage).font(HSLFont.body(14)).lineLimit(1)
                 Spacer(minLength: 0)
-                if let leave = state.leaveAt, leave > Date(), state.pace == .relax || state.pace == .leaveSoon {
-                    Text(leave, style: .time).font(HSLFont.caption(12))
-                }
             }
             .padding(.horizontal, 10).padding(.vertical, 7)
             .foregroundStyle(state.pace == .walkBriskly ? Color.black : Color.white)
@@ -184,6 +186,19 @@ private struct ProgressBar: View {
             }
         }
         .frame(height: 6)
+    }
+}
+
+extension CommuteActivityAttributes.ContentState {
+    /// Before you leave, count down to leaving; after that, to the vehicle.
+    var countdownTarget: (date: Date, label: String, isLeave: Bool) {
+        if phase == .walking, let leave = leaveAt, leave > Date(), pace == .relax || pace == .leaveSoon {
+            return (leave, "until you leave", true)
+        }
+        switch phase {
+        case .riding: return (eta, isLive ? "live · to your stop" : "to your stop", false)
+        default: return (eta, isLive ? "live · leaves" : "leaves", false)
+        }
     }
 }
 

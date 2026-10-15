@@ -146,30 +146,35 @@ struct BestOptionCard: View {
         let leave = option.leaveAt.timeIntervalSince(now)
         let color: Color = leave > 180 ? HSLColor.green : (leave > 0 ? HSLColor.yellow : HSLColor.orange)
         VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Text(leave > 0 ? "Leave in" : "Leave now").font(HSLFont.body()).opacity(0.85)
+            HStack(alignment: .firstTextBaseline) {
+                Text(leave > 0 ? "Leave at \(clock(option.leaveAt))" : "Leave now").font(HSLFont.title(22))
                 Spacer()
                 if option.isRealtime { LiveBadge() }
             }
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 if leave > 0 {
-                    Text("\(Int(leave / 60))").font(HSLFont.display(64))
+                    Text("in").font(HSLFont.title()).opacity(0.85)
+                    Text("\(Int(leave / 60))").font(HSLFont.display(56))
                     Text("min").font(HSLFont.title())
                 } else {
-                    Text("Go!").font(HSLFont.display(56))
+                    Text("Go!").font(HSLFont.display(52))
                 }
             }
             LegStrip(legs: option.itinerary.legs, seat: option.seatLevel)
-            OptionExtras(option: option)
-            HStack {
-                if let first = option.firstTransit {
-                    Text("\(first.route?.shortName ?? "") from \(first.from.name) at \(first.start.formatted(date: .omitted, time: .shortened))")
-                        .font(HSLFont.caption())
+            if let first = option.firstTransit {
+                VStack(alignment: .leading, spacing: 4) {
+                    // Where to go first.
+                    Label(firstStep(first), systemImage: "figure.walk")
+                    // What to catch there, and when you're there.
+                    Label("\(first.route?.shortName ?? first.mode.displayName) → \(first.headsign ?? first.to.name) at \(clock(first.start))",
+                          systemImage: first.mode.symbolName)
+                    Label("Arrive \(clock(option.arrival))", systemImage: "flag.checkered")
                 }
-                Spacer()
-                Text("Arrive \(option.arrival.formatted(date: .omitted, time: .shortened))").font(HSLFont.caption())
+                .font(HSLFont.body(15))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
             }
-            .opacity(0.9)
+            OptionExtras(option: option)
             Button(action: onStart) {
                 Label("Start live tracking", systemImage: "location.north.line.fill")
                     .font(HSLFont.body())
@@ -187,6 +192,18 @@ struct BestOptionCard: View {
     }
 }
 
+extension BestOptionCard {
+    private func clock(_ d: Date) -> String { d.formatted(date: .omitted, time: .shortened) }
+
+    /// "Walk 8 min to Kilta · platform 2"
+    private func firstStep(_ first: Leg) -> String {
+        let walk = option.itinerary.legs.prefix { !$0.mode.isTransit }.reduce(0) { $0 + $1.duration }
+        var text = walk >= 60 ? "Walk \(Int((walk / 60).rounded())) min to \(first.from.name)" : "From \(first.from.name)"
+        if let p = first.from.stop?.platform { text += first.mode == .rail ? " · track \(p)" : " · platform \(p)" }
+        return text
+    }
+}
+
 struct OptionRow: View {
     var option: PlannedOption
 
@@ -194,7 +211,9 @@ struct OptionRow: View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
                 LegStrip(legs: option.itinerary.legs, seat: option.seatLevel)
-                Text("Leave \(option.leaveAt.formatted(date: .omitted, time: .shortened)) · arrive \(option.arrival.formatted(date: .omitted, time: .shortened))")
+                Text("Leave \(option.leaveAt.formatted(date: .omitted, time: .shortened))"
+                     + (option.firstTransit.map { " · from \($0.from.name)" } ?? "")
+                     + " · arrive \(option.arrival.formatted(date: .omitted, time: .shortened))")
                     .font(HSLFont.caption()).foregroundStyle(.secondary)
                 OptionExtras(option: option)
             }
