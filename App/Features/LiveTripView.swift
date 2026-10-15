@@ -84,6 +84,17 @@ struct LiveTripView: View {
             center = GeoPoint(latitude: (me.latitude + stop.latitude) / 2, longitude: (me.longitude + stop.longitude) / 2)
             distance = min(max(me.distance(to: stop) * 2.6, 450), 5_000)
             heading = me.bearing(to: stop)
+        } else if case .arrived = session.phase {
+            // The last walk, from where you are to the destination.
+            let lastTransit = session.itinerary.legs.lastIndex(where: \.mode.isTransit) ?? -1
+            let path = session.itinerary.legs.enumerated().filter { $0.offset > lastTransit }.flatMap(\.element.geometry)
+            if let goal = path.last ?? session.itinerary.legs.last?.to.location {
+                let me = session.userLocation.map { GeoPoint($0.coordinate) } ?? path.first ?? goal
+                let fit = fitCamera([me, goal] + path)
+                center = fit.center
+                distance = min(max(fit.span * 2.2, 400), 4_000)
+                heading = me.distance(to: goal) > 30 ? me.bearing(to: goal) : heading
+            }
         } else if let live = session.focusLeg {
             switch session.phase {
             case .riding:
@@ -376,6 +387,7 @@ struct LiveTripSheet: View {
                 actions(live)
             } else {
                 arrivedView
+                RouteCard(session: session, onStop: onStop, expanded: $expanded)
             }
         }
         .padding(14)
