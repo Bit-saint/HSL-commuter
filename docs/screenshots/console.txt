@@ -1,0 +1,27 @@
+## iPad
+[demo] 4:47 AM PHASE walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=2 passed=false alight=10 passed=false userToStop=531m eta=4:57 AM src=liveVehicle pace=walkBriskly onBoard=false
+[demo] 4:48 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=2 passed=false alight=10 passed=false userToStop=525m eta=4:57 AM src=liveVehicle pace=walkBriskly onBoard=false
+[demo] 4:49 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=2 passed=false alight=10 passed=false userToStop=525m eta=4:57 AM src=liveVehicle pace=run onBoard=false
+[demo] 4:50 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=2 passed=false alight=10 passed=false userToStop=528m eta=4:57 AM src=liveVehicle pace=run onBoard=false
+[demo] 4:51 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=2 passed=false alight=10 passed=false userToStop=485m eta=4:57 AM src=liveVehicle pace=run onBoard=false
+[demo] 4:52 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=2 passed=false alight=10 passed=false userToStop=401m eta=4:57 AM src=liveVehicle pace=run onBoard=false
+[demo] 4:53 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=2 passed=false alight=10 passed=false userToStop=308m eta=4:57 AM src=liveVehicle pace=run onBoard=false
+[demo] 4:54 AM walking(toLeg: 1) vehicle d=333 next=1 dwell=- board=2 passed=false alight=10 passed=false userToStop=215m eta=4:57 AM src=liveVehicle pace=run onBoard=false
+[demo] 4:55 AM walking(toLeg: 1) vehicle d=1428 next=1 dwell=- board=2 passed=false alight=10 passed=false userToStop=120m eta=4:57 AM src=liveVehicle pace=run onBoard=false
+[demo] 4:56 AM PHASE waiting(leg: 1) vehicle d=1679 next=2 dwell=- board=2 passed=false alight=10 passed=false userToStop=29m eta=4:57 AM src=liveVehicle pace=atStop onBoard=false
+[demo] 4:57 AM waiting(leg: 1) vehicle d=2401 next=2 dwell=- board=2 passed=false alight=10 passed=false userToStop=0m eta=4:58 AM src=liveVehicle pace=atStop onBoard=false
+[demo] 4:58 AM PHASE riding(leg: 1) vehicle d=2636 next=3 dwell=- board=2 passed=true alight=10 passed=false userToStop=22m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 4:59 AM riding(leg: 1) vehicle d=3417 next=3 dwell=- board=2 passed=true alight=10 passed=false userToStop=801m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 5:00 AM riding(leg: 1) vehicle d=3725 next=4 dwell=- board=2 passed=true alight=10 passed=false userToStop=1107m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 5:01 AM riding(leg: 1) vehicle d=4589 next=4 dwell=4 board=2 passed=true alight=10 passed=false userToStop=1956m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 5:02 AM riding(leg: 1) vehicle d=4871 next=5 dwell=- board=2 passed=true alight=10 passed=false userToStop=2119m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 5:03 AM riding(leg: 1) vehicle d=5054 next=6 dwell=- board=2 passed=true alight=10 passed=false userToStop=2266m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 5:05 AM riding(leg: 1) vehicle d=5466 next=6 dwell=6 board=2 passed=true alight=10 passed=false userToStop=2544m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 5:06 AM riding(leg: 1) vehicle d=6054 next=7 dwell=- board=2 passed=true alight=10 passed=false userToStop=3103m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 5:07 AM riding(leg: 1) vehicle d=6590 next=7 dwell=7 board=2 passed=true alight=10 passed=false userToStop=3631m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 5:08 AM riding(leg: 1) vehicle d=7367 next=8 dwell=- board=2 passed=true alight=10 passed=false userToStop=4316m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 5:09 AM riding(leg: 1) vehicle d=8580 next=8 dwell=- board=2 passed=true alight=10 passed=false userToStop=5410m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 5:10 AM riding(leg: 1) vehicle d=8904 next=9 dwell=- board=2 passed=true alight=10 passed=false userToStop=5610m eta=4:58 AM src=passed pace=onBoard onBoard=true
+[demo] 5:11 AM riding(leg: 1) vehicle d=9964 next=9 
+## iPhone
+grep: iphone-console.log: No such file or directory
