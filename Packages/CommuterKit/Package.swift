@@ -18,6 +18,7 @@ let package = Package(
         .target(name: "HSLDesign", dependencies: ["ETAEngine"]),
         .testTarget(name: "ETAEngineTests", dependencies: ["ETAEngine"]),
         .testTarget(name: "HSLKitTests", dependencies: ["HSLKit"]),
+        .testTarget(name: "HSLDesignTests", dependencies: ["HSLDesign", "ETAEngine"]),
     ],
     swiftLanguageModes: [.v5]
 )

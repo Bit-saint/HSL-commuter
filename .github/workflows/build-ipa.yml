@@ -78,9 +78,16 @@ jobs:
         run: |
           sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
           set -o pipefail
+          export VEHICLE_PREVIEW_DIR="$GITHUB_WORKSPACE/vehicle-previews"
           cd Packages/CommuterKit && swift test 2>&1 | tail -120
       - name: Station builder tests
         run: python3 -m unittest discover -s tools/stations
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vehicle-previews
+          path: vehicle-previews
+          retention-days: 30
 
   # Launches the app on an iPad simulator and reports crashes (console output + crash report).
   simulator-smoke:
