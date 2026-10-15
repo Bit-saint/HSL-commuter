@@ -221,6 +221,10 @@ jobs:
           done
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          { echo "## iPad"; grep -a "\[demo\]\|Fatal\|fatal" ipad-console.log | head -200;
+            echo "## iPhone"; grep -a "\[demo\]\|Fatal\|fatal" iphone-console.log | head -200;
+            for f in ~/Library/Logs/DiagnosticReports/HSLCommuter*; do [ -f "$f" ] && { echo "## crash $f"; head -c 8000 "$f"; }; done
+          } > docs/screenshots/console.txt 2>&1 || true
           git add docs/screenshots
           git commit -m "Demo screenshots from CI [skip ci]" || exit 0
           git push origin "HEAD:${GITHUB_REF_NAME}"
