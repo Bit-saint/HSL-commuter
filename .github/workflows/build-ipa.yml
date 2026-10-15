@@ -178,29 +178,34 @@ jobs:
           mkdir -p shots
           IPAD_ID=$(t 120 xcrun simctl create demo-ipad "$IPAD" "$RUNTIME")
           IPHONE_ID=$(t 120 xcrun simctl create demo-iphone "$IPHONE" "$RUNTIME")
-          for ID in $IPAD_ID $IPHONE_ID; do t 300 xcrun simctl boot "$ID" || true; done
-          for ID in $IPAD_ID $IPHONE_ID; do
-            echo "waiting for $ID"; t 600 xcrun simctl bootstatus "$ID" -b > /dev/null || echo "bootstatus timed out"
-            t 300 xcrun simctl install "$ID" "$APP"
-            t 60 xcrun simctl status_override "$ID" --time "07:47" --batteryState charged --batteryLevel 100 || true
-          done
-          echo "launching"
-          t 60 xcrun simctl launch --stdout="$PWD/ipad-console.log" --stderr="$PWD/ipad-console.log" "$IPAD_ID" "$BUNDLE" -demo -demoSpeed 12 || echo "ipad launch failed"
+          : > status.log
+          # One device at a time: boot, install, play the demo with its own clock, screenshot.
+          # Demo at 12x from 07:40: leave 07:47 (35 s), walking (60 s), at the stop (85 s),
+          # riding (125 s), walking to work (185 s).
+          play() {
+            local NAME=$1 ID=$2; shift 2
+            echo "== $NAME" | tee -a status.log
+            t 300 xcrun simctl boot "$ID" >> status.log 2>&1 || echo "boot failed" | tee -a status.log
+            t 900 xcrun simctl bootstatus "$ID" -b > /dev/null 2>> status.log || echo "bootstatus timed out" | tee -a status.log
+            t 300 xcrun simctl install "$ID" "$APP" >> status.log 2>&1 || echo "install failed" | tee -a status.log
+            t 60 xcrun simctl status_override "$ID" --time "07:40" --batteryState charged --batteryLevel 100 >> status.log 2>&1 || true
+            local START=$(date +%s)
+            t 120 env SIMCTL_CHILD_TZ=Europe/Helsinki xcrun simctl launch --stdout="$PWD/$NAME-console.log" --stderr="$PWD/$NAME-console.log" \
+              "$ID" "$BUNDLE" -demo -demoSpeed 12 "$@" >> status.log 2>&1 || echo "launch failed" | tee -a status.log
+            echo "launched after $(( $(date +%s) - START )) s" | tee -a status.log
+            for AT in 12 40 60 85 125 185; do
+              while [ $(( $(date +%s) - START )) -lt $AT ]; do sleep 1; done
+              t 30 xcrun simctl io "$ID" screenshot "shots/$NAME-$AT.png" > /dev/null 2>> status.log || echo "shot $AT failed" | tee -a status.log
+              echo "shot $NAME $AT at $(( $(date +%s) - START )) s" | tee -a status.log
+            done
+            if t 30 xcrun simctl spawn "$ID" launchctl list | grep -q "$BUNDLE"; then echo "$NAME APP_ALIVE=yes" | tee -a status.log; else echo "$NAME APP_ALIVE=no" | tee -a status.log; fi
+            t 120 xcrun simctl shutdown "$ID" || true
+          }
+          play ipad "$IPAD_ID"
           # The iPhone runs in Finnish to check the translations.
-          t 60 xcrun simctl launch --stdout="$PWD/iphone-console.log" --stderr="$PWD/iphone-console.log" "$IPHONE_ID" "$BUNDLE" -demo -demoSpeed 12 -AppleLanguages "(fi)" -AppleLocale fi_FI || echo "iphone launch failed"
-          START=$(date +%s)
-          # Real seconds after launch at 12x: leave time, walking, at the stop, riding, walking to work.
-          for AT in 8 33 56 95 146; do
-            while [ $(( $(date +%s) - START )) -lt $AT ]; do sleep 1; done
-            echo "shot at ${AT}s"
-            t 30 xcrun simctl io "$IPAD_ID" screenshot "shots/ipad-$AT.png" > /dev/null 2>&1 || echo "ipad shot failed"
-            t 30 xcrun simctl io "$IPHONE_ID" screenshot "shots/iphone-$AT.png" > /dev/null 2>&1 || echo "iphone shot failed"
-          done
+          play iphone "$IPHONE_ID" -AppleLanguages "(fi)" -AppleLocale fi_FI
           echo "=== summary ==="
           ls -la shots
-          for ID in $IPAD_ID $IPHONE_ID; do
-            if t 30 xcrun simctl spawn "$ID" launchctl list | grep -q "$BUNDLE"; then echo "$ID APP_ALIVE=yes"; else echo "$ID APP_ALIVE=no"; fi
-          done
           for f in ~/Library/Logs/DiagnosticReports/HSLCommuter*; do [ -f "$f" ] && { echo "--- crash $f"; head -c 6000 "$f"; echo; }; done
           echo "=== ipad console ==="; grep -a "\[demo\]\|Fatal\|fatal\|Error" ipad-console.log | head -60 || true
           echo "=== iphone console ==="; grep -a "\[demo\]\|Fatal\|fatal\|Error" iphone-console.log | head -60 || true
@@ -221,7 +226,7 @@ jobs:
           done
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          { echo "## iPad"; grep -a "\[demo\]\|Fatal\|fatal" ipad-console.log | head -200;
+          { echo "## status"; cat status.log; echo "## iPad"; grep -a "\[demo\]\|Fatal\|fatal" ipad-console.log | head -200;
             echo "## iPhone"; grep -a "\[demo\]\|Fatal\|fatal" iphone-console.log | head -200;
             for f in ~/Library/Logs/DiagnosticReports/HSLCommuter*; do [ -f "$f" ] && { echo "## crash $f"; head -c 8000 "$f"; }; done
           } > docs/screenshots/console.txt 2>&1 || true

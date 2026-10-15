@@ -46,6 +46,9 @@ def gp(p): return {"latitude": round(p[0], 6), "longitude": round(p[1], 6)}
 
 # --- Metro M1, Kulosaari -> Aalto-yliopisto (departure times; 20 s dwell)
 STATIONS = [
+    ("itak", "Itäkeskus",           (60.21030, 25.08200), "07:46:00"),
+    ("siil", "Siilitie",            (60.20520, 25.04430), "07:48:30"),
+    ("hert", "Herttoniemi",         (60.19530, 25.02970), "07:50:30"),
     ("kulo", "Kulosaari",           (60.18870, 25.00720), "07:53:30"),
     ("kala", "Kalasatama",          (60.18748, 24.97727), "07:56:00"),
     ("sorn", "Sörnäinen",           (60.18723, 24.96007), "07:58:00"),
@@ -60,6 +63,8 @@ STATIONS = [
     ("aalto","Aalto-yliopisto",     (60.18450, 24.82500), "08:15:30"),
 ]
 DWELL, DELAY = 20, 40
+SORN = next(i for i, st in enumerate(STATIONS) if st[0] == "sorn")
+KEI = next(i for i, st in enumerate(STATIONS) if st[0] == "kei")
 shape = []
 for i, (_, _, p, _) in enumerate(STATIONS):
     if i:
@@ -105,7 +110,7 @@ def vehicle(time):
     p, h = at(shape, cum, stop_d[-1])
     return p, h, 0.0, len(STATIONS) - 1, stop_d[-1]
 
-T0, T_END = t("07:47:00"), t("08:20:00")
+T0, T_END = t("07:40:00"), t("08:20:00")
 vehicles = []
 tt = T0
 while tt <= t("08:16:30"):
@@ -124,13 +129,13 @@ while tt <= t("08:16:30"):
 
 # --- You: home in Kallio, walk to Sörnäinen, ride to Keilaniemi, walk to work.
 HOME, WORK = (60.18395, 24.95325), (60.17720, 24.82720)
-walk1 = [HOME, (60.18440, 24.95560), (60.18560, 24.95830), (60.18690, 24.95985), STATIONS[2][2]]
-walk2 = [STATIONS[10][2], (60.17650, 24.82850), WORK]
+walk1 = [HOME, (60.18440, 24.95560), (60.18560, 24.95830), (60.18690, 24.95985), STATIONS[SORN][2]]
+walk2 = [STATIONS[KEI][2], (60.17650, 24.82850), WORK]
 c1, c2 = cumulative(walk1), cumulative(walk2)
-LEAVE, PACE = t("07:51:15"), 1.55
+LEAVE, PACE = t("07:47:00"), 1.45
 at_station = LEAVE + c1[-1] / PACE
-board = t(STATIONS[2][3]) + DELAY - 5
-alight = t(STATIONS[10][3]) - DWELL + DELAY + 10
+board = t(STATIONS[SORN][3]) + DELAY - 5
+alight = t(STATIONS[KEI][3]) - DWELL + DELAY + 10
 at_work = alight + c2[-1] / 1.4
 
 locations = []
@@ -142,7 +147,7 @@ while tt <= T_END:
     elif tt < at_station:
         p, course = at(walk1, c1, (tt - LEAVE) * PACE); speed, acc = PACE, 8.0
     elif tt < board:
-        j = jitter(); p, speed, course, acc = (STATIONS[2][2][0] + j[0] / 3, STATIONS[2][2][1] + j[1] / 3), 0.0, -1.0, 15.0
+        j = jitter(); p, speed, course, acc = (STATIONS[SORN][2][0] + j[0] / 3, STATIONS[SORN][2][1] + j[1] / 3), 0.0, -1.0, 15.0
     elif tt < alight:
         p, course, speed, _, _ = vehicle(tt); acc = 30.0
     elif tt < at_work:
@@ -160,9 +165,10 @@ def place(name, p, stop=None):
 
 def stopref(k):
     sid, name, p, _ = STATIONS[k]
-    return {"id": f"HSL:demo-{sid}", "name": name, "location": gp(p), "mode": "metro", "zone": "A" if k < 9 else "B"}
+    return {"id": f"HSL:demo-{sid}", "name": name, "location": gp(p), "mode": "metro",
+            "zone": "A" if SORN <= k < KEI - 1 else "B"}
 
-b, a = 2, 10
+b, a = SORN, KEI
 i0 = min(range(len(shape)), key=lambda k: dist(shape[k], STATIONS[b][2]))
 i1 = min(range(len(shape)), key=lambda k: dist(shape[k], STATIONS[a][2]))
 legs = [
@@ -192,4 +198,5 @@ with open(out, "w") as f:
     json.dump(recording, f, ensure_ascii=False, separators=(",", ":"))
 print(f"wrote {os.path.normpath(out)}: {len(vehicles)} vehicle fixes, {len(locations)} locations, "
       f"walk {c1[-1]:.0f} m, at station {datetime.fromtimestamp(at_station, HEL):%H:%M:%S}, "
-      f"metro dep {datetime.fromtimestamp(t(STATIONS[b][3]) + DELAY, HEL):%H:%M:%S}")
+      f"metro dep {datetime.fromtimestamp(t(STATIONS[b][3]) + DELAY, HEL):%H:%M:%S}, "
+      f"home {datetime.fromtimestamp(LEAVE, HEL):%H:%M}")
