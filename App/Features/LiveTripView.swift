@@ -134,7 +134,7 @@ struct TripMapView: View {
                         }
                         if let loc = live.tracker?.displayLocation(at: now) {
                             Annotation("", coordinate: loc.coordinate, anchor: .center) {
-                                VehicleMarker(mode: live.mode, line: live.line,
+                                VehicleMarker(mode: live.mode, line: live.line, seat: session.fullness(for: live)?.level,
                                               heading: live.tracker?.displayHeading(at: now) ?? 0,
                                               cam: cam, isFocus: session.focusLeg?.index == i)
                             }
@@ -178,6 +178,7 @@ struct TripMapView: View {
 struct VehicleMarker: View {
     var mode: TransitMode
     var line: String
+    var seat: CrowdLevel?
     var heading: Double
     var cam: CameraState
     var isFocus: Bool
@@ -195,6 +196,7 @@ struct VehicleMarker: View {
                 VehicleSpriteView(mode: mode, relativeHeading: heading - cam.heading, pitch: cam.pitch, pointsPerMeter: ppm)
             }
             VStack(spacing: 2) {
+                if let seat { SeatLight(seat, size: 12) }
                 LineBadge(line, mode: mode, showsIcon: false, size: 12)
                 if isFocus {
                     Circle().stroke(.white, lineWidth: 3).background(Circle().fill(HSLColor.green))
@@ -202,7 +204,7 @@ struct VehicleMarker: View {
                     Rectangle().fill(.white).frame(width: 2, height: 14)
                 }
             }
-            .offset(y: -max(side * 0.18, 28) - (isFocus ? 18 : 0))
+            .offset(y: -max(side * 0.18, 28) - (isFocus ? 18 : 0) - (seat != nil ? 12 : 0))
         }
     }
 }
@@ -328,11 +330,6 @@ struct LiveTripSheet: View {
                         let by = [.metro, .rail, .tram, .lightRail].contains(live.mode) ? "by rail" : (live.mode == .ferry ? "by sea" : "by road")
                         Text("\(km) \(by)").font(HSLFont.caption(12)).foregroundStyle(.secondary)
                     }
-                }
-                if let full = session.fullness(for: live) {
-                    Label(full.text, systemImage: "person.2.fill")
-                        .font(HSLFont.caption(12))
-                        .foregroundStyle(Occupancy.color(full.level))
                 }
             }
             Spacer()
@@ -468,7 +465,7 @@ struct LiveTripSheet: View {
     }
 }
 
-/// The green card from the reference design: line badge, headsign, progress, origin.
+/// The coloured card: line badge with its seat light, headsign, and the whole trip as a timeline.
 struct RouteCard: View {
     let session: CommuteSession
     let live: CommuteSession.LiveLeg
@@ -476,11 +473,11 @@ struct RouteCard: View {
 
     var body: some View {
         let color = HSLColor.mode(live.mode)
-        let progress = session.progress(for: live)
         VStack(alignment: .leading, spacing: 10) {
-            HStack {
+            HStack(spacing: 8) {
                 LineBadge(live.line, mode: live.mode, showsIcon: true, size: 15)
                     .background(.white.opacity(0.15), in: RoundedRectangle(cornerRadius: 8))
+                if let seat = session.fullness(for: live)?.level { SeatLight(seat, size: 13) }
                 Spacer()
                 Button(action: onStop) {
                     Image(systemName: "xmark").font(.system(size: 13, weight: .bold))
@@ -490,29 +487,126 @@ struct RouteCard: View {
             }
             Text("Heading to").font(HSLFont.caption()).opacity(0.85)
             Text(live.headsign).font(HSLFont.display(30)).lineLimit(1).minimumScaleFactor(0.6)
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(.white.opacity(0.3)).frame(height: 5)
-                    Capsule().fill(.white).frame(width: geo.size.width * progress, height: 5)
-                    Circle().fill(.white).frame(width: 16, height: 16)
-                        .overlay(Circle().fill(color).frame(width: 8, height: 8))
-                        .offset(x: max(geo.size.width * progress - 8, 0))
-                }
-                .animation(.linear(duration: 1), value: progress)
-            }
-            .frame(height: 16)
-            HStack {
-                Text("from \(live.leg.from.name)").font(HSLFont.caption(12))
-                Spacer()
-                Text("to \(live.leg.to.name)").font(HSLFont.caption(12)).underline()
-            }
-            .opacity(0.9)
+            TripTimeline(session: session)
+                .padding(12)
+                .background(.black.opacity(0.55), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
         .padding(16)
         .background(
             LinearGradient(colors: [color, color.opacity(0.7)], startPoint: .top, endPoint: .bottom),
             in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
+}
+
+/// Kilta 19:02 ── Kerava 19:20 ── Helsinki 20:00
+/// Arrivals in white; start times and waits at the changes in gray. Live estimates when we have them.
+struct TripTimeline: View {
+    let session: CommuteSession
+
+    struct Node: Identifiable {
+        var id: Int
+        var name: String
+        var arrive: Date?
+        var depart: Date?
+        var walk: TimeInterval = 0
+        var passed = false
+    }
+
+    struct Segment {
+        var line: String
+        var mode: TransitMode
+        var current: Bool
+        var done: Bool
+    }
+
+    private var model: (nodes: [Node], segments: [Segment]) {
+        let legs = session.itinerary.legs
+        let transit = legs.indices.filter { legs[$0].mode.isTransit }
+        var nodes: [Node] = []
+        var segments: [Segment] = []
+        let focus = session.focusLeg?.index
+        let arrived: Bool = { if case .arrived = session.phase { return true }; return false }()
+        for (k, i) in transit.enumerated() {
+            let leg = legs[i]
+            let live = session.legs[i]
+            let depart = live?.boardingETA?.expected ?? leg.start
+            let arrive = live?.alightingETA?.expected ?? leg.end
+            let done = arrived || (focus.map { i < $0 } ?? false)
+            if k == 0 {
+                nodes.append(Node(id: i, name: leg.from.name, depart: depart, passed: done || focus.map { i < $0 || isRiding($0) } == true))
+            } else {
+                nodes[nodes.count - 1].depart = depart
+                let prev = transit[k - 1]
+                nodes[nodes.count - 1].walk = legs[(prev + 1)..<i].filter { !$0.mode.isTransit }.map(\.duration).reduce(0, +)
+            }
+            segments.append(Segment(line: live?.line ?? leg.route?.shortName ?? leg.mode.displayName, mode: leg.mode,
+                                    current: focus == i, done: done))
+            nodes.append(Node(id: i + 10_000, name: leg.to.name, arrive: arrive, passed: done))
+        }
+        return (nodes, segments)
+    }
+
+    private func isRiding(_ i: Int) -> Bool {
+        if case .riding(let r) = session.phase { return r == i }
+        return false
+    }
+
+    var body: some View {
+        let m = model
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(alignment: .top, spacing: 0) {
+                ForEach(Array(m.nodes.enumerated()), id: \.element.id) { k, node in
+                    if k > 0 { connector(m.segments[k - 1]) }
+                    nodeView(node, first: k == 0, last: k == m.nodes.count - 1)
+                }
+            }
+        }
+    }
+
+    private func nodeView(_ node: Node, first: Bool, last: Bool) -> some View {
+        VStack(alignment: first ? .leading : (last ? .trailing : .center), spacing: 2) {
+            Circle()
+                .fill(node.passed ? Color.white.opacity(0.4) : .white)
+                .frame(width: 12, height: 12)
+                .frame(height: 24)
+            Text(node.name).font(HSLFont.caption(13)).foregroundStyle(.white).lineLimit(1)
+            if let arrive = node.arrive {
+                Text(time(arrive)).font(HSLFont.number(15)).foregroundStyle(.white)
+            }
+            if let depart = node.depart {
+                if let arrive = node.arrive {
+                    let wait = max(depart.timeIntervalSince(arrive) - node.walk, 0)
+                    Text("dep \(time(depart))").font(HSLFont.caption(12)).foregroundStyle(.gray)
+                    HStack(spacing: 3) {
+                        if node.walk >= 60 {
+                            Image(systemName: "figure.walk")
+                            Text("\(Int(node.walk / 60))")
+                        }
+                        Text("wait \(Int((wait / 60).rounded())) min")
+                    }
+                    .font(HSLFont.caption(11)).foregroundStyle(.gray)
+                } else {
+                    Text(time(depart)).font(HSLFont.number(15)).foregroundStyle(.gray)
+                }
+            }
+        }
+        .fixedSize()
+    }
+
+    private func connector(_ seg: Segment) -> some View {
+        ZStack {
+            Capsule().fill(HSLColor.mode(seg.mode).opacity(seg.done ? 0.35 : 1))
+                .frame(height: seg.current ? 5 : 3)
+            LineBadge(seg.line, mode: seg.mode, showsIcon: true, size: 11)
+                .overlay(RoundedRectangle(cornerRadius: 5).stroke(.white.opacity(seg.current ? 0.9 : 0), lineWidth: 1.5))
+                .opacity(seg.done ? 0.5 : 1)
+        }
+        .frame(minWidth: 70, maxWidth: .infinity)
+        .frame(height: 24)
+        .padding(.horizontal, 4)
+    }
+
+    private func time(_ d: Date) -> String { d.formatted(date: .omitted, time: .shortened) }
 }
 
 

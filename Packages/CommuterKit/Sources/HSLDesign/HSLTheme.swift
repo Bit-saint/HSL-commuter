@@ -6,13 +6,13 @@ import ETAEngine
 public enum HSLColor {
     public static let blue = Color(hex: 0x007AC9)        // HSL blue, buses
     public static let darkBlue = Color(hex: 0x000F2D)
-    public static let trunk = Color(hex: 0xEA7000)       // Runkolinja orange
-    public static let tram = Color(hex: 0x00985F)
-    public static let lightRail = Color(hex: 0x00B2A9)
-    public static let metro = Color(hex: 0xFF6319)
-    public static let train = Color(hex: 0x8C4799)
+    public static let trunk = blue                       // all buses are HSL blue
+    public static let tram = Color(hex: 0x00985F)        // green
+    public static let lightRail = tram
+    public static let metro = Color(hex: 0xFF6319)       // orange
+    public static let train = Color(hex: 0x8C4799)       // purple
     public static let ferry = Color(hex: 0x00B9E4)
-    public static let uBus = Color(hex: 0xEA7000)
+    public static let uBus = blue
     public static let walk = Color(hex: 0x666666)
     public static let cityBike = Color(hex: 0xF2B62D)
 
@@ -155,6 +155,27 @@ public struct InfoTile<Content: View>: View {
     }
 }
 
+/// Seat icon lit like a traffic light: green = seats, yellow = standing, red = full.
+public struct SeatLight: View {
+    var level: CrowdLevel
+    var size: CGFloat
+
+    public init(_ level: CrowdLevel, size: CGFloat = 14) {
+        self.level = level
+        self.size = size
+    }
+
+    public var body: some View {
+        Image(systemName: "chair.fill")
+            .font(.system(size: size * 0.75, weight: .bold))
+            .foregroundStyle(Occupancy.color(level))
+            .frame(width: size * 1.6, height: size * 1.6)
+            .background(Circle().fill(Color.black.opacity(0.8)))
+            .overlay(Circle().stroke(Occupancy.color(level), lineWidth: max(size * 0.12, 1.5)))
+            .accessibilityLabel(level.title)
+    }
+}
+
 /// HFP `occu` percent and rider reports to friendly labels and colours.
 public enum Occupancy {
     public static func color(_ level: CrowdLevel) -> Color {
@@ -171,6 +192,11 @@ public enum Occupancy {
         case .standing: return "figure.stand"
         case .full: return "person.3.fill"
         }
+    }
+
+    /// Rider reports beat the vehicle sensor: they're what people actually saw.
+    public static func level(crowd: CrowdEstimate?, percent: Int?) -> CrowdLevel? {
+        crowd?.level ?? percent.map(CrowdOccupancy.level(fromPercent:))
     }
 
     public static func label(_ percent: Int?) -> (String, Color) {

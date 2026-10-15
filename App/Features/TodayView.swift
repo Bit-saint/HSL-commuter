@@ -36,7 +36,7 @@ struct TodayView: View {
                     }
                     if options.count > 1 {
                         Text("Other options").font(HSLFont.title(18)).padding(.top, 8)
-                        ForEach(options.dropFirst()) { option in
+                        ForEach(options.dropFirst().prefix(2)) { option in
                             OptionRow(option: option).onTapGesture { start(option, commute) }
                         }
                     }
@@ -159,7 +159,7 @@ struct BestOptionCard: View {
                     Text("Go!").font(HSLFont.display(56))
                 }
             }
-            LegStrip(legs: option.itinerary.legs)
+            LegStrip(legs: option.itinerary.legs, seat: option.seatLevel)
             OptionExtras(option: option)
             HStack {
                 if let first = option.firstTransit {
@@ -193,7 +193,7 @@ struct OptionRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
-                LegStrip(legs: option.itinerary.legs)
+                LegStrip(legs: option.itinerary.legs, seat: option.seatLevel)
                 Text("Leave \(option.leaveAt.formatted(date: .omitted, time: .shortened)) · arrive \(option.arrival.formatted(date: .omitted, time: .shortened))")
                     .font(HSLFont.caption()).foregroundStyle(.secondary)
                 OptionExtras(option: option)
@@ -206,16 +206,26 @@ struct OptionRow: View {
     }
 }
 
-/// Walk → bus → metro chips.
+extension PlannedOption {
+    /// How full the first vehicle is, for its seat light.
+    var seatLevel: CrowdLevel? { Occupancy.level(crowd: crowd, percent: occupancy) }
+}
+
+/// Walk → bus → metro chips. The first vehicle wears its seat light above it.
 struct LegStrip: View {
     var legs: [Leg]
+    var seat: CrowdLevel? = nil
 
     var body: some View {
-        HStack(spacing: 4) {
+        let firstTransit = legs.firstIndex { $0.mode.isTransit }
+        HStack(alignment: .bottom, spacing: 4) {
             ForEach(Array(legs.enumerated()), id: \.offset) { i, leg in
-                if i > 0 { Image(systemName: "chevron.right").font(.caption2).opacity(0.6) }
+                if i > 0 { Image(systemName: "chevron.right").font(.caption2).opacity(0.6).padding(.bottom, 5) }
                 if leg.mode.isTransit {
-                    LineBadge(leg.route?.shortName ?? "", mode: leg.mode, size: 13)
+                    VStack(spacing: 3) {
+                        if i == firstTransit, let seat { SeatLight(seat, size: 11) }
+                        LineBadge(leg.route?.shortName ?? "", mode: leg.mode, size: 13)
+                    }
                 } else {
                     HStack(spacing: 2) {
                         Image(systemName: "figure.walk")
@@ -332,30 +342,13 @@ struct SuggestionCard: View {
     }
 }
 
-/// Occupancy chip and disruption line for an option.
+/// Disruption lines for an option (how full it is shows as the seat light).
 struct OptionExtras: View {
     let option: PlannedOption
 
     var body: some View {
-        if option.occupancy != nil || option.crowd != nil || !option.disruptions.isEmpty {
+        if !option.disruptions.isEmpty {
             VStack(alignment: .leading, spacing: 4) {
-                if let crowd = option.crowd {
-                    // Rider reports beat the sensor: they're what people actually saw.
-                    HStack(spacing: 4) {
-                        Image(systemName: "person.2.fill")
-                        Text(crowd.label(now: Date()))
-                    }
-                    .font(HSLFont.caption(11))
-                    .foregroundStyle(Occupancy.color(crowd.level))
-                } else if let occ = option.occupancy {
-                    let label = Occupancy.label(occ)
-                    HStack(spacing: 4) {
-                        Image(systemName: "person.2.fill")
-                        Text("\(label.0) · \(occ)% full")
-                    }
-                    .font(HSLFont.caption(11))
-                    .foregroundStyle(label.1)
-                }
                 ForEach(option.disruptions.prefix(2)) { d in
                     HStack(alignment: .top, spacing: 4) {
                         Image(systemName: "exclamationmark.triangle.fill")
