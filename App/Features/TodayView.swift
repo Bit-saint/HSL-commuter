@@ -18,45 +18,25 @@ struct TodayView: View {
         return reversed ? app.counterpart(of: base) : base
     }
 
+    @Environment(\.horizontalSizeClass) private var hSize
+
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                if let suggestion = app.places.suggestion {
-                    SuggestionCard(suggestion: suggestion,
-                                   accept: { app.places.accept(suggestion) },
-                                   dismiss: { app.places.dismiss(suggestion) })
+            if hSize == .regular, commute != nil {
+                // iPad: plan on the left, alternatives on the right.
+                HStack(alignment: .top, spacing: 24) {
+                    mainColumn.frame(maxWidth: 560)
+                    otherColumn.frame(maxWidth: 440)
                 }
-                if let commute {
-                    header(commute)
-                    ContextBanners(commute: commute)
-                    if let best = options.first {
-                        TimelineView(.periodic(from: .now, by: 1)) { ctx in
-                            BestOptionCard(option: best, now: ctx.date) { start(best, commute) }
-                        }
-                    }
-                    if options.count > 1 {
-                        Text("Other options").font(HSLFont.title(18)).padding(.top, 8)
-                        ForEach(options.dropFirst().prefix(2)) { option in
-                            OptionRow(option: option).onTapGesture { start(option, commute) }
-                        }
-                    }
-                    if let error {
-                        Label(error, systemImage: "exclamationmark.triangle.fill")
-                            .foregroundStyle(HSLColor.orange)
-                            .font(HSLFont.body(14))
-                    }
-                } else {
-                    ContentUnavailableView {
-                        Label("No commute yet", systemImage: "house.and.flag")
-                    } description: {
-                        Text("Set your home, work and working hours to get leave-time advice.")
-                    } actions: {
-                        NavigationLink("Set Home & Work") { HomeWorkView() }
-                            .buttonStyle(.borderedProminent)
-                    }
+                .padding(24)
+                .frame(maxWidth: .infinity)
+            } else {
+                VStack(alignment: .leading, spacing: 16) {
+                    mainColumn
+                    otherColumn
                 }
+                .padding()
             }
-            .padding()
         }
         .background(Color.black)
         .navigationTitle(greeting)
@@ -70,6 +50,54 @@ struct TodayView: View {
             }
         }
         .overlay { if loading && options.isEmpty { ProgressView() } }
+    }
+
+    @ViewBuilder
+    private var mainColumn: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if let suggestion = app.places.suggestion {
+                SuggestionCard(suggestion: suggestion,
+                               accept: { app.places.accept(suggestion) },
+                               dismiss: { app.places.dismiss(suggestion) })
+            }
+            if let commute {
+                header(commute)
+                ContextBanners(commute: commute)
+                if let best = options.first {
+                    TimelineView(.periodic(from: .now, by: 1)) { ctx in
+                        BestOptionCard(option: best, now: ctx.date) { start(best, commute) }
+                    }
+                }
+                if let error {
+                    Label(error, systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(HSLColor.orange)
+                        .font(HSLFont.body(14))
+                }
+            } else {
+                ContentUnavailableView {
+                    Label("No commute yet", systemImage: "house.and.flag")
+                } description: {
+                    Text("Set your home, work and working hours to get leave-time advice.")
+                } actions: {
+                    NavigationLink("Set Home & Work") { HomeWorkView() }
+                        .buttonStyle(.borderedProminent)
+                    Button("Try the demo trip") { app.startDemo() }
+                        .buttonStyle(.bordered)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var otherColumn: some View {
+        if let commute, options.count > 1 {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Other options").font(HSLFont.title(18)).padding(.top, hSize == .regular ? 0 : 8)
+                ForEach(options.dropFirst().prefix(2)) { option in
+                    OptionRow(option: option).onTapGesture { start(option, commute) }
+                }
+            }
+        }
     }
 
     private var greeting: String {
@@ -174,6 +202,7 @@ struct BestOptionCard: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             }
+            TicketRow(itinerary: option.itinerary)
             OptionExtras(option: option)
             Button(action: onStart) {
                 Label("Start live tracking", systemImage: "location.north.line.fill")
@@ -377,6 +406,45 @@ struct OptionExtras: View {
                     .foregroundStyle(d.severity == .severe ? HSLColor.red : HSLColor.yellow)
                 }
             }
+        }
+    }
+}
+
+/// "Zones AB · single ticket 3,20 €  [Buy]". The button opens the HSL app (or HSL's ticket page).
+struct TicketRow: View {
+    let itinerary: Itinerary
+    @Environment(\.openURL) private var openURL
+
+    var body: some View {
+        if let zones = itinerary.zones {
+            HStack(spacing: 8) {
+                Image(systemName: "ticket.fill")
+                if let fare = itinerary.fare {
+                    Text("Zones \(zones) · single ticket \(fare.priceText)")
+                } else {
+                    Text("Zones \(zones) · single ticket")
+                }
+                Spacer(minLength: 4)
+                Button {
+                    HSLTickets.open(openURL)
+                } label: {
+                    Text("Buy").font(HSLFont.caption(13)).padding(.horizontal, 12).padding(.vertical, 5)
+                        .background(.white.opacity(0.22), in: Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+            .font(HSLFont.caption(13))
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+        }
+    }
+}
+
+enum HSLTickets {
+    /// The HSL app if it's installed, otherwise HSL's tickets page.
+    static func open(_ openURL: OpenURLAction) {
+        openURL(URL(string: "hsl://")!) { accepted in
+            if !accepted { openURL(URL(string: String(localized: "https://www.hsl.fi/en/tickets-and-fares"))!) }
         }
     }
 }

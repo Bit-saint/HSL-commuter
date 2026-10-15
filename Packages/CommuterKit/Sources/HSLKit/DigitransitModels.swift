@@ -11,14 +11,18 @@ public struct StopRef: Sendable, Codable, Hashable, Identifiable {
     public var platform: String?
     public var location: GeoPoint
     public var mode: TransitMode?
+    /// HSL fare zone: "A", "B", "C" or "D".
+    public var zone: String?
 
-    public init(id: String, name: String, code: String? = nil, platform: String? = nil, location: GeoPoint, mode: TransitMode? = nil) {
+    public init(id: String, name: String, code: String? = nil, platform: String? = nil, location: GeoPoint,
+                mode: TransitMode? = nil, zone: String? = nil) {
         self.id = id
         self.name = name
         self.code = code
         self.platform = platform
         self.location = location
         self.mode = mode
+        self.zone = zone
     }
 }
 
@@ -118,21 +122,62 @@ public struct Itinerary: Sendable, Codable, Hashable, Identifiable {
     public var end: Date
     public var legs: [Leg]
     public var walkDistance: Double
+    /// Ticket price from HSL's fare data, when Digitransit provides it.
+    public var fare: Fare?
 
-    public init(start: Date, end: Date, legs: [Leg], walkDistance: Double) {
+    public init(start: Date, end: Date, legs: [Leg], walkDistance: Double, fare: Fare? = nil) {
         self.start = start
         self.end = end
         self.legs = legs
         self.walkDistance = walkDistance
+        self.fare = fare
     }
+
+    /// Zones the ticket must cover, e.g. "AB" or "ABC" (HSL zones are nested rings A–D).
+    public var zones: String? { FareZones.ticketZones(legs.filter(\.mode.isTransit).flatMap { [$0.from.stop?.zone, $0.to.stop?.zone] }) }
 
     public var transitLegs: [Leg] { legs.filter { $0.mode.isTransit } }
     public var firstTransitLeg: Leg? { legs.first { $0.mode.isTransit } }
     public var duration: TimeInterval { end.timeIntervalSince(start) }
 }
 
+public struct Fare: Sendable, Codable, Hashable {
+    public var name: String?
+    public var price: Double
+    public var currency: String
+
+    public init(name: String?, price: Double, currency: String) {
+        self.name = name
+        self.price = price
+        self.currency = currency
+    }
+
+    public var priceText: String {
+        price.formatted(.currency(code: currency).locale(Locale(identifier: "fi_FI")))
+    }
+}
+
+public enum FareZones {
+    static let order = ["A", "B", "C", "D"]
+
+    /// Smallest valid HSL ticket covering every zone touched: the continuous range of rings between
+    /// the innermost and outermost one. One zone alone: A or B → AB, C → BC, D → D.
+    public static func ticketZones(_ zones: [String?]) -> String? {
+        let idx = zones.compactMap { z in z.flatMap { order.firstIndex(of: $0.uppercased()) } }
+        guard let lo = idx.min(), let hi = idx.max() else { return nil }
+        if lo == hi {
+            switch lo {
+            case 0, 1: return "AB"
+            case 2: return "BC"
+            default: return "D"
+            }
+        }
+        return order[lo...hi].joined()
+    }
+}
+
 /// Full detail of a trip, enough to build a `TripPattern`.
-public struct TripDetails: Sendable {
+public struct TripDetails: Sendable, Codable {
     public var tripId: String
     public var route: RouteRef
     public var directionId: Int

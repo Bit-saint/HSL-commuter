@@ -45,6 +45,12 @@ final class CommuteSession {
     private(set) var pace: PaceAdvice?
     /// When you need to be at the next boarding stop (early estimate minus the boarding buffer).
     private(set) var boardBy: Date?
+    /// Location good to ± this many meters; nil without a fix.
+    var locationAccuracy: Double? { userLocation.flatMap { $0.horizontalAccuracy >= 0 ? $0.horizontalAccuracy : nil } }
+    /// Wi-Fi-only iPads and indoor fixes: position is off by more than a street or two, so walking
+    /// advice can't be precise. We then plan from the best case and never say "walk briskly" or "run".
+    var locationIsRough: Bool { (locationAccuracy ?? 0) > Self.roughAccuracy }
+    static let roughAccuracy: Double = 65
     private(set) var transfer: TransferAssessment?
     private(set) var userLocation: CLLocation?
     private(set) var walkDistance: Double?
@@ -87,8 +93,15 @@ final class CommuteSession {
     @ObservationIgnored private var askDecided: Set<Int> = []
     @ObservationIgnored private var askedAt: Date?
     @ObservationIgnored private var lastCrowdFetch = Date.distantPast
+    /// Demo mode: everything comes from a recording on a virtual clock, nothing from the network.
+    let replay: TripReplay?
+    @ObservationIgnored private var recorder: TripRecorder?
+    var isDemo: Bool { replay != nil }
 
-    init(itinerary: Itinerary, destinationName: String, app: AppModel, automatic: Bool = false) {
+    init(itinerary: Itinerary, destinationName: String, app: AppModel, automatic: Bool = false,
+         replay: TripReplay? = nil) {
+        self.replay = replay
+        self.recorder = replay == nil && app.recordTrips ? TripRecorder() : nil
         self.automatic = automatic
         self.itinerary = itinerary
         self.destinationName = destinationName
@@ -119,6 +132,19 @@ final class CommuteSession {
 
     func start() async {
         guard let app else { return }
+        if let replay {
+            for i in transitIndices {
+                if let id = legs[i]?.leg.trip?.tripId, let details = replay.details(for: id) { install(details, leg: i) }
+            }
+            tasks.append(Task { [weak self] in
+                while !Task.isCancelled {
+                    self?.recompute()
+                    try? await Task.sleep(nanoseconds: 250_000_000)
+                }
+            })
+            recompute()
+            return
+        }
         // Keep running in the background like a navigation app. When we were started by a
         // geofence in the background, the "Always" service session keeps location flowing.
         backgroundSession = CLBackgroundActivitySession()
@@ -148,7 +174,7 @@ final class CommuteSession {
     /// Live Activities can only start while the app is in the foreground. If we started in the
     /// background (geofence), this runs again when the app is opened.
     func ensureLiveActivity() {
-        guard needsLiveActivity, let app, let state = activityState() else { return }
+        guard !isDemo, needsLiveActivity, let app, let state = activityState() else { return }
         needsLiveActivity = !app.liveActivity.start(destination: destinationName, state: state)
     }
 
@@ -162,6 +188,9 @@ final class CommuteSession {
         backgroundSession = nil
         serviceSession?.invalidate()
         serviceSession = nil
+        recorder?.save(itinerary: itinerary, destinationName: destinationName)
+        recorder = nil
+        guard !isDemo else { return }
         app?.motion.stop()
         let feed = self.feed
         Task { await feed.stop() }
@@ -199,20 +228,29 @@ final class CommuteSession {
                     details.shape = road
                     pattern = details.pattern()
                 }
-                let tracker = TripTracker(pattern: pattern, learner: app?.learnedSegments)
-                legs[i]?.details = details
-                legs[i]?.tracker = tracker
-                legs[i]?.boardIndex = stopIndex(in: pattern, for: leg.from, after: 0)
-                let board = legs[i]?.boardIndex ?? 0
-                // A departure tracked from a stop board has no destination stop: ride to the end.
-                legs[i]?.alightIndex = (leg.to.stop == nil && leg.distance == 0)
-                    ? pattern.stops.count - 1
-                    : stopIndex(in: pattern, for: leg.to, after: min(board + 1, pattern.stops.count - 1))
+                install(details, leg: i)
+                recorder?.add(details)
                 await feed.track(details, boardingStop: leg.from.location, scheduledBoarding: leg.scheduledStart)
             } catch {
                 legs[i]?.loadError = error.localizedDescription
             }
         }
+    }
+
+    /// Builds the tracker for transit leg `i` and finds where you board and get off.
+    private func install(_ details: TripDetails, leg i: Int) {
+        guard let leg = legs[i]?.leg else { return }
+        let pattern = details.pattern()
+        // A demo must not teach the real segment-time model anything.
+        let tracker = TripTracker(pattern: pattern, learner: isDemo ? nil : app?.learnedSegments)
+        legs[i]?.details = details
+        legs[i]?.tracker = tracker
+        legs[i]?.boardIndex = stopIndex(in: pattern, for: leg.from, after: 0)
+        let board = legs[i]?.boardIndex ?? 0
+        // A departure tracked from a stop board has no destination stop: ride to the end.
+        legs[i]?.alightIndex = (leg.to.stop == nil && leg.distance == 0)
+            ? pattern.stops.count - 1
+            : stopIndex(in: pattern, for: leg.to, after: min(board + 1, pattern.stops.count - 1))
     }
 
     private func stopIndex(in pattern: TripPattern, for place: Place, after start: Int) -> Int? {
@@ -244,6 +282,7 @@ final class CommuteSession {
             for i in transitIndices where legs[i]?.details?.tripId == update.tripId {
                 legs[i]?.tracker?.ingest(update.observation)
             }
+            recorder?.add(tripId: update.tripId, observation: update.observation)
         }
     }
 
@@ -253,6 +292,7 @@ final class CommuteSession {
                 guard !Task.isCancelled else { return }
                 guard let loc = update.location else { continue }
                 userLocation = loc
+                recorder?.add(loc)
                 if case .walking = phase, loc.horizontalAccuracy < 20, loc.speed > 0 {
                     app?.observeWalkingSpeed(loc.speed)
                 }
@@ -263,9 +303,16 @@ final class CommuteSession {
     // MARK: - The core loop
 
     private func recompute() {
-        now = Date()
+        now = replay?.now ?? Date()
         tick &+= 1
-        if now.timeIntervalSince(lastFeedRefresh) > 30 {
+        if let replay {
+            for o in replay.observations(until: now) {
+                for i in transitIndices where legs[i]?.details?.tripId == o.tripId {
+                    legs[i]?.tracker?.ingest(o.observation)
+                }
+            }
+            userLocation = replay.location(at: now)
+        } else if now.timeIntervalSince(lastFeedRefresh) > 30 {
             lastFeedRefresh = now
             Task { await refreshFeedPredictions() }
         }
@@ -285,6 +332,7 @@ final class CommuteSession {
         updateAdvice()
         speakRideCues()
         maybeAskOccupancy()
+        guard !isDemo else { return }
         if now.timeIntervalSince(lastCrowdFetch) > 60 { lastCrowdFetch = now; Task { await fetchCrowd() } }
         if now.timeIntervalSince(lastPlatformCheck) > 30 { lastPlatformCheck = now; Task { await checkPlatforms() } }
         if now.timeIntervalSince(lastAlertsCheck) > 120 { lastAlertsCheck = now; Task { await checkDisruptions() } }
@@ -421,7 +469,7 @@ final class CommuteSession {
         let sample = BoardingDetector.Sample(
             time: now, user: user, userAccuracy: userLocation?.horizontalAccuracy ?? 50,
             userSpeed: userLocation.map { max($0.speed, 0) }, vehicle: tracker.displayLocation(at: now),
-            vehicleSpeed: tracker.currentSpeed, activity: app.motion.activity)
+            vehicleSpeed: tracker.currentSpeed, activity: isDemo ? .unknown : app.motion.activity)
         guard boarding.update(sample) else { return }
         let riding: Bool = { if case .riding = phase { return true }; return false }()
         if boarding.isOnBoard && !riding {
@@ -461,7 +509,7 @@ final class CommuteSession {
 
     func answerOccupancy(_ level: CrowdLevel) {
         guard let app, let i = occupancyAskLeg ?? currentLegIndex, let live = legs[i], let key = tripKey(live) else { return }
-        app.crowd.submit(tripKey: key, level: level, share: app.smart.shareOccupancy)
+        if !isDemo { app.crowd.submit(tripKey: key, level: level, share: app.smart.shareOccupancy) }
         occupancyAskLeg = nil
         askedAt = nil
         askDecided.insert(i)
@@ -674,8 +722,16 @@ final class CommuteSession {
             let buffer = ModeProfile.for(live.mode).boardingBuffer + app.effectiveBuffer
             boardBy = eta.earliest.addingTimeInterval(-buffer)
             let previous = pace?.state
-            let advice = advisor.advise(walkDistance: distance, eta: eta, buffer: buffer,
+            var advice: PaceAdvice
+            if locationIsRough, let accuracy = locationAccuracy {
+                // You could be anywhere within the error circle: assume the nearest point, and soften urgency.
+                advice = advisor.advise(walkDistance: max(distance - accuracy, 0), eta: eta, buffer: buffer,
                                         now: now, previous: previous)
+                if advice.state == .walkBriskly || advice.state == .run { advice.state = .goNow }
+                if advice.state == .atStop && distance > accuracy { advice.state = .goNow }
+            } else {
+                advice = advisor.advise(walkDistance: distance, eta: eta, buffer: buffer, now: now, previous: previous)
+            }
             pace = advice
             notifyIfEscalated(advice, live: live, previous: previous)
         case .riding(let i):
@@ -757,7 +813,7 @@ final class CommuteSession {
     private func alert(key: String, title: String, body: String, chime: NotificationService.Chime = .soft) {
         guard notified.insert(key).inserted, let app else { return }
         app.notifications.post(id: "commute-\(key)", title: title, body: body, sound: chime)
-        if let state = activityState() {
+        if !isDemo, let state = activityState() {
             app.liveActivity.update(state, alert: (title, body))
         }
     }

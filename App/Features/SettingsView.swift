@@ -2,11 +2,13 @@ import SwiftUI
 import MapKit
 import ETAEngine
 import HSLDesign
+import HSLKit
 
 struct SettingsView: View {
     @Environment(AppModel.self) private var app
     @State private var editing: Commute?
     @State private var addingNew = false
+    @State private var recordings: [(url: URL, recording: TripRecording)] = []
 
     var body: some View {
         @Bindable var app = app
@@ -111,11 +113,45 @@ struct SettingsView: View {
             }
 
             Section {
+                Button {
+                    app.startDemo()
+                } label: {
+                    Label("Play the demo trip", systemImage: "play.circle.fill")
+                }
+                Toggle(isOn: $app.recordTrips) {
+                    Label("Record my trips", systemImage: "record.circle")
+                }
+                ForEach(recordings, id: \.url) { item in
+                    HStack {
+                        Button {
+                            app.startDemo(item.recording)
+                        } label: {
+                            VStack(alignment: .leading) {
+                                Text(item.recording.name).font(HSLFont.body(15))
+                                Text("\(item.recording.vehicles.count) vehicle positions · \(item.recording.locations.count) GPS fixes")
+                                    .font(HSLFont.caption(12)).foregroundStyle(.secondary)
+                            }
+                        }
+                        Spacer()
+                        ShareLink(item: item.url) { Image(systemName: "square.and.arrow.up") }
+                            .buttonStyle(.borderless)
+                    }
+                }
+                .onDelete { offsets in
+                    for i in offsets { try? FileManager.default.removeItem(at: recordings[i].url) }
+                    recordings.remove(atOffsets: offsets)
+                }
+            } header: { Text("Demo") } footer: {
+                Text("The demo replays a recorded commute, live vehicles and GPS included, faster than real time. Turn on recording to replay your own trips later.")
+            }
+
+            Section {
                 Text("Data: HSL & Digitransit (CC BY 4.0), Fintraffic Digitraffic (CC BY 4.0). Unofficial personal app, not affiliated with HSL.")
                     .font(HSLFont.caption(12)).foregroundStyle(.secondary)
             }
         }
         .navigationTitle("Settings")
+        .onAppear { recordings = TripRecorder.saved() }
         .sheet(item: $editing) { c in
             CommuteEditor(commute: c) { updated in
                 if let i = app.commutes.firstIndex(where: { $0.id == updated.id }) { app.commutes[i] = updated }

@@ -20,6 +20,10 @@ final class AppModel {
     var commutes: [Commute] { didSet { save() } }
     var hasCompletedSetup: Bool { didSet { save() } }
     var smart: SmartSettings { didSet { save(); smartSettingsChanged(from: oldValue) } }
+    /// Save each live commute so it can be replayed later (Settings › Demo).
+    var recordTrips: Bool { didSet { save() } }
+    /// Launched with -demo (CI screenshots): skip setup and play the sample trip.
+    let isDemoLaunch = ProcessInfo.processInfo.arguments.contains("-demo")
 
     // MARK: Live context
 
@@ -67,6 +71,7 @@ final class AppModel {
         walkingSpeed = defaults.object(forKey: "walkingSpeed") as? Double ?? 1.35
         extraBuffer = defaults.object(forKey: "extraBuffer") as? Double ?? 0
         hasCompletedSetup = defaults.bool(forKey: "hasCompletedSetup")
+        recordTrips = defaults.bool(forKey: "recordTrips")
         if let data = defaults.data(forKey: "homeWork"), let hw = try? JSONDecoder().decode(HomeWorkSetup.self, from: data) {
             homeWork = hw
         } else {
@@ -100,6 +105,13 @@ final class AppModel {
         ReportOccupancyIntent.handler = { level in
             AppModel.shared.session?.answerOccupancy(CrowdLevel(rawValue: level) ?? .standing)
         }
+        if isDemoLaunch {
+            // -demo [-demoSpeed 10]: straight into the sample trip, no setup, no learning.
+            let args = ProcessInfo.processInfo.arguments
+            let speed = args.firstIndex(of: "-demoSpeed").flatMap { args.indices.contains($0 + 1) ? Double(args[$0 + 1]) : nil }
+            startDemo(speed: speed ?? 10)
+            return
+        }
         if smart.learnPlaces { places.start(app: self) }
         Task { await autoStart.configure(app: self) }
     }
@@ -117,6 +129,7 @@ final class AppModel {
         defaults.set(walkingSpeed, forKey: "walkingSpeed")
         defaults.set(extraBuffer, forKey: "extraBuffer")
         defaults.set(hasCompletedSetup, forKey: "hasCompletedSetup")
+        defaults.set(recordTrips, forKey: "recordTrips")
         if let data = try? JSONEncoder().encode(commutes) { defaults.set(data, forKey: "commutes") }
         if let data = try? JSONEncoder().encode(homeWork) { defaults.set(data, forKey: "homeWork") }
         if let data = try? JSONEncoder().encode(smart) { defaults.set(data, forKey: "smart") }
@@ -202,6 +215,16 @@ final class AppModel {
     func startSession(itinerary: Itinerary, destinationName: String, automatic: Bool = false) {
         session?.stop()
         let s = CommuteSession(itinerary: itinerary, destinationName: destinationName, app: self, automatic: automatic)
+        session = s
+        Task { await s.start() }
+    }
+
+    /// Replays a recorded trip (the bundled sample if none is given) as if it were happening now.
+    func startDemo(_ recording: TripRecording? = nil, speed: Double = 10) {
+        guard let rec = recording ?? TripRecorder.sample else { return }
+        session?.stop()
+        let replay = TripReplay(recording: rec, speed: speed)
+        let s = CommuteSession(itinerary: rec.itinerary, destinationName: rec.destinationName, app: self, replay: replay)
         session = s
         Task { await s.start() }
     }

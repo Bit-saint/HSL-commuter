@@ -136,3 +136,70 @@ jobs:
             echo "--- $f"; head -c 12000 "$f"; echo
           done
           xcrun simctl spawn "$UDID" launchctl list | grep -q "$BUNDLE"
+
+  # Plays the bundled demo trip on an iPad and an iPhone simulator and screenshots the real app.
+  demo-screenshots:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode + XcodeGen
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
+          brew install xcodegen
+          xcodegen generate
+      - name: Build for simulator
+        run: |
+          set -o pipefail
+          xcodebuild -project HSLCommuter.xcodeproj -scheme HSLCommuter -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath simbuild \
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= build 2>&1 | tail -5
+      - name: Play the demo and take screenshots
+        run: |
+          read RUNTIME IPAD IPHONE < <(xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)['runtimes'] if r['platform'] == 'iOS' and r['isAvailable']]
+          r = rs[-1]
+          t = r.get('supportedDeviceTypes', [])
+          ipads = [d['identifier'] for d in t if 'iPad Pro' in d['name']] or [d['identifier'] for d in t if 'iPad' in d['name']]
+          phones = [d['identifier'] for d in t if d['name'].endswith('Pro')] or [d['identifier'] for d in t if 'iPhone' in d['name']]
+          print(r['identifier'], ipads[-1], phones[-1])")
+          APP=$(find simbuild/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app" | head -1)
+          BUNDLE=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist")
+          mkdir -p shots
+          for NAME in ipad iphone; do
+            TYPE=$IPAD; [ $NAME = iphone ] && TYPE=$IPHONE
+            UDID=$(xcrun simctl create demo-$NAME "$TYPE" "$RUNTIME")
+            echo "$NAME $UDID" >> sims.txt
+            xcrun simctl boot "$UDID"
+          done
+          while read NAME UDID; do
+            xcrun simctl bootstatus "$UDID" -b > /dev/null
+            xcrun simctl install "$UDID" "$APP"
+            xcrun simctl status_override "$UDID" --time "07:47" --batteryState charged --batteryLevel 100 || true
+          done < sims.txt
+          while read NAME UDID; do
+            xcrun simctl launch "$UDID" "$BUNDLE" -demo -demoSpeed 12 > /dev/null
+          done < sims.txt
+          START=$(date +%s)
+          # Real seconds after launch at 12x: leave time, walking, at the stop, riding, walking to work.
+          for AT in 8 33 56 95 146; do
+            while [ $(( $(date +%s) - START )) -lt $AT ]; do sleep 1; done
+            while read NAME UDID; do
+              xcrun simctl io "$UDID" screenshot "shots/$NAME-$AT.png" > /dev/null 2>&1 || true
+            done < sims.txt
+          done
+          ls -la shots
+          # Small JPEGs inline in the log, so the run can be reviewed without downloading.
+          for f in shots/*.png; do
+            sips -Z 520 -s format jpeg -s formatOptions 40 "$f" --out "${f%.png}.jpg" > /dev/null
+            echo "=== BEGIN $(basename "${f%.png}") ==="
+            base64 -i "${f%.png}.jpg" | fold -w 4000
+            echo "=== END ==="
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: demo-screenshots
+          path: shots/*.png
+          retention-days: 30

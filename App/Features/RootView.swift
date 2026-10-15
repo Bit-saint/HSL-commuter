@@ -22,7 +22,7 @@ struct RootView: View {
                 LiveTripView(session: session)
             }
         }
-        .sheet(isPresented: Binding(get: { !app.hasCompletedSetup }, set: { _ in })) {
+        .sheet(isPresented: Binding(get: { !app.hasCompletedSetup && !app.isDemoLaunch }, set: { _ in })) {
             SetupView()
                 .interactiveDismissDisabled()
         }

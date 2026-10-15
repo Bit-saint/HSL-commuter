@@ -58,9 +58,22 @@ public struct DigitransitClient: Sendable {
             "first": count,
             "walkSpeed": walkSpeed,
         ]
+        // Fare zones and prices come from newer schema fields; if the API refuses them, plan without.
+        if !Self.faresUnsupported {
+            do {
+                let data: GQLPlanData = try await query(Queries.planWithFares, variables: vars)
+                return data.planConnection.edges.compactMap { $0.node.toDomain() }
+            } catch DigitransitError.graphQL {
+                Self.faresUnsupported = true
+            } catch DigitransitError.http(let code, _) where code == 400 {
+                Self.faresUnsupported = true
+            }
+        }
         let data: GQLPlanData = try await query(Queries.plan, variables: vars)
         return data.planConnection.edges.compactMap { $0.node.toDomain() }
     }
+
+    nonisolated(unsafe) static var faresUnsupported = false
 
     public func tripDetails(tripId: String, serviceDate: String) async throws -> TripDetails {
         let date = serviceDate.filter(\.isNumber)
@@ -158,6 +171,29 @@ enum Queries {
     }
     """
 
+    static let planWithFares = """
+    query PlanWithFares($origin: PlanLabeledLocationInput!, $destination: PlanLabeledLocationInput!, $dateTime: PlanDateTimeInput, $first: Int, $walkSpeed: Speed) {
+      planConnection(origin: $origin, destination: $destination, dateTime: $dateTime, first: $first,
+                     preferences: { street: { walk: { speed: $walkSpeed } } }) {
+        edges { node {
+          start end walkDistance
+          legs {
+            mode distance realTime headsign serviceDate
+            start { scheduledTime estimated { time } }
+            end { scheduledTime estimated { time } }
+            from { name lat lon stop { gtfsId name code platformCode lat lon vehicleMode zoneId } }
+            to { name lat lon stop { gtfsId name code platformCode lat lon vehicleMode zoneId } }
+            legGeometry { points }
+            route { gtfsId shortName longName mode type }
+            trip { gtfsId directionId tripHeadsign departureStoptime { scheduledDeparture } }
+            fareProducts { id product { id name riderCategory { name } medium { name }
+              ... on DefaultFareProduct { price { amount currency { code } } } } }
+          }
+        } }
+      }
+    }
+    """
+
     static let trip = """
     query Trip($id: String!, $date: String!) {
       trip(id: $id) {
@@ -222,11 +258,12 @@ struct GQLStop: Decodable {
     var lat: Double
     var lon: Double
     var vehicleMode: String?
+    var zoneId: String?
 
     var ref: StopRef {
         StopRef(id: gtfsId, name: name, code: code, platform: platformCode,
                 location: GeoPoint(latitude: lat, longitude: lon),
-                mode: vehicleMode.map { TransitMode.from(digitransitMode: $0) })
+                mode: vehicleMode.map { TransitMode.from(digitransitMode: $0) }, zone: zoneId)
     }
 }
 
@@ -287,6 +324,7 @@ struct GQLLeg: Decodable {
     var legGeometry: Geometry?
     var route: GQLRoute?
     var trip: Trip?
+    var fareProducts: [GQLFareProductUse]?
 
     func toDomain() -> Leg? {
         guard let s = DigitransitClient.parseDate(start.scheduledTime),
@@ -316,7 +354,56 @@ struct GQLItinerary: Decodable {
 
     func toDomain() -> Itinerary? {
         guard let s = DigitransitClient.parseDate(start), let e = DigitransitClient.parseDate(end) else { return nil }
-        return Itinerary(start: s, end: e, legs: legs.compactMap { $0.toDomain() }, walkDistance: walkDistance ?? 0)
+        return Itinerary(start: s, end: e, legs: legs.compactMap { $0.toDomain() }, walkDistance: walkDistance ?? 0,
+                         fare: GQLFareProductUse.fare(for: legs))
+    }
+}
+
+struct GQLFareProductUse: Decodable {
+    struct Named: Decodable { var name: String? }
+    struct Product: Decodable {
+        struct Price: Decodable {
+            struct Currency: Decodable { var code: String? }
+            var amount: Double?
+            var currency: Currency?
+        }
+        var id: String?
+        var name: String?
+        var riderCategory: Named?
+        var medium: Named?
+        var price: Price?
+    }
+    var id: String?
+    var product: Product?
+
+    /// One adult ticket for the whole itinerary: per leg the adult product (app or card), and each ticket
+    /// use counted once even when it covers several legs.
+    static func fare(for legs: [GQLLeg]) -> Fare? {
+        var seen: Set<String> = []
+        var total = 0.0
+        var currency = "EUR"
+        var names: [String] = []
+        for leg in legs {
+            guard let uses = leg.fareProducts, !uses.isEmpty else { continue }
+            let priced = uses.filter { $0.product?.price?.amount != nil }
+            func rank(_ u: GQLFareProductUse) -> Int {
+                let rider = u.product?.riderCategory?.name?.lowercased() ?? ""
+                let medium = u.product?.medium?.name?.lowercased() ?? ""
+                var r = 0
+                if rider.isEmpty || ["adult", "aikui", "vuxen"].contains(where: { rider.contains($0) }) { r += 2 }
+                if ["app", "mobile", "sovellus"].contains(where: { medium.contains($0) }) { r += 1 }
+                return r
+            }
+            guard let use = priced.max(by: { rank($0) < rank($1) }),
+                  let amount = use.product?.price?.amount else { continue }
+            let key = use.id ?? use.product?.id ?? UUID().uuidString
+            guard seen.insert(key).inserted else { continue }
+            total += amount
+            currency = use.product?.price?.currency?.code ?? currency
+            if let n = use.product?.name { names.append(n) }
+        }
+        guard total > 0 else { return nil }
+        return Fare(name: names.count == 1 ? names[0] : nil, price: total, currency: currency)
     }
 }
 
