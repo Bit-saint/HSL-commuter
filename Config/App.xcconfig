@@ -1,5 +1,5 @@
 // Shared build settings. Put your personal values in Config/Local.xcconfig (git-ignored).
-BUNDLE_ID_PREFIX = com.example
+BUNDLE_ID_PREFIX = io.github.bitsaint
 APP_GROUP_ID = group.$(BUNDLE_ID_PREFIX).commuter
 DEVELOPMENT_TEAM =
 DIGITRANSIT_API_KEY =
