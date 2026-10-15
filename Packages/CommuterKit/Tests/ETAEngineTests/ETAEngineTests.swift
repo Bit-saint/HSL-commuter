@@ -179,3 +179,43 @@ final class PaceTests: XCTestCase {
                                             walkingSpeed: 1.4).risk, .missed)
     }
 }
+
+final class RecoveryTests: XCTestCase {
+    func testFastestReachableWins() {
+        let now = Date()
+        let c = [
+            // Leaves in 1 min but 500 m away: unreachable.
+            ConnectionRecovery.Candidate(id: "gone", firstDeparture: now.addingTimeInterval(60),
+                                         arrival: now.addingTimeInterval(900), walkDistance: 500, transfers: 0),
+            // Reachable, arrives later.
+            ConnectionRecovery.Candidate(id: "slow", firstDeparture: now.addingTimeInterval(300),
+                                         arrival: now.addingTimeInterval(1800), walkDistance: 100, transfers: 0),
+            // Reachable, arrives first.
+            ConnectionRecovery.Candidate(id: "fast", firstDeparture: now.addingTimeInterval(400),
+                                         arrival: now.addingTimeInterval(1500), walkDistance: 250, transfers: 1),
+        ]
+        let ranked = ConnectionRecovery.rank(c, readyAt: now, walkingSpeed: 1.4)
+        XCTAssertEqual(ranked.map(\.candidate.id), ["fast", "slow"])
+        XCTAssertTrue(ranked[0].isFastest)
+        XCTAssertFalse(ranked[1].isFastest)
+    }
+
+    func testTieBreaksOnEasierPace() {
+        let now = Date()
+        let arrive = now.addingTimeInterval(1500)
+        let c = [
+            ConnectionRecovery.Candidate(id: "run", firstDeparture: now.addingTimeInterval(130),
+                                         arrival: arrive, walkDistance: 280, transfers: 0),
+            ConnectionRecovery.Candidate(id: "calm", firstDeparture: now.addingTimeInterval(600),
+                                         arrival: arrive.addingTimeInterval(20), walkDistance: 280, transfers: 0),
+        ]
+        XCTAssertEqual(ConnectionRecovery.rank(c, readyAt: now, walkingSpeed: 1.4).first?.candidate.id, "calm")
+    }
+
+    func testCompass() {
+        XCTAssertEqual(ConnectionRecovery.compassDirection(0), "north")
+        XCTAssertEqual(ConnectionRecovery.compassDirection(50), "northeast")
+        XCTAssertEqual(ConnectionRecovery.compassDirection(359), "north")
+        XCTAssertEqual(ConnectionRecovery.compassDirection(200), "south")
+    }
+}

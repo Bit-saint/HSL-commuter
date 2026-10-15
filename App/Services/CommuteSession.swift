@@ -43,6 +43,8 @@ final class CommuteSession {
     private(set) var userLocation: CLLocation?
     private(set) var walkDistance: Double?
     private(set) var missedLeg: Int?
+    /// Set when a vehicle or connection is missed: the fastest alternatives and where to go.
+    private(set) var recovery: RecoveryState?
     /// Bumped every tick so views can animate.
     private(set) var tick = 0
     private(set) var now = Date()
@@ -54,6 +56,11 @@ final class CommuteSession {
     @ObservationIgnored private var backgroundSession: CLBackgroundActivitySession?
     @ObservationIgnored private var notified: Set<String> = []
     @ObservationIgnored private var lastFeedRefresh = Date.distantPast
+    @ObservationIgnored private var recoveryTask: Task<Void, Never>?
+    @ObservationIgnored private var recoveryOrigin: (point: GeoPoint, readyAt: Date)?
+    @ObservationIgnored private var lastFasterCheck = Date.distantPast
+    /// Minutes saved by a suggestion the user turned down; only suggest again if clearly better.
+    @ObservationIgnored private var declinedSaving = 0
 
     init(itinerary: Itinerary, destinationName: String, app: AppModel) {
         self.itinerary = itinerary
@@ -106,6 +113,7 @@ final class CommuteSession {
     }
 
     func stop() {
+        recoveryTask?.cancel()
         tasks.forEach { $0.cancel() }
         tasks.removeAll()
         backgroundSession?.invalidate()
@@ -221,7 +229,122 @@ final class CommuteSession {
 
         updatePhase()
         updateAdvice()
+        // Alternatives go stale quickly; re-plan every minute while they're shown.
+        if let r = recovery, !r.loading, !r.isSuggestion, now.timeIntervalSince(r.updatedAt) > 60 { refreshRecovery() }
+        checkForFasterOption()
         publish()
+    }
+
+    // MARK: - Missed connection recovery
+
+    /// "I missed it": plan the fastest way on from where you are now.
+    func reportMissed() {
+        if let live = focusLeg { missedLeg = live.index }
+        let here = user ?? focusLeg?.leg.from.location ?? itinerary.legs.first?.from.location
+        guard let here else { return }
+        startRecovery(.manual, from: here, readyAt: now)
+    }
+
+    func selectRecovery(_ option: RecoveryOption) {
+        recovery?.selectedId = option.id
+        publish()
+    }
+
+    /// Switch live tracking to the chosen alternative.
+    func takeRecovery(_ option: RecoveryOption) {
+        app?.startSession(itinerary: option.itinerary, destinationName: destinationName)
+    }
+
+    func dismissRecovery() {
+        if case .fasterOption(_, _, let saved)? = recovery?.reason { declinedSaving = saved }
+        recoveryTask?.cancel()
+        recovery = nil
+        recoveryOrigin = nil
+    }
+
+    /// When the vehicle you're heading for runs late, look for a route that arrives sooner.
+    private func checkForFasterOption() {
+        guard recovery == nil, now.timeIntervalSince(lastFasterCheck) > 90, let app,
+              let destination = itinerary.legs.last?.to.location else { return }
+        let i: Int
+        switch phase {
+        case .walking(let l), .waiting(let l): i = l
+        default: return
+        }
+        guard let live = legs[i], let eta = live.boardingETA, !eta.isPassed else { return }
+        let lateness = eta.expected.timeIntervalSince(live.leg.scheduledStart)
+        guard lateness >= 120 else { return }
+        lastFasterCheck = now
+
+        let projected = projectedArrival(lateness: lateness)
+        let origin = user ?? live.leg.from.location
+        let currentTrip = live.leg.trip?.tripId
+        let lateMinutes = Int((lateness / 60).rounded())
+        recoveryTask?.cancel()
+        recoveryTask = Task { [weak self] in
+            guard let options = try? await RecoveryPlanner.options(from: origin, readyAt: Date(), to: destination,
+                                                                   originalArrival: projected, app: app),
+                  let self, !Task.isCancelled, self.recovery == nil else { return }
+            // Different first vehicle, clearly earlier than staying put.
+            let better = options.filter { $0.firstTransit.trip?.tripId != currentTrip && $0.delayVsPlan <= -3 }
+            guard let best = better.first else { return }
+            let saved = -best.delayVsPlan
+            guard saved >= self.declinedSaving + 3 else { return }
+            self.recovery = RecoveryState(reason: .fasterOption(line: live.line, minutesLate: lateMinutes, minutesSaved: saved),
+                                          options: better, loading: false, updatedAt: Date())
+            self.alert(key: "faster-\(best.id)",
+                       title: "\(live.line) is \(lateMinutes) min late: \(best.line) is faster",
+                       body: "\(best.whereToGo). Arrive \(best.arrival.formatted(date: .omitted, time: .shortened)), \(saved) min sooner.")
+        }
+    }
+
+    /// When the current plan really gets you there: live estimate of the last ride, or the plan shifted by the delay.
+    private func projectedArrival(lateness: TimeInterval) -> Date {
+        if let last = transitIndices.last, let live = legs[last], let eta = live.alightingETA, !eta.isPassed {
+            let finalWalk = itinerary.end.timeIntervalSince(live.leg.scheduledEnd)
+            return eta.expected.addingTimeInterval(max(finalWalk, 0))
+        }
+        return itinerary.end.addingTimeInterval(lateness)
+    }
+
+    private func startRecovery(_ reason: RecoveryState.Reason, from origin: GeoPoint, readyAt: Date) {
+        recovery = RecoveryState(reason: reason)
+        recoveryOrigin = (origin, readyAt)
+        refreshRecovery(notify: true)
+    }
+
+    private func refreshRecovery(notify: Bool = false) {
+        guard let app, let destination = itinerary.legs.last?.to.location, var origin = recoveryOrigin else { return }
+        // Once you're out and walking, plan from where you actually are.
+        if let user, origin.readyAt <= now { origin = (user, now) }
+        recovery?.loading = true
+        recoveryTask?.cancel()
+        let originalArrival = itinerary.end
+        recoveryTask = Task { [weak self] in
+            do {
+                let options = try await RecoveryPlanner.options(from: origin.point, readyAt: max(origin.readyAt, Date()),
+                                                                to: destination, originalArrival: originalArrival, app: app)
+                guard let self, !Task.isCancelled, self.recovery != nil else { return }
+                self.recovery?.options = options
+                self.recovery?.loading = false
+                self.recovery?.error = options.isEmpty ? "No reachable options right now." : nil
+                self.recovery?.updatedAt = Date()
+                if let id = self.recovery?.selectedId, !options.contains(where: { $0.id == id }) {
+                    self.recovery?.selectedId = nil
+                }
+                if notify, let best = options.first, let title = self.recovery?.title {
+                    let later = best.delayVsPlan > 0 ? " (+\(best.delayVsPlan) min)" : ""
+                    self.alert(key: "recovery-\(title)",
+                               title: "\(title) → fastest: \(best.line) from \(best.boardingStop.name)",
+                               body: "\(best.whereToGo). Departs \(best.departure.formatted(date: .omitted, time: .shortened)), arrive \(best.arrival.formatted(date: .omitted, time: .shortened))\(later).")
+                }
+            } catch {
+                guard let self, !Task.isCancelled else { return }
+                self.recovery?.loading = false
+                self.recovery?.error = error.localizedDescription
+                self.recovery?.updatedAt = Date()
+            }
+        }
     }
 
     private var user: GeoPoint? { userLocation.map { GeoPoint($0.coordinate) } }
@@ -240,8 +363,8 @@ final class CommuteSession {
                     phase = .riding(leg: i)
                 } else if missedLeg != i {
                     missedLeg = i
-                    alert(key: "missed-\(i)", title: "Missed \(live.line)",
-                          body: "Tap to find the next option to \(destinationName).")
+                    startRecovery(.missed(line: live.line, stop: live.leg.from.name),
+                                  from: user ?? live.leg.from.location, readyAt: now)
                 }
             }
         case .riding(let i):
@@ -305,8 +428,11 @@ final class CommuteSession {
                 alert(key: "transfer-hurry-\(nextIndex)", title: "Hurry for \(next.line)",
                       body: "Connection at \(next.leg.from.name) is tight. Walk fast when you get off.")
             case .missed:
-                alert(key: "transfer-missed-\(nextIndex)", title: "Connection to \(next.line) at risk",
-                      body: "You'll likely miss it. Open the app for alternatives.")
+                // Plan from the stop we'll get off at, from the moment we get there.
+                if recovery == nil {
+                    startRecovery(.connectionAtRisk(line: next.line, stop: next.leg.from.name),
+                                  from: current.leg.to.location, readyAt: arrive.expected)
+                }
             default: break
             }
         case .arrived:
@@ -329,9 +455,9 @@ final class CommuteSession {
             alert(key: "run-\(live.index)", title: "Run! \(live.line) in \(mins) min",
                   body: "\(Int(advice.walkDistance)) m to \(stop).")
         case .willMiss:
-            if previous != nil {
-                alert(key: "miss-\(live.index)", title: "You'll miss \(live.line)",
-                      body: "Take it easy and check the next departure.")
+            if previous != nil, recovery == nil {
+                startRecovery(.connectionAtRisk(line: live.line, stop: live.leg.from.name),
+                              from: user ?? live.leg.from.location, readyAt: now)
             }
         default: break
         }
@@ -372,6 +498,19 @@ final class CommuteSession {
     }
 
     func activityState() -> CommuteActivityAttributes.ContentState? {
+        // Missed: the Live Activity switches to the best way on. A faster-option suggestion
+        // keeps showing your current vehicle, with the suggestion as a note.
+        if let option = recovery?.selected, recovery?.isSuggestion == false {
+            let d = option.departure
+            return CommuteActivityAttributes.ContentState(
+                phase: .transfer, line: option.line, mode: option.firstTransit.mode,
+                headsign: option.firstTransit.headsign ?? option.firstTransit.to.name,
+                stopName: option.boardingStop.name, eta: d, etaEarliest: d, etaLatest: d,
+                isLive: option.firstTransit.isRealtime, pace: option.advice.state,
+                paceMessage: option.whereToGo, leaveAt: option.advice.leaveAt, progress: 0,
+                nextStopName: nil, occupancy: nil,
+                transferNote: "Arrive \(option.arrival.formatted(date: .omitted, time: .shortened))\(option.isFastest ? " · fastest option" : "")")
+        }
         guard let live = focusLeg ?? transitIndices.last.flatMap({ legs[$0] }) else { return nil }
         let riding: Bool = { if case .riding = phase { return true }; return false }()
         let eta = (riding ? live.alightingETA : live.boardingETA)
@@ -396,6 +535,9 @@ final class CommuteSession {
             case .missed: label = "at risk"
             }
             transferNote = "Then \(next.line) at \(next.leg.from.name) · \(label)"
+        }
+        if let r = recovery, r.isSuggestion, let best = r.options.first {
+            transferNote = "Faster: \(best.line) from \(best.boardingStop.name) · \(-best.delayVsPlan) min sooner"
         }
         return CommuteActivityAttributes.ContentState(
             phase: phaseValue, line: live.line, mode: live.mode, headsign: live.headsign,

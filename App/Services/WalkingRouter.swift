@@ -14,6 +14,23 @@ final class WalkingRouter {
         String(format: "%.4f,%.4f>%.4f,%.4f", a.latitude, a.longitude, b.latitude, b.longitude)
     }
 
+    /// Walking route with its path, for showing "where do I need to go" on the map.
+    func route(from a: GeoPoint, to b: GeoPoint) async -> (distance: Double, path: [GeoPoint]) {
+        let straight = a.distance(to: b)
+        let request = MKDirections.Request()
+        request.source = MKMapItem(placemark: MKPlacemark(coordinate: a.coordinate))
+        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: b.coordinate))
+        request.transportType = .walking
+        if straight > 30, let route = try? await MKDirections(request: request).calculate().routes.first {
+            let poly = route.polyline
+            var coords = [CLLocationCoordinate2D](repeating: kCLLocationCoordinate2DInvalid, count: poly.pointCount)
+            poly.getCoordinates(&coords, range: NSRange(location: 0, length: poly.pointCount))
+            cache[key(a, b)] = route.distance
+            return (route.distance, coords.map { GeoPoint($0) })
+        }
+        return (straight * (straight > 30 ? Self.detourFactor : 1), [a, b])
+    }
+
     func distance(from a: GeoPoint, to b: GeoPoint) async -> Double {
         let straight = a.distance(to: b)
         if straight < 60 { return straight }

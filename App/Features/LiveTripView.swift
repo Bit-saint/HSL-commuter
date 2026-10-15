@@ -45,7 +45,13 @@ struct LiveTripView: View {
         var heading = cam.heading
         var distance = 650.0
 
-        if let live = session.focusLeg {
+        if let option = session.recovery?.selected, session.recovery?.isSuggestion == false {
+            let stop = option.boardingStop.location
+            let me = session.userLocation.map { GeoPoint($0.coordinate) } ?? option.walkPath.first ?? stop
+            center = GeoPoint(latitude: (me.latitude + stop.latitude) / 2, longitude: (me.longitude + stop.longitude) / 2)
+            distance = min(max(me.distance(to: stop) * 2.6, 450), 5_000)
+            heading = me.bearing(to: stop)
+        } else if let live = session.focusLeg {
             switch session.phase {
             case .riding:
                 // Chase camera behind the vehicle, like a game.
@@ -133,6 +139,25 @@ struct TripMapView: View {
                                               cam: cam, isFocus: session.focusLeg?.index == i)
                             }
                             .annotationTitles(.hidden)
+                        }
+                    }
+                }
+                if let option = session.recovery?.selected {
+                    // Where to go: walking path to the new stop, then the new route.
+                    MapPolyline(coordinates: option.walkPath.map(\.coordinate))
+                        .stroke(.white, style: StrokeStyle(lineWidth: 5, lineCap: .round, dash: [2, 8]))
+                    ForEach(Array(option.itinerary.legs.enumerated()), id: \.offset) { _, leg in
+                        if leg.mode.isTransit {
+                            MapPolyline(coordinates: leg.geometry.map(\.coordinate))
+                                .stroke(HSLColor.mode(leg.mode).opacity(0.9),
+                                        style: StrokeStyle(lineWidth: 6, lineCap: .round, dash: [10, 6]))
+                        }
+                    }
+                    Annotation(option.boardingStop.name, coordinate: option.boardingStop.location.coordinate) {
+                        VStack(spacing: 3) {
+                            LineBadge(option.line, mode: option.firstTransit.mode, size: 13)
+                            Image(systemName: "mappin.circle.fill").font(.system(size: 30))
+                                .foregroundStyle(.white, HSLColor.mode(option.firstTransit.mode))
                         }
                     }
                 }
@@ -228,19 +253,22 @@ struct LiveTripSheet: View {
     var body: some View {
         VStack(spacing: 12) {
             Capsule().fill(.white.opacity(0.3)).frame(width: 40, height: 5)
-            if let live = session.focusLeg {
+            if let recovery = session.recovery {
+                // Missed or late: show the fastest ways on and where to go.
+                if recovery.isSuggestion, let live = session.focusLeg { etaRow(live) }
+                RecoveryPanel(session: session, recovery: recovery)
+                if !recovery.isSuggestion {
+                    Button(action: onStop) {
+                        Text("Stop tracking").font(HSLFont.body()).frame(maxWidth: .infinity).padding(.vertical, 12)
+                            .background(.white.opacity(0.1), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                }
+            } else if let live = session.focusLeg {
                 RouteCard(session: session, live: live, onStop: onStop)
                 etaRow(live)
                 paceBanner(live)
                 tiles(live)
-                if session.missedLeg != nil {
-                    Button(action: onReplan) {
-                        Label("Find the next option", systemImage: "arrow.triangle.2.circlepath")
-                            .frame(maxWidth: .infinity).padding(.vertical, 12)
-                            .background(HSLColor.red, in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                }
                 actions(live)
             } else {
                 arrivedView
@@ -384,6 +412,10 @@ struct LiveTripSheet: View {
                 Text("Stop").frame(maxWidth: .infinity).padding(.vertical, 14)
                     .background(.white.opacity(0.1), in: Capsule())
             }
+            Button { session.reportMissed() } label: {
+                Text(riding ? "Missed change?" : "I missed it").frame(maxWidth: .infinity).padding(.vertical, 14)
+                    .background(HSLColor.red.opacity(0.85), in: Capsule())
+            }
             if riding {
                 Button { session.skipLeg() } label: {
                     Text("I got off").frame(maxWidth: .infinity).padding(.vertical, 14)
@@ -396,7 +428,9 @@ struct LiveTripSheet: View {
                 }
             }
         }
-        .font(HSLFont.body())
+        .font(HSLFont.body(15))
+        .lineLimit(1)
+        .minimumScaleFactor(0.8)
         .buttonStyle(.plain)
     }
 

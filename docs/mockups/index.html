@@ -88,6 +88,15 @@
   .pace { display:flex; align-items:center; gap:8px; border-radius:12px; padding:7px 10px; font-weight:800; font-size:14px; }
   .pace svg { width:17px; height:17px; }
   .caption { width:393px; text-align:center; margin-top:14px; font-weight:800; font-size:15px; color:#aaa; }
+
+  .rcard { background:rgba(255,255,255,.06); border-radius:16px; padding:11px 12px; margin-top:8px; }
+  .rcard.sel { background:rgba(255,255,255,.14); box-shadow: inset 0 0 0 2px var(--green); }
+  .fast { display:inline-block; background:var(--green); border-radius:10px; padding:1px 7px; font-size:10px; font-weight:900; margin-bottom:5px; }
+  .where { display:flex; gap:8px; align-items:flex-start; font-size:14px; font-weight:700; margin-top:7px; }
+  .mapbtn { width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; flex:none; }
+  .timing { display:flex; gap:6px; align-items:center; font-size:12px; font-weight:700; color:var(--sec); margin-top:6px; }
+  .timing i { width:8px; height:8px; border-radius:50%; display:block; }
+  .mapbg { position:absolute; inset:0; background-size:393px 852px; filter:brightness(.8); }
 </style>
 </head>
 <body>
@@ -292,6 +301,66 @@
 <div class="caption">Dynamic Island (expanded) while using other apps</div>
 </div>
 
+<div>
+<div class="phone" id="missed">
+  <div class="mapbg" id="bg1"></div>
+  <svg style="position:absolute;inset:0;z-index:2" width="393" height="852">
+    <path d="M196 300 C 230 260, 260 230, 300 170" stroke="#fff" stroke-width="5" stroke-dasharray="2 9" stroke-linecap="round" fill="none"/>
+    <path d="M300 170 L 360 110 L 420 40" stroke="#8C4799" stroke-width="6" stroke-dasharray="10 6" fill="none"/>
+    <circle cx="196" cy="300" r="16" fill="rgba(10,132,255,.25)"/><circle cx="196" cy="300" r="8" fill="#fff"/><circle cx="196" cy="300" r="5.5" fill="#0A84FF"/>
+  </svg>
+  <div style="position:absolute;left:280px;top:112px;z-index:3;text-align:center">
+    <span id="b-i"></span>
+    <svg width="30" height="30" viewBox="0 0 30 30" style="display:block;margin:3px auto 0"><circle cx="15" cy="15" r="14" fill="#fff"/><circle cx="15" cy="15" r="9" fill="#8C4799"/></svg>
+  </div>
+  <div class="island"></div>
+  <div class="status"><span>8:02</span><span class="r">●●●● <div class="bat"><i></i></div></span></div>
+  <div class="sheet" style="z-index:10">
+    <div class="grab"></div>
+    <div style="background:var(--red);border-radius:18px;padding:13px 14px;display:flex;gap:12px;align-items:center">
+      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2 1 21h22z" fill="#fff"/><path d="M12 9v5" stroke="#DC0451" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1.4" fill="#DC0451"/></svg>
+      <div><div style="font-size:18px;font-weight:900">Missed 550 at Pasila</div><div style="font-size:13px;font-weight:700;opacity:.9">Fastest ways to get there from here</div></div>
+    </div>
+    <div class="rcard sel"><div class="row" style="align-items:flex-start"><div><span class="fast">FASTEST</span><br><div class="strip" id="r1"></div></div><div class="sp"></div><div style="text-align:right"><div style="font-size:16px;font-weight:900">Arrive 8:31</div><div style="font-size:11px;font-weight:800;color:var(--yellow)">+4 min vs plan</div></div></div><div class="where"><span style="color:#8C4799">{PIN}</span><span style="flex:1">Walk 240 m northeast to Pasila, platform 2</span><span class="mapbtn">{MAP}</span></div><div class="timing"><i style="background:var(--blue)"></i>I leaves in 4 min · walk now</div></div><div class="rcard"><div class="row" style="align-items:flex-start"><div><div class="strip" id="r2"></div></div><div class="sp"></div><div style="text-align:right"><div style="font-size:16px;font-weight:900">Arrive 8:36</div><div style="font-size:11px;font-weight:800;color:var(--yellow)">+9 min vs plan</div></div></div><div class="where"><span style="color:#EA7000">{PIN}</span><span style="flex:1">Stay here: Pasila (H0213)</span><span class="mapbtn">{MAP}</span></div><div class="timing"><i style="background:var(--green)"></i>550 leaves in 9 min · you’re there</div></div>
+    <div class="row" style="gap:10px;margin-top:10px">
+      <div class="btn" style="flex:1;background:rgba(255,255,255,.1)">Back</div>
+      <div class="btn" style="flex:1;background:var(--green)">Go: I</div>
+    </div>
+    <div class="btn" style="margin-top:8px;background:rgba(255,255,255,.1);padding:11px">Stop tracking</div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+<div class="caption">Missed it: fastest alternative + where to go</div>
+</div>
+
+<div>
+<div class="phone" id="faster">
+  <div class="mapbg" id="bg2"></div>
+  <div class="island"></div>
+  <div class="status"><span>7:49</span><span class="r">●●●● <div class="bat"><i></i></div></span></div>
+  <div class="sheet" style="z-index:10">
+    <div class="grab"></div>
+    <div class="row" style="margin:2px 4px 10px">
+      <div><div class="sec" style="font-size:13px;font-weight:700">Arrives at Pasila</div><div style="font-size:19px;font-weight:900">Now near Ilmala</div></div>
+      <div class="sp"></div>
+      <div style="text-align:right"><div><span style="font-size:40px;font-weight:900;line-height:1">11</span> <span style="font-size:15px;font-weight:700">min</span></div>
+      <div class="sec" style="font-size:11px;font-weight:700;display:flex;gap:4px;align-items:center;justify-content:flex-end"><i style="width:6px;height:6px;border-radius:50%;background:var(--green);display:block"></i>live position</div></div>
+    </div>
+    <div style="background:var(--blue);border-radius:18px;padding:13px 14px;display:flex;gap:12px;align-items:center">
+      <svg width="22" height="24" viewBox="0 0 22 24"><path d="M13 1 2 14h7l-2 9 11-13h-7z" fill="#fff"/></svg>
+      <div><div style="font-size:18px;font-weight:900">550 is running 8 min late</div><div style="font-size:13px;font-weight:700;opacity:.9">There's a faster way: about 6 min sooner</div></div>
+    </div>
+    <div class="rcard sel"><div class="row" style="align-items:flex-start"><div><span class="fast">FASTEST</span><br><div class="strip" id="r3"></div></div><div class="sp"></div><div style="text-align:right"><div style="font-size:16px;font-weight:900">Arrive 8:19</div><div style="font-size:11px;font-weight:800;color:var(--green)">6 min sooner</div></div></div><div class="where"><span style="color:#8C4799">{PIN}</span><span style="flex:1">Walk 350 m east to Pasila, platform 6</span><span class="mapbtn">{MAP}</span></div><div class="timing"><i style="background:var(--blue)"></i>P leaves in 7 min · walk now</div></div><div class="rcard"><div class="row" style="align-items:flex-start"><div><div class="strip" id="r4"></div></div><div class="sp"></div><div style="text-align:right"><div style="font-size:16px;font-weight:900">Arrive 8:22</div><div style="font-size:11px;font-weight:800;color:var(--green)">3 min sooner</div></div></div><div class="where"><span style="color:#007AC9">{PIN}</span><span style="flex:1">Walk 120 m south to Asemapäällikönkatu (H0222)</span><span class="mapbtn">{MAP}</span></div><div class="timing"><i style="background:var(--yellow)"></i>23 leaves in 4 min · walk briskly</div></div>
+    <div class="row" style="gap:10px;margin-top:10px">
+      <div class="btn" style="flex:1;background:rgba(255,255,255,.1)">Keep my plan</div>
+      <div class="btn" style="flex:1;background:var(--green)">Switch to P</div>
+    </div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+<div class="caption">Your bus is late: faster option suggested</div>
+</div>
+
 <script>
 // ---------- icons ----------
 const I = {
@@ -454,6 +523,17 @@ const fade = ctx.createLinearGradient(0,0,0,90); fade.addColorStop(0,'rgba(0,0,0
 ctx.fillStyle=fade; ctx.fillRect(0,0,W,90);
 // Legal
 ctx.fillStyle='rgba(255,255,255,.6)'; ctx.font='700 10px Nunito'; ctx.textAlign='left'; ctx.fillText('Legal', 16, 400);
+
+const PIN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5z"/></svg>';
+const MAP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2zm0 2 6 2v12l-6-2z"/></svg>';
+document.querySelectorAll('.where').forEach(el => { el.innerHTML = el.innerHTML.replace('{PIN}', PIN).replace('{MAP}', MAP); });
+document.getElementById('r1').innerHTML = strip([walk(3), badge('train','I'), walk(6)]);
+document.getElementById('r2').innerHTML = strip([badge('trunk','550'), walk(2), badge('metro','M1'), walk(4)]);
+document.getElementById('r3').innerHTML = strip([walk(5), badge('train','P'), walk(6)]);
+document.getElementById('r4').innerHTML = strip([walk(2), badge('bus','23'), badge('metro','M1'), walk(4)]);
+document.getElementById('b-i').outerHTML = badge('train','I',true,13);
+const shot = document.getElementById('map').toDataURL();
+for (const id of ['bg1','bg2']) document.getElementById(id).style.backgroundImage = `url(${shot})`;
 </script>
 </body>
 </html>
