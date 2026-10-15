@@ -188,14 +188,17 @@ jobs:
             t 300 xcrun simctl boot "$ID" >> status.log 2>&1 || echo "boot failed" | tee -a status.log
             t 900 xcrun simctl bootstatus "$ID" -b > /dev/null 2>> status.log || echo "bootstatus timed out" | tee -a status.log
             t 300 xcrun simctl install "$ID" "$APP" >> status.log 2>&1 || echo "install failed" | tee -a status.log
-            t 60 xcrun simctl status_override "$ID" --time "07:40" --batteryState charged --batteryLevel 100 >> status.log 2>&1 || true
+            t 60 xcrun simctl status_bar "$ID" override --time "07:40" --batteryState charged --batteryLevel 100 >> status.log 2>&1 || true
+            # The first screenshot is slow; take it before the clock starts.
+            t 90 xcrun simctl io "$ID" screenshot "warmup-$NAME.png" > /dev/null 2>> status.log || echo "warm-up shot failed" | tee -a status.log
+            touch "start-$NAME.marker"
             local START=$(date +%s)
             t 120 env SIMCTL_CHILD_TZ=Europe/Helsinki xcrun simctl launch --stdout="$PWD/$NAME-console.log" --stderr="$PWD/$NAME-console.log" \
               "$ID" "$BUNDLE" -demo -demoSpeed 12 "$@" >> status.log 2>&1 || echo "launch failed" | tee -a status.log
             echo "launched after $(( $(date +%s) - START )) s" | tee -a status.log
             for AT in 12 40 60 85 125 185; do
               while [ $(( $(date +%s) - START )) -lt $AT ]; do sleep 1; done
-              t 30 xcrun simctl io "$ID" screenshot "shots/$NAME-$AT.png" > /dev/null 2>> status.log || echo "shot $AT failed" | tee -a status.log
+              t 45 xcrun simctl io "$ID" screenshot "shots/$NAME-$AT.png" > /dev/null 2>> status.log || echo "shot $AT failed" | tee -a status.log
               echo "shot $NAME $AT at $(( $(date +%s) - START )) s" | tee -a status.log
             done
             if t 30 xcrun simctl spawn "$ID" launchctl list | grep -q "$BUNDLE"; then echo "$NAME APP_ALIVE=yes" | tee -a status.log; else echo "$NAME APP_ALIVE=no" | tee -a status.log; fi
@@ -206,7 +209,9 @@ jobs:
           play iphone "$IPHONE_ID" -AppleLanguages "(fi)" -AppleLocale fi_FI
           echo "=== summary ==="
           ls -la shots
-          for f in ~/Library/Logs/DiagnosticReports/HSLCommuter*; do [ -f "$f" ] && { echo "--- crash $f"; head -c 6000 "$f"; echo; }; done
+          find ~/Library/Logs/DiagnosticReports -type f -newer start-ipad.marker 2>/dev/null | while read f; do
+            grep -qi "commuter" "$f" && { echo "--- crash $f"; head -c 8000 "$f"; echo; }
+          done
           echo "=== ipad console ==="; grep -a "\[demo\]\|Fatal\|fatal\|Error" ipad-console.log | head -60 || true
           echo "=== iphone console ==="; grep -a "\[demo\]\|Fatal\|fatal\|Error" iphone-console.log | head -60 || true
       - uses: actions/upload-artifact@v4
@@ -228,7 +233,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           { echo "## status"; cat status.log; echo "## iPad"; grep -a "\[demo\]\|Fatal\|fatal" ipad-console.log | head -200;
             echo "## iPhone"; grep -a "\[demo\]\|Fatal\|fatal" iphone-console.log | head -200;
-            for f in ~/Library/Logs/DiagnosticReports/HSLCommuter*; do [ -f "$f" ] && { echo "## crash $f"; head -c 8000 "$f"; }; done
+            find ~/Library/Logs/DiagnosticReports -type f -newer start-ipad.marker 2>/dev/null | while read f; do
+              grep -qi "commuter" "$f" && { echo "## crash $f"; head -c 12000 "$f"; }
+            done
           } > docs/screenshots/console.txt 2>&1 || true
           git add docs/screenshots
           git commit -m "Demo screenshots from CI [skip ci]" || exit 0

@@ -261,6 +261,7 @@ final class CommuteSession {
         if let p = pace { parts.append("pace=\(p.state)") }
         parts.append("onBoard=\(boarding.isOnBoard)")
         print(parts.joined(separator: " "))
+        fflush(stdout)
     }
 
     /// Builds the tracker for transit leg `i` and finds where you board and get off.

@@ -184,8 +184,11 @@ public final class VehicleSpriteCache {
     public var customSprite: ((TransitMode, Int, Int) -> Image?)?
 
     private var cache: [String: Image] = [:]
+    /// Oldest first; the cache keeps the most recent `capacity` sprites (a metro sprite is ~1.3 MB).
+    private var order: [String] = []
+    public var capacity = 64
     private let pointsPerMeter: Double = 3
-    private let renderScale: CGFloat = 3
+    private let renderScale: CGFloat = 2
 
     public func sprite(mode: TransitMode, relativeHeading: Double, pitch: Double) -> Image? {
         let h = Int(((relativeHeading.truncatingRemainder(dividingBy: 360) + 360) / 360 * Double(Self.headingSteps))
@@ -201,6 +204,8 @@ public final class VehicleSpriteCache {
         guard let cg = renderer.cgImage else { return nil }
         let img = Image(decorative: cg, scale: renderScale)
         cache[key] = img
+        order.append(key)
+        if order.count > capacity { cache[order.removeFirst()] = nil }
         return img
     }
 
