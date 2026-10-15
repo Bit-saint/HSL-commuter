@@ -144,7 +144,7 @@ jobs:
   # Plays the bundled demo trip on an iPad and an iPhone simulator and screenshots the real app.
   demo-screenshots:
     runs-on: macos-15
-    timeout-minutes: 45
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - name: Xcode + XcodeGen
@@ -160,6 +160,8 @@ jobs:
             CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= build 2>&1 | tail -5
       - name: Play the demo and take screenshots
         run: |
+          # Every simulator command gets a time limit, so a stuck one can't hang the job.
+          t() { local secs=$1; shift; perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null; }
           read RUNTIME IPAD IPHONE < <(xcrun simctl list runtimes -j | python3 -c "
           import json, sys
           rs = [r for r in json.load(sys.stdin)['runtimes'] if r['platform'] == 'iOS' and r['isAvailable']]
@@ -168,32 +170,29 @@ jobs:
           ipads = [d['identifier'] for d in t if 'iPad Pro' in d['name']] or [d['identifier'] for d in t if 'iPad' in d['name']]
           phones = [d['identifier'] for d in t if d['name'].endswith('Pro')] or [d['identifier'] for d in t if 'iPhone' in d['name']]
           print(r['identifier'], ipads[-1], phones[-1])")
+          echo "runtime $RUNTIME ipad $IPAD iphone $IPHONE"
           APP=$(find simbuild/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "*.app" | head -1)
           BUNDLE=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist")
           mkdir -p shots
-          for NAME in ipad iphone; do
-            TYPE=$IPAD; [ $NAME = iphone ] && TYPE=$IPHONE
-            UDID=$(xcrun simctl create demo-$NAME "$TYPE" "$RUNTIME")
-            echo "$NAME $UDID" >> sims.txt
-            xcrun simctl boot "$UDID"
+          IPAD_ID=$(t 120 xcrun simctl create demo-ipad "$IPAD" "$RUNTIME")
+          IPHONE_ID=$(t 120 xcrun simctl create demo-iphone "$IPHONE" "$RUNTIME")
+          for ID in $IPAD_ID $IPHONE_ID; do t 300 xcrun simctl boot "$ID" || true; done
+          for ID in $IPAD_ID $IPHONE_ID; do
+            echo "waiting for $ID"; t 600 xcrun simctl bootstatus "$ID" -b > /dev/null || echo "bootstatus timed out"
+            t 300 xcrun simctl install "$ID" "$APP"
+            t 60 xcrun simctl status_override "$ID" --time "07:47" --batteryState charged --batteryLevel 100 || true
           done
-          while read NAME UDID; do
-            xcrun simctl bootstatus "$UDID" -b > /dev/null
-            xcrun simctl install "$UDID" "$APP"
-            xcrun simctl status_override "$UDID" --time "07:47" --batteryState charged --batteryLevel 100 || true
-          done < sims.txt
-          while read NAME UDID; do
-            # The iPhone runs in Finnish to check the translations.
-            LANG_ARGS=""; [ $NAME = iphone ] && LANG_ARGS="-AppleLanguages (fi) -AppleLocale fi_FI"
-            xcrun simctl launch "$UDID" "$BUNDLE" -demo -demoSpeed 12 $LANG_ARGS > /dev/null
-          done < sims.txt
+          echo "launching"
+          t 60 xcrun simctl launch "$IPAD_ID" "$BUNDLE" -demo -demoSpeed 12 || echo "ipad launch failed"
+          # The iPhone runs in Finnish to check the translations.
+          t 60 xcrun simctl launch "$IPHONE_ID" "$BUNDLE" -demo -demoSpeed 12 -AppleLanguages "(fi)" -AppleLocale fi_FI || echo "iphone launch failed"
           START=$(date +%s)
           # Real seconds after launch at 12x: leave time, walking, at the stop, riding, walking to work.
           for AT in 8 33 56 95 146; do
             while [ $(( $(date +%s) - START )) -lt $AT ]; do sleep 1; done
-            while read NAME UDID; do
-              xcrun simctl io "$UDID" screenshot "shots/$NAME-$AT.png" > /dev/null 2>&1 || true
-            done < sims.txt
+            echo "shot at ${AT}s"
+            t 30 xcrun simctl io "$IPAD_ID" screenshot "shots/ipad-$AT.png" > /dev/null 2>&1 || echo "ipad shot failed"
+            t 30 xcrun simctl io "$IPHONE_ID" screenshot "shots/iphone-$AT.png" > /dev/null 2>&1 || echo "iphone shot failed"
           done
           ls -la shots
           # Small JPEGs inline in the log, so the run can be reviewed without downloading.
