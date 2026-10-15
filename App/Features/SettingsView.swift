@@ -12,6 +12,17 @@ struct SettingsView: View {
         @Bindable var app = app
         Form {
             Section {
+                NavigationLink {
+                    HomeWorkView()
+                } label: {
+                    VStack(alignment: .leading) {
+                        Label("Home & Work", systemImage: "house.and.flag.fill").font(HSLFont.body())
+                        Text(app.homeWork.summary).font(HSLFont.caption(12)).foregroundStyle(.secondary)
+                    }
+                }
+            } header: { Text("Your commute") }
+
+            Section {
                 ForEach(app.commutes) { c in
                     Button { editing = c } label: {
                         VStack(alignment: .leading) {
@@ -22,7 +33,9 @@ struct SettingsView: View {
                 }
                 .onDelete { app.commutes.remove(atOffsets: $0) }
                 Button("Add commute", systemImage: "plus") { addingNew = true }
-            } header: { Text("Commutes") }
+            } header: { Text("Other commutes") } footer: {
+                Text("E.g. gym or school. Home ↔ work is set above.")
+            }
 
             Section {
                 HStack {
@@ -109,17 +122,7 @@ struct CommuteEditor: View {
                     if hasArriveBy {
                         DatePicker("Time", selection: $arriveBy, displayedComponents: .hourAndMinute)
                     }
-                    HStack {
-                        ForEach(1...7, id: \.self) { i in
-                            let day = (i % 7) + 1 // Monday first
-                            let on = weekdays.contains(day)
-                            Text(String(Calendar.current.veryShortWeekdaySymbols[day - 1]))
-                                .font(HSLFont.caption())
-                                .frame(width: 32, height: 32)
-                                .background(on ? HSLColor.blue : Color.white.opacity(0.1), in: Circle())
-                                .onTapGesture { if on { weekdays.remove(day) } else { weekdays.insert(day) } }
-                        }
-                    }
+                    WeekdayPicker(days: $weekdays)
                     Toggle("“Leave now” reminders", isOn: $reminders)
                 } header: { Text("Schedule") }
             }
@@ -198,7 +201,6 @@ struct PlacePicker: View {
 /// First-run setup: API key, permissions, first commute.
 struct SetupView: View {
     @Environment(AppModel.self) private var app
-    @State private var addingCommute = false
 
     var body: some View {
         @Bindable var app = app
@@ -218,10 +220,15 @@ struct SetupView: View {
                     Button("Allow notifications") { Task { await app.notifications.requestAuthorization() } }
                 } header: { Text("2. Permissions") }
                 Section {
-                    if let c = app.commutes.first {
-                        Label(c.name, systemImage: "checkmark.circle.fill").foregroundStyle(HSLColor.green)
-                    } else {
-                        Button("Add Home → Work") { addingCommute = true }
+                    NavigationLink {
+                        HomeWorkView()
+                    } label: {
+                        if app.homeWork.isComplete {
+                            Label(app.homeWork.summary, systemImage: "checkmark.circle.fill")
+                                .foregroundStyle(HSLColor.green)
+                        } else {
+                            Label("Set home, work and working hours", systemImage: "house.and.flag")
+                        }
                     }
                 } header: { Text("3. Your commute") }
             }
@@ -229,9 +236,6 @@ struct SetupView: View {
             .toolbar {
                 Button("Done") { app.hasCompletedSetup = true }
                     .disabled(app.apiKey.isEmpty)
-            }
-            .sheet(isPresented: $addingCommute) {
-                CommuteEditor(commute: nil) { app.commutes.append($0) }
             }
         }
     }

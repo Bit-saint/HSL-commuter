@@ -14,6 +14,9 @@ final class AppModel {
     var walkingSpeed: Double { didSet { save() } }
     /// Extra seconds to be at the stop on top of the mode default.
     var extraBuffer: Double { didSet { save() } }
+    /// Home, work and working hours. Drives the two daily commutes.
+    var homeWork: HomeWorkSetup { didSet { save() } }
+    /// Extra commutes (gym, school…), in addition to home ↔ work.
     var commutes: [Commute] { didSet { save() } }
     var hasCompletedSetup: Bool { didSet { save() } }
 
@@ -38,6 +41,11 @@ final class AppModel {
         walkingSpeed = defaults.object(forKey: "walkingSpeed") as? Double ?? 1.35
         extraBuffer = defaults.object(forKey: "extraBuffer") as? Double ?? 0
         hasCompletedSetup = defaults.bool(forKey: "hasCompletedSetup")
+        if let data = defaults.data(forKey: "homeWork"), let hw = try? JSONDecoder().decode(HomeWorkSetup.self, from: data) {
+            homeWork = hw
+        } else {
+            homeWork = HomeWorkSetup()
+        }
         if let data = defaults.data(forKey: "commutes"), let list = try? JSONDecoder().decode([Commute].self, from: data) {
             commutes = list
         } else {
@@ -52,17 +60,36 @@ final class AppModel {
         defaults.set(extraBuffer, forKey: "extraBuffer")
         defaults.set(hasCompletedSetup, forKey: "hasCompletedSetup")
         if let data = try? JSONEncoder().encode(commutes) { defaults.set(data, forKey: "commutes") }
+        if let data = try? JSONEncoder().encode(homeWork) { defaults.set(data, forKey: "homeWork") }
     }
 
     func persistLearning() {
         Persistence.save(learnedSegments)
     }
 
-    /// The commute that makes sense right now: the first active one before noon, its reverse after.
+    /// Home ↔ work for the given day (with that day's times) followed by the extra commutes.
+    func allCommutes(on date: Date = Date()) -> [Commute] {
+        homeWork.commutes(on: date) + commutes
+    }
+
+    /// The commute that makes sense right now: to work in the morning, home after the
+    /// middle of the working day. Falls back to the first extra commute.
     func suggestedCommute(now: Date = Date()) -> Commute? {
+        let hw = homeWork.commutes(on: now)
+        if hw.count == 2 { return homeWork.isMorning(now) ? hw[0] : hw[1] }
         guard let first = commutes.first(where: { $0.isActive(on: now) }) ?? commutes.first else { return nil }
         let hour = Calendar.current.component(.hour, from: now)
         return hour < 12 ? first : first.reversed
+    }
+
+    /// The opposite direction: to work ↔ to home keep their own times.
+    func counterpart(of commute: Commute, now: Date = Date()) -> Commute {
+        let hw = homeWork.commutes(on: now)
+        if hw.count == 2 {
+            if commute.id == HomeWorkSetup.toWorkID { return hw[1] }
+            if commute.id == HomeWorkSetup.toHomeID { return hw[0] }
+        }
+        return commute.reversed
     }
 
     // MARK: Live sessions

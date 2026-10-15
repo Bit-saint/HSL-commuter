@@ -9,6 +9,7 @@ See [PLAN.md](PLAN.md) for the design.
 - **Arrival estimates from live vehicle positions.** HSL's high-frequency positioning feed (HFP) sends roughly one GPS fix per second per vehicle. The app projects each fix onto the route, smooths it with a filter, and adds stop-to-stop running times it learns on the device. Dwell times and timing points (where an early vehicle waits for the timetable) are included. The result is blended with Digitransit's own realtime estimate and shown as a range ("4–6 min") when the app is uncertain.
 - **Pace advice.** The app uses your walking distance (MapKit walking route) and your personal walking speed, which it learns while you walk. The states are: relax, leave soon, start walking, walk briskly, run, or you'll miss it.
 - **Transfer guard.** While you're on the first vehicle, the app checks whether you'll make the next one and warns you early.
+- **Home & Work setup.** Set your home, your work, the time you need to be at work and the time you leave work. You can use the same times every workday or different times per day. Mornings plan backwards from your arrival time; afternoons plan the first good departure after you leave work. The Today screen switches direction automatically at the middle of your working day.
 - **Departure picker.** Ranks options to minimise time spent standing at stops while still arriving on time.
 - **Live Activity and Dynamic Island**, with a countdown that keeps ticking without any server.
 - **"Leave now" reminders** using local notifications that are re-planned in background refresh. No server is needed.
@@ -27,7 +28,7 @@ Requirements: a Mac with **Xcode 16+**, an iPhone on **iOS 18+**, and a free or 
    - `DIGITRANSIT_API_KEY`: optional here; you can also paste it in the app. Get a free key at <https://portal-api.digitransit.fi>.
 3. `xcodegen generate && open HSLCommuter.xcodeproj`
 4. Select your iPhone and press Run. On the phone, trust the developer profile under Settings → General → VPN & Device Management.
-5. On first launch: paste the API key, allow location (**Always** gives the most reliable locked-screen tracking) and notifications, and add your Home → Work commute.
+5. On first launch: paste the API key, allow location (**Always** gives the most reliable locked-screen tracking) and notifications, and set Home & Work (places, arrive-at-work and leave-work times).
 
 **Free Apple ID notes**
 - The app has to be re-installed from Xcode every **7 days**. A paid account ($99/yr) makes it last a year.

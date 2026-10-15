@@ -22,9 +22,15 @@ enum Planner {
     static func options(for commute: Commute, app: AppModel, from origin: GeoPoint? = nil,
                         now: Date = Date()) async throws -> [PlannedOption] {
         let target = commute.arriveBy(on: now)
+        let leaveTime = commute.leaveAt(on: now)
         let time: DigitransitClient.TimeConstraint
+        // Earliest moment we'd leave: your leave-work time if it's still ahead, else now.
+        var notBefore = now
         if let target, target > now.addingTimeInterval(20 * 60), target < now.addingTimeInterval(4 * 3600) {
             time = .arriveBy(target)
+        } else if let leaveTime, leaveTime > now, leaveTime < now.addingTimeInterval(4 * 3600) {
+            time = .departAt(leaveTime)
+            notBefore = leaveTime
         } else {
             time = .departAt(now)
         }
@@ -36,7 +42,7 @@ enum Planner {
             arriveBy: target, now: now)
         let byId = Dictionary(options.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
         // Ranked by the optimizer, but shown in departure order with the best one first.
-        var result = ranked.compactMap { byId[$0.id] }.filter { $0.leaveAt > now.addingTimeInterval(-90) }
+        var result = ranked.compactMap { byId[$0.id] }.filter { $0.leaveAt > notBefore.addingTimeInterval(-90) }
         if let best = result.first {
             result = [best] + result.dropFirst().sorted { $0.leaveAt < $1.leaveAt }
         }
@@ -70,8 +76,10 @@ enum LeaveReminderScheduler {
         await app.notifications.cancel(prefix: "reminder-")
         var earliestNextLeave: Date?
 
-        for commute in app.commutes where commute.remindersEnabled && commute.isActive(on: now) {
-            guard let arriveBy = commute.arriveBy(on: now), arriveBy > now.addingTimeInterval(15 * 60) else { continue }
+        for commute in app.allCommutes(on: now) where commute.remindersEnabled && commute.isActive(on: now) {
+            // Arrive-by commutes (to work) and leave-at commutes (from work) both get reminders.
+            guard let anchor = commute.arriveBy(on: now) ?? commute.leaveAt(on: now),
+                  anchor > now.addingTimeInterval(15 * 60) else { continue }
             guard let best = try? await Planner.options(for: commute, app: app, now: now).first,
                   let leg = best.firstTransit else { continue }
             let line = leg.route?.shortName ?? leg.mode.rawValue

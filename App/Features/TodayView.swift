@@ -12,9 +12,10 @@ struct TodayView: View {
     @State private var error: String?
     @State private var reversed = false
 
+    /// Picked commute, else the one that fits the time of day (to work / to home).
     private var commute: Commute? {
-        guard let base = selectedCommute ?? app.commutes.first else { return nil }
-        return reversed ? base.reversed : base
+        guard let base = selectedCommute ?? app.suggestedCommute() else { return nil }
+        return reversed ? app.counterpart(of: base) : base
     }
 
     var body: some View {
@@ -39,8 +40,14 @@ struct TodayView: View {
                             .font(HSLFont.body(14))
                     }
                 } else {
-                    ContentUnavailableView("No commute yet", systemImage: "house.and.flag",
-                                           description: Text("Add your home and work in Settings."))
+                    ContentUnavailableView {
+                        Label("No commute yet", systemImage: "house.and.flag")
+                    } description: {
+                        Text("Set your home, work and working hours to get leave-time advice.")
+                    } actions: {
+                        NavigationLink("Set Home & Work") { HomeWorkView() }
+                            .buttonStyle(.borderedProminent)
+                    }
                 }
             }
             .padding()
@@ -68,14 +75,20 @@ struct TodayView: View {
     private func header(_ commute: Commute) -> some View {
         HStack {
             Menu {
-                ForEach(app.commutes) { c in
+                ForEach(app.allCommutes()) { c in
                     Button(c.name) { selectedCommute = c; reversed = false }
+                }
+                if selectedCommute != nil {
+                    Button("Automatic (by time of day)") { selectedCommute = nil; reversed = false }
                 }
             } label: {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(commute.origin.name).font(HSLFont.caption()).foregroundStyle(.secondary)
+                    Text("From \(commute.origin.name)").font(HSLFont.caption()).foregroundStyle(.secondary)
                     Text(commute.destination.name).font(HSLFont.title())
                         .foregroundStyle(.white)
+                    if let label = timeLabel(commute) {
+                        Text(label).font(HSLFont.caption(12)).foregroundStyle(HSLColor.blue)
+                    }
                 }
             }
             Spacer()
@@ -85,6 +98,12 @@ struct TodayView: View {
                 Image(systemName: "arrow.up.arrow.down.circle.fill").font(.title)
             }
         }
+    }
+
+    private func timeLabel(_ c: Commute) -> String? {
+        if let m = c.arriveByMinutes { return "Arrive by \(m.clockString)" }
+        if let m = c.leaveAtMinutes { return "Leaving at \(m.clockString)" }
+        return nil
     }
 
     private func load() async {
