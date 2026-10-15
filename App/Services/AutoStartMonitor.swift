@@ -6,7 +6,8 @@ import ETAEngine
 /// on a commute day. iOS wakes the app for these geofence exits even when it isn't running.
 @MainActor
 final class AutoStartMonitor {
-    static let monitorName = "fi.hslcommuter.places"
+    // CLMonitor names must be alphanumeric (a dot crashes at launch).
+    static let monitorName = "HSLCommuterPlaces"
     private var monitor: CLMonitor?
     private var eventsTask: Task<Void, Never>?
     private weak var app: AppModel?
