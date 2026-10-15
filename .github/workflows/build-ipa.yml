@@ -101,8 +101,13 @@ jobs:
             CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= build 2>&1 | tail -5
       - name: Launch on iPad simulator
         run: |
-          RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "import json,sys; r=[x for x in json.load(sys.stdin)['runtimes'] if x['platform']=='iOS' and x['isAvailable']]; print(r[-1]['identifier'])")
-          DEVTYPE=$(xcrun simctl list devicetypes -j | python3 -c "import json,sys; d=[x['identifier'] for x in json.load(sys.stdin)['devicetypes'] if 'iPad' in x['name']]; print(d[-1])")
+          # Newest iOS runtime and an iPad model it supports.
+          read RUNTIME DEVTYPE < <(xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)['runtimes'] if r['platform'] == 'iOS' and r['isAvailable']]
+          r = rs[-1]
+          ipads = [d['identifier'] for d in r.get('supportedDeviceTypes', []) if 'iPad' in d['name']]
+          print(r['identifier'], ipads[-1])")
           echo "runtime $RUNTIME device $DEVTYPE"
           UDID=$(xcrun simctl create smoke "$DEVTYPE" "$RUNTIME")
           xcrun simctl boot "$UDID"
