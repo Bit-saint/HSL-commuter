@@ -2,7 +2,15 @@
 
 An iOS app for commuters in the Helsinki region (HSL area). It tells you **exactly when your vehicle will actually reach your stop**, based on where the vehicle is right now, and what to do about it: *relax*, *start walking*, *walk faster*, *run*, or *you'll miss it, take the next one*. You get this in Live Activities, widgets and notifications, and the in-app map shows HSL-styled 3D vehicles.
 
-> Status: planning. No code yet.
+> Status: v0.1 implemented (see README). Decisions taken after planning:
+> - **iOS 18+** only.
+> - **Everything on device, no backend.** The Phase 6 server is dropped. "Leave now" alerts before the commute use scheduled local notifications plus background refresh. Live updates during the commute use a background location session.
+> - **Personal, sideloaded** app, so HSL styling is fine with no branding permission needed.
+> - **Pre-rendered vehicles** on MapKit: a box-model renderer cached as sprites at 64 headings × 4 pitches, replaceable with real renders via `VehicleSpriteCache.customSprite`.
+> - **All vehicle types** in v1: bus, trunk bus, U-bus, tram, light rail, metro, train (with Digitraffic), ferry.
+> - **No Apple Watch.**
+>
+> Sections 5 and 8 below describe the original backend option, kept for reference.
 
 ---
 

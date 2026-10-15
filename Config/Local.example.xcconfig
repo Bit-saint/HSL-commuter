@@ -1,0 +1,7 @@
+// Copy to Config/Local.xcconfig and fill in. This file is git-ignored once copied.
+// Bundle id prefix must be unique to you, e.g. your reverse domain or name.
+BUNDLE_ID_PREFIX = com.yourname
+// Your Apple developer team id (Xcode > Settings > Accounts), e.g. ABCDE12345
+DEVELOPMENT_TEAM = 
+// Free key from https://portal-api.digitransit.fi (can also be entered in the app)
+DIGITRANSIT_API_KEY = 

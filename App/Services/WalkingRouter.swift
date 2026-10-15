@@ -1,0 +1,73 @@
+import MapKit
+import ETAEngine
+
+/// Walking distances via MapKit, cached, with a straight-line fallback.
+@MainActor
+final class WalkingRouter {
+    /// Typical detour factor of a walking route over the straight line in Helsinki.
+    static let detourFactor = 1.3
+
+    private var cache: [String: Double] = [:]
+
+    private func key(_ a: GeoPoint, _ b: GeoPoint) -> String {
+        // ~10 m grid so small GPS moves hit the cache.
+        String(format: "%.4f,%.4f>%.4f,%.4f", a.latitude, a.longitude, b.latitude, b.longitude)
+    }
+
+    func distance(from a: GeoPoint, to b: GeoPoint) async -> Double {
+        let straight = a.distance(to: b)
+        if straight < 60 { return straight }
+        let k = key(a, b)
+        if let d = cache[k] { return d }
+        let request = MKDirections.Request()
+        request.source = MKMapItem(placemark: MKPlacemark(coordinate: a.coordinate))
+        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: b.coordinate))
+        request.transportType = .walking
+        do {
+            let response = try await MKDirections(request: request).calculate()
+            if let route = response.routes.first {
+                cache[k] = route.distance
+                return route.distance
+            }
+        } catch {}
+        return straight * Self.detourFactor
+    }
+}
+
+/// Keeps a walking distance fresh while the user moves, without calling MapKit every second:
+/// takes one routed measurement, then scales the straight-line distance by the observed detour ratio.
+@MainActor
+final class WalkTracker {
+    private let router: WalkingRouter
+    private var target: GeoPoint?
+    private var ratio = WalkingRouter.detourFactor
+    private var anchor: GeoPoint?
+    private var lastRouted = Date.distantPast
+    private var inFlight = false
+
+    init(router: WalkingRouter) {
+        self.router = router
+    }
+
+    func distance(from user: GeoPoint, to stop: GeoPoint) -> Double {
+        if target != stop {
+            target = stop
+            ratio = WalkingRouter.detourFactor
+            anchor = nil
+            lastRouted = .distantPast
+        }
+        let straight = user.distance(to: stop)
+        let movedFar = anchor.map { $0.distance(to: user) > 150 } ?? true
+        if !inFlight, movedFar || Date().timeIntervalSince(lastRouted) > 90 {
+            inFlight = true
+            Task {
+                let routed = await router.distance(from: user, to: stop)
+                if straight > 30 { ratio = max(1, min(routed / straight, 3)) }
+                anchor = user
+                lastRouted = Date()
+                inFlight = false
+            }
+        }
+        return straight < 40 ? straight : straight * ratio
+    }
+}

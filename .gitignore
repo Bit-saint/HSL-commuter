@@ -1,0 +1,14 @@
+# Xcode
+*.xcodeproj
+xcuserdata/
+DerivedData/
+.build/
+.swiftpm/
+Packages/CommuterKit/.build/
+*.xcworkspace
+!Packages/**/*.xcworkspace
+
+# Secrets
+Config/Local.xcconfig
+
+.DS_Store
