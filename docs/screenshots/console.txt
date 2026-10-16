@@ -2,90 +2,129 @@
 == ipad
 Detected file type 'PNG' from extension
 Wrote screenshot to: warmup-ipad.png
-/Users/runner/work/_temp/aa5a7a78-2cdd-4920-9177-a5cfc35bfbcc.sh: line 2:  6122 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
-launch failed
-launched after 122 s
-Detected file type 'PNG' from extension
-Wrote screenshot to: shots/ipad-12.png
-shot ipad 12 at 127 s
+io.github.bitsaint.commuter: 10917
+launched after 4 s
+/Users/runner/work/_temp/480a95ea-2c01-4ec8-8b0d-bc45a2fb5152.sh: line 2: 11006 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
+shot 12 failed
+shot ipad 12 at 118 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/ipad-40.png
-shot ipad 40 at 130 s
+shot ipad 40 at 140 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/ipad-60.png
-shot ipad 60 at 132 s
+shot ipad 60 at 158 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/ipad-85.png
-shot ipad 85 at 134 s
-Detected file type 'PNG' from extension
-Wrote screenshot to: shots/ipad-125.png
-shot ipad 125 at 137 s
+shot ipad 85 at 174 s
+/Users/runner/work/_temp/480a95ea-2c01-4ec8-8b0d-bc45a2fb5152.sh: line 2: 12776 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
+shot 125 failed
+shot ipad 125 at 234 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/ipad-185.png
-shot ipad 185 at 188 s
-ipad APP_ALIVE=no
+shot ipad 185 at 261 s
+ipad APP_ALIVE=yes
 == iphone
-/Users/runner/work/_temp/aa5a7a78-2cdd-4920-9177-a5cfc35bfbcc.sh: line 2: 16571 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
 Detected file type 'PNG' from extension
 Wrote screenshot to: warmup-iphone.png
-io.github.bitsaint.commuter: 17847
-launched after 4 s
-/Users/runner/work/_temp/aa5a7a78-2cdd-4920-9177-a5cfc35bfbcc.sh: line 2: 17935 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
+io.github.bitsaint.commuter: 17828
+launched after 5 s
+/Users/runner/work/_temp/480a95ea-2c01-4ec8-8b0d-bc45a2fb5152.sh: line 2: 17863 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
 shot 12 failed
-shot iphone 12 at 68 s
+shot iphone 12 at 74 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/iphone-40.png
-shot iphone 40 at 116 s
+shot iphone 40 at 121 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/iphone-60.png
-shot iphone 60 at 121 s
+shot iphone 60 at 127 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/iphone-85.png
-shot iphone 85 at 123 s
+shot iphone 85 at 129 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/iphone-125.png
-shot iphone 125 at 138 s
+shot iphone 125 at 130 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/iphone-185.png
-shot iphone 185 at 219 s
+shot iphone 185 at 240 s
 iphone APP_ALIVE=yes
 ## iPad
-grep: ipad-console.log: No such file or directory
+[demo] 7:40 AM PHASE walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=525m eta=7:56 AM src=liveVehicle pace=relax onBoard=false
+[demo] 7:41 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=526m eta=7:56 AM src=liveVehicle pace=relax onBoard=false
+[demo] 7:42 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=521m eta=7:56 AM src=liveVehicle pace=relax onBoard=false
+[demo] 7:43 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=521m eta=7:56 AM src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7:44 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=520m eta=7:56 AM src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7:45 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=527m eta=7:56 AM src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7:46 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=523m eta=7:56 AM src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7:47 AM walking(toLeg: 1) vehicle d=797 next=1 dwell=- board=5 passed=false alight=13 passed=false userToStop=480m eta=7:57 AM src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7:48 AM walking(toLeg: 1) vehicle d=2067 next=1 dwell=- board=5 passed=false alight=13 passed=false userToStop=402m eta=7:56 AM src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7:49 AM walking(toLeg: 1) vehicle d=2377 next=2 dwell=- board=5 passed=false alight=13 passed=false userToStop=315m eta=7:57 AM src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7:50 AM walking(toLeg: 1) vehicle d=3463 next=2 dwell=- board=5 passed=false alight=13 passed=false userToStop=229m eta=7:57 AM src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7:51 AM walking(toLeg: 1) vehicle d=3660 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=139m eta=7:57 AM src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7:52 AM walking(toLeg: 1) vehicle d=4398 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=51m eta=7:57 AM src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7:52 AM PHASE waiting(leg: 1) vehicle d=4575 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=31m eta=7:57 AM src=liveVehicle pace=atStop onBoard=false
+[demo] 7:53 AM waiting(leg: 1) vehicle d=4971 next=3 dwell=3 board=5 passed=false alight=13 passed=false userToStop=0m eta=7:57 AM src=liveVehicle pace=atStop onBoard=false
+[demo] 7:54 AM waiting(leg: 1) vehicle d=5478 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=1m eta=7:57 AM src=liveVehicle pace=atStop onBoard=false
+[demo] 7:55 AM waiting(leg: 1) vehicle d=6513 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7:57 AM src=liveVehicle pace=atStop onBoard=false
+[demo] 7:57 AM waiting(leg: 1) vehicle d=6746 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7:58 AM src=liveVehicle pace=atStop onBoard=false
+[demo] 7:58 AM waiting(leg: 1) vehicle d=7516 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7:58 AM src=liveVehicle pace=atStop onBoard=false
+[demo] 7:58 AM PHASE riding(leg: 1) vehicle d=7607 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=21m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 7:59 AM riding(leg: 1) vehicle d=8408 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=821m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:00 AM riding(leg: 1) vehicle d=8701 next=7 dwell=- board=5 passed=true alight=13 passed=false userToStop=1114m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:01 AM riding(leg: 1) vehicle d=9561 next=7 dwell=7 board=5 passed=true alight=13 passed=false userToStop=1956m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:02 AM riding(leg: 1) vehicle d=9832 next=8 dwell=- board=5 passed=true alight=13 passed=false userToStop=2144m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:03 AM riding(leg: 1) vehicle d=10004 next=9 dwell=- board=5 passed=true alight=13 passed=false userToStop=2236m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:04 AM riding(leg: 1) vehicle d=10437 next=9 dwell=9 board=5 passed=true alight=13 passed=false userToStop=2544m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:06 AM riding(leg: 1) vehicle d=11023 next=10 dwell=- board=5 passed=true alight=13 passed=false userToStop=3114m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:07 AM riding(leg: 1) vehicle d=11562 next=10 dwell=10 board=5 passed=true alight=13 passed=false userToStop=3631m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:08 AM riding(leg: 1) vehicle d=12355 next=11 dwell=- board=5 passed=true alight=13 passed=false userToStop=4306m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:09 AM riding(leg: 1) vehicle d=13548 next=11 dwell=- board=5 passed=true alight=13 passed=false userToStop=5404m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:10 AM riding(leg: 1) vehicle d=13844 next=12 dwell=- board=5 passed=true alight=13 passed=false userToStop=5607m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:11 AM riding(leg: 1) vehicle d=14935 next=12 dwell=- board=5 passed=true alight=13 passed=false userToStop=6296m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:12 AM riding(leg: 1) vehicle d=15174 next=13 dwell=- board=5 passed=true alight=13 passed=false userToStop=6397m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:13 AM riding(leg: 1) vehicle d=16238 next=13 dwell=- board=5 passed=true alight=13 passed=false userToStop=6878m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:14 AM riding(leg: 1) vehicle d=16977 next=14 dwell=- board=5 passed=true alight=13 passed=false userToStop=7296m eta=7:58 AM src=passed pace=onBoard onBoard=true
+[demo] 8:14 AM PHASE arrived onBoard=false
+[demo] 8:15 AM arrived onBoard=false
+[demo] 8:16 AM arrived onBoard=false
+[demo] 8:17 AM arrived onBoard=false
+[demo] 8:18 AM arrived onBoard=false
+[demo] 8:19 AM arrived onBoard=false
 ## iPhone
-[demo] 7.40 PHASE walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=524m eta=7.56 src=liveVehicle pace=relax onBoard=false
+[demo] 7.40 PHASE walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=526m eta=7.56 src=liveVehicle pace=relax onBoard=false
 [demo] 7.41 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=523m eta=7.56 src=liveVehicle pace=relax onBoard=false
-[demo] 7.42 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=523m eta=7.56 src=liveVehicle pace=relax onBoard=false
-[demo] 7.43 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=522m eta=7.56 src=liveVehicle pace=relax onBoard=false
-[demo] 7.44 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=521m eta=7.56 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.42 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=522m eta=7.56 src=liveVehicle pace=relax onBoard=false
+[demo] 7.43 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=525m eta=7.56 src=liveVehicle pace=relax onBoard=false
+[demo] 7.44 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=524m eta=7.56 src=liveVehicle pace=leaveSoon onBoard=false
 [demo] 7.45 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=523m eta=7.56 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.46 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=525m eta=7.56 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.47 walking(toLeg: 1) vehicle d=955 next=1 dwell=- board=5 passed=false alight=13 passed=false userToStop=471m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.48 walking(toLeg: 1) vehicle d=2137 next=1 dwell=- board=5 passed=false alight=13 passed=false userToStop=391m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.49 walking(toLeg: 1) vehicle d=2539 next=2 dwell=- board=5 passed=false alight=13 passed=false userToStop=302m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.50 walking(toLeg: 1) vehicle d=3523 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=215m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.51 walking(toLeg: 1) vehicle d=3753 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=124m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.52 walking(toLeg: 1) vehicle d=4539 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=35m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.52 PHASE waiting(leg: 1) vehicle d=4582 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=30m eta=7.57 src=liveVehicle pace=atStop onBoard=false
+[demo] 7.46 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=524m eta=7.56 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.47 walking(toLeg: 1) vehicle d=934 next=1 dwell=- board=5 passed=false alight=13 passed=false userToStop=472m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.48 walking(toLeg: 1) vehicle d=2128 next=1 dwell=- board=5 passed=false alight=13 passed=false userToStop=393m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.49 walking(toLeg: 1) vehicle d=2503 next=2 dwell=- board=5 passed=false alight=13 passed=false userToStop=305m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.50 walking(toLeg: 1) vehicle d=3514 next=2 dwell=- board=5 passed=false alight=13 passed=false userToStop=218m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.51 walking(toLeg: 1) vehicle d=3719 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=129m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.52 walking(toLeg: 1) vehicle d=4509 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=39m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.52 PHASE waiting(leg: 1) vehicle d=4551 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=34m eta=7.57 src=liveVehicle pace=atStop onBoard=false
 [demo] 7.53 waiting(leg: 1) vehicle d=4971 next=3 dwell=3 board=5 passed=false alight=13 passed=false userToStop=0m eta=7.57 src=liveVehicle pace=atStop onBoard=false
-[demo] 7.54 waiting(leg: 1) vehicle d=5487 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7.57 src=liveVehicle pace=atStop onBoard=false
-[demo] 7.55 waiting(leg: 1) vehicle d=6522 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=2m eta=7.57 src=liveVehicle pace=atStop onBoard=false
-[demo] 7.57 waiting(leg: 1) vehicle d=6744 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7.58 src=liveVehicle pace=atStop onBoard=false
-[demo] 7.58 waiting(leg: 1) vehicle d=7503 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=1m eta=7.58 src=liveVehicle pace=atStop onBoard=false
-[demo] 7.58 PHASE riding(leg: 1) vehicle d=7619 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=34m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 7.59 riding(leg: 1) vehicle d=8411 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=824m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.00 riding(leg: 1) vehicle d=8721 next=7 dwell=- board=5 passed=true alight=13 passed=false userToStop=1134m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 7.54 waiting(leg: 1) vehicle d=5434 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7.57 src=liveVehicle pace=atStop onBoard=false
+[demo] 7.55 waiting(leg: 1) vehicle d=6510 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7.57 src=liveVehicle pace=atStop onBoard=false
+[demo] 7.56 waiting(leg: 1) vehicle d=6729 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=1m eta=7.58 src=liveVehicle pace=atStop onBoard=false
+[demo] 7.58 waiting(leg: 1) vehicle d=7490 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=1m eta=7.58 src=liveVehicle pace=atStop onBoard=false
+[demo] 7.58 PHASE riding(leg: 1) vehicle d=7605 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=20m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 7.59 riding(leg: 1) vehicle d=8398 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=812m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.00 riding(leg: 1) vehicle d=8706 next=7 dwell=- board=5 passed=true alight=13 passed=false userToStop=1118m eta=7.58 src=passed pace=onBoard onBoard=true
 [demo] 8.01 riding(leg: 1) vehicle d=9561 next=7 dwell=7 board=5 passed=true alight=13 passed=false userToStop=1956m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.02 riding(leg: 1) vehicle d=9865 next=8 dwell=- board=5 passed=true alight=13 passed=false userToStop=2161m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.04 riding(leg: 1) vehicle d=10043 next=9 dwell=- board=5 passed=true alight=13 passed=false userToStop=2256m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.02 riding(leg: 1) vehicle d=9867 next=8 dwell=- board=5 passed=true alight=13 passed=false userToStop=2162m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.04 riding(leg: 1) vehicle d=10045 next=9 dwell=- board=5 passed=true alight=13 passed=false userToStop=2257m eta=7.58 src=passed pace=onBoard onBoard=true
 [demo] 8.05 riding(leg: 1) vehicle d=10437 next=9 dwell=9 board=5 passed=true alight=13 passed=false userToStop=2544m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.06 riding(leg: 1) vehicle d=11081 next=10 dwell=- board=5 passed=true alight=13 passed=false userToStop=3170m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.06 riding(leg: 1) vehicle d=11053 next=10 dwell=- board=5 passed=true alight=13 passed=false userToStop=3143m eta=7.58 src=passed pace=onBoard onBoard=true
 [demo] 8.07 riding(leg: 1) vehicle d=11562 next=10 dwell=10 board=5 passed=true alight=13 passed=false userToStop=3631m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.08 riding(leg: 1) vehicle d=12454 next=11 dwell=- board=5 passed=true alight=13 passed=false userToStop=4394m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.09 riding(leg: 1) vehicle d=13593 next=11 dwell=- board=5 passed=true alight=13 passed=false userToStop=5446m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.10 riding(leg: 1) vehicle d=13977 next=12 dwell=- board=5 passed=true alight=13 passed=false userToStop=5689m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.11 riding(leg: 1) vehicle d=14969 next=12 dwell=- board=5 passed=true alight=13 passed=false userToStop=6318m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.12 riding(leg: 1) vehicle d=15240 next=13 dwell=- board=5 passed=true alight=13 passed=false userToStop=6422m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.13 riding(leg: 1) vehicle d=16327 next=13 dwell=- board=5 passed=true alight=13 passed=false userToStop=6925m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.08 riding(leg: 1) vehicle d=12372 next=11 dwell=- board=5 passed=true alight=13 passed=false userToStop=4321m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.09 riding(leg: 1) vehicle d=13572 next=11 dwell=- board=5 passed=true alight=13 passed=false userToStop=5428m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.10 riding(leg: 1) vehicle d=13902 next=12 dwell=- board=5 passed=true alight=13 passed=false userToStop=5643m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.11 riding(leg: 1) vehicle d=14942 next=12 dwell=- board=5 passed=true alight=13 passed=false userToStop=6300m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.12 riding(leg: 1) vehicle d=15165 next=13 dwell=- board=5 passed=true alight=13 passed=false userToStop=6394m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.13 riding(leg: 1) vehicle d=16208 next=13 dwell=- board=5 passed=true alight=13 passed=false userToStop=6863m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.14 riding(leg: 1) vehicle d=16974 next=14 dwell=- board=5 passed=true alight=13 passed=false userToStop=7294m eta=7.58 src=passed pace=onBoard onBoard=true
 [demo] 8.14 PHASE arrived onBoard=false
 [demo] 8.15 arrived onBoard=false
 [demo] 8.16 arrived onBoard=false
