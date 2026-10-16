@@ -194,7 +194,13 @@ jobs:
             touch "start-$NAME.marker"
             local START=$(date +%s)
             t 120 env SIMCTL_CHILD_TZ=Europe/Helsinki xcrun simctl launch --stdout="$PWD/$NAME-console.log" --stderr="$PWD/$NAME-console.log" \
-              "$ID" "$BUNDLE" -demo -demoSpeed 12 "$@" >> status.log 2>&1 || echo "launch failed" | tee -a status.log
+              "$ID" "$BUNDLE" -demo -demoSpeed 12 "$@" >> status.log 2>&1 || {
+                echo "launch failed, retrying" | tee -a status.log
+                t 120 xcrun simctl terminate "$ID" "$BUNDLE" >> status.log 2>&1 || true
+                START=$(date +%s)
+                t 120 env SIMCTL_CHILD_TZ=Europe/Helsinki xcrun simctl launch --stdout="$PWD/$NAME-console.log" --stderr="$PWD/$NAME-console.log" \
+                  "$ID" "$BUNDLE" -demo -demoSpeed 12 "$@" >> status.log 2>&1 || echo "launch failed again" | tee -a status.log
+              }
             echo "launched after $(( $(date +%s) - START )) s" | tee -a status.log
             for AT in 12 40 60 85 125 185; do
               while [ $(( $(date +%s) - START )) -lt $AT ]; do sleep 1; done

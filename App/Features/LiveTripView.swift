@@ -512,9 +512,12 @@ struct NextStepCard: View {
                 Text(atStop ? "At \(live.leg.from.name)" : title(state)).font(HSLFont.title(22)).lineLimit(1)
                     .minimumScaleFactor(0.7)
                 Spacer()
-                if !atStop, let leave = session.pace?.leaveAt, leave.timeIntervalSince(now) >= 60,
-                   state == .relax || state == .leaveSoon {
-                    Text("in \(Int(leave.timeIntervalSince(now) / 60)) min").font(HSLFont.body(15)).opacity(0.85)
+                if !atStop, state == .relax || state == .leaveSoon, let pace = session.pace {
+                    if session.isMoving {
+                        Text("\(max(Int(pace.margin / 60), 0)) min to spare").font(HSLFont.body(15)).opacity(0.85)
+                    } else if let leave = pace.leaveAt, leave.timeIntervalSince(now) >= 60 {
+                        Text("in \(Int(leave.timeIntervalSince(now) / 60)) min").font(HSLFont.body(15)).opacity(0.85)
+                    }
                 }
             }
             if !atStop {
@@ -550,6 +553,8 @@ struct NextStepCard: View {
 
     private func title(_ state: PaceState) -> String {
         switch state {
+        case .relax, .leaveSoon where session.isMoving:
+            return String(localized: "On your way")
         case .relax, .leaveSoon:
             if let leave = session.pace?.leaveAt { return String(localized: "Leave at \(CommuteSession.clock(leave))") }
             return String(localized: "Leave soon")

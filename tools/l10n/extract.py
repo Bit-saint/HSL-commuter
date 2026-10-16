@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from swiftstrings import literal_end, interpolations
 
 SWIFTUI = r'(?<![A-Za-z.])(Text|Label|Button|Toggle|Section|Link|Picker|TextField|SecureField|Stepper|LabeledContent|ContentUnavailableView|Menu|Tab|NavigationLink|navigationTitle|accessibilityLabel|alert|help)\('
-INT_EXPR = re.compile(r'^(-?\s*Int\(.*\)|.*\.count|mins|minutes|m|wait|count|saved|late|lateMinutes|n|k|seg\.minutes|e\.reports|max\(mins, 0\)|-?best\.delayVsPlan|-?option\.delayVsPlan|item\.recording\.(vehicles|locations)\.count|i)$')
+INT_EXPR = re.compile(r'^(-?\s*Int\(.*\)|.*\.count|mins|minutes|m|wait|count|saved|late|lateMinutes|n|k|seg\.minutes|e\.reports|max\(mins, 0\)|max\(Int\(.*\), 0\)|-?best\.delayVsPlan|-?option\.delayVsPlan|item\.recording\.(vehicles|locations)\.count|i)$')
 
 def key_for(body):
     out = ''

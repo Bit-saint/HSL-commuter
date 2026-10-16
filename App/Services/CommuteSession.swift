@@ -51,6 +51,8 @@ final class CommuteSession {
     /// advice can't be precise. We then plan from the best case and never say "walk briskly" or "run".
     var locationIsRough: Bool { (locationAccuracy ?? 0) > Self.roughAccuracy }
     static let roughAccuracy: Double = 65
+    /// Already walking (GPS speed), so "leave at" no longer applies.
+    var isMoving: Bool { (userLocation?.speed ?? 0) > 0.8 && !locationIsRough }
     private(set) var transfer: TransferAssessment?
     private(set) var userLocation: CLLocation?
     private(set) var walkDistance: Double?
@@ -681,6 +683,8 @@ final class CommuteSession {
         let stop = live.leg.from.name
         let leave = pace.leaveAt.map(Self.clock)
         switch pace.state {
+        case .relax, .leaveSoon where isMoving:
+            return String(localized: "On your way to \(stop) · \(max(Int(pace.margin / 60), 0)) min to spare")
         case .relax, .leaveSoon:
             if let app, app.weatherImpact.waitIndoors, let leave { return String(localized: "Stay inside · leave at \(leave)") }
             return leave.map { String(localized: "Leave at \($0) · walk to \(stop)") } ?? String(localized: "Leave soon · walk to \(stop)")

@@ -305,6 +305,22 @@
         }
       }
     },
+    "%lld min to spare": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min pelivaraa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min marginal"
+          }
+        }
+      }
+    },
     "%lld more": {
       "localizations": {
         "fi": {
@@ -2177,6 +2193,22 @@
         }
       }
     },
+    "On your way": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Matkalla"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "På väg"
+          }
+        }
+      }
+    },
     "On your way to %@": {
       "localizations": {
         "fi": {
@@ -2189,6 +2221,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "På väg till %@"
+          }
+        }
+      }
+    },
+    "On your way to %@ · %lld min to spare": {
+      "localizations": {
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Matkalla pysäkille %@ · %lld min pelivaraa"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "På väg till %@ · %lld min marginal"
           }
         }
       }
