@@ -683,7 +683,7 @@ final class CommuteSession {
         let stop = live.leg.from.name
         let leave = pace.leaveAt.map(Self.clock)
         switch pace.state {
-        case .relax, .leaveSoon where isMoving:
+        case .relax where isMoving, .leaveSoon where isMoving:
             return String(localized: "On your way to \(stop) · \(max(Int(pace.margin / 60), 0)) min to spare")
         case .relax, .leaveSoon:
             if let app, app.weatherImpact.waitIndoors, let leave { return String(localized: "Stay inside · leave at \(leave)") }

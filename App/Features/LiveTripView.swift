@@ -553,7 +553,7 @@ struct NextStepCard: View {
 
     private func title(_ state: PaceState) -> String {
         switch state {
-        case .relax, .leaveSoon where session.isMoving:
+        case .relax where session.isMoving, .leaveSoon where session.isMoving:
             return String(localized: "On your way")
         case .relax, .leaveSoon:
             if let leave = session.pace?.leaveAt { return String(localized: "Leave at \(CommuteSession.clock(leave))") }
