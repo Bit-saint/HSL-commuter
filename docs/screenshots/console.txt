@@ -1,197 +1,94 @@
 ## status
 == ipad
-Unrecognized subcommand: status_override
-usage: simctl [--set <path>] [--profiles <path>] <subcommand> ...
-       simctl help [subcommand]
-Command line utility to control the Simulator
-
-For subcommands that require a <device> argument, you may specify a device UDID
-or the special "booted" string which will cause simctl to pick a booted device.
-If multiple devices are booted when the "booted" device is selected, simctl
-will choose one of them.
-
-Subcommands:
-	addmedia            Add photos, live photos, videos, or contacts to the library of a device.
-	appinfo             Show information about an installed application.
-	boot                Boot a device or device pair.
-	clone               Clone an existing device.
-	create              Create a new device.
-	delete              Delete specified devices, unavailable devices, or all devices.
-	diagnose            Collect diagnostic information and logs.
-	erase               Erase a device's contents and settings.
-	get_app_container   Print the path of the installed app's container
-	getenv              Print an environment variable from a running device.
-	help                Prints the usage for a given subcommand.
-	icloud_sync         Trigger iCloud sync on a device.
-	install             Install an app on a device.
-	install_app_data    Install an xcappdata package to a device, replacing the current contents of the container.
-	io                  Set up a device IO operation.
-	keychain            Manipulate a device's keychain
-	launch              Launch an application by identifier on a device.
-	list                List available devices, device types, runtimes, or device pairs.
-	listapps            Show the installed applications.
-	location            Control a device's simulated location
-	logverbose          enable or disable verbose logging for a device
-	openurl             Open a URL in a device.
-	pair                Create a new watch and phone pair.
-	pair_activate       Set a given pair as active.
-	pbcopy              Copy standard input onto the device pasteboard.
-	pbpaste             Print the contents of the device's pasteboard to standard output.
-	pbsync              Sync the pasteboard content from one pasteboard to another.
-	personalization     Provides utility when working with personalization manifests
-	privacy             Grant, revoke, or reset privacy and permissions
-	push                Send a simulated push notification
-	rename              Rename a device.
-	runtime             Perform operations on runtimes
-	shutdown            Shutdown a device.
-	spawn               Spawn a process by executing a given executable on a device.
-	status_bar          Set or clear status bar overrides
-	terminate           Terminate an application by identifier on a device.
-	ui                  Get or Set UI options
-	uninstall           Uninstall an app from a device.
-	unpair              Unpair a watch and phone pair.
-	upgrade             Upgrade a device to a newer runtime.
-io.github.bitsaint.commuter: 5800
-launched after 11 s
-/Users/runner/work/_temp/208706c5-9d95-4957-98aa-244d97aaccee.sh: line 2:  5862 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
-shot 12 failed
-shot ipad 12 at 49 s
-/Users/runner/work/_temp/208706c5-9d95-4957-98aa-244d97aaccee.sh: line 2:  5983 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
-shot 40 failed
-shot ipad 40 at 101 s
+Detected file type 'PNG' from extension
+Wrote screenshot to: warmup-ipad.png
+/Users/runner/work/_temp/aa5a7a78-2cdd-4920-9177-a5cfc35bfbcc.sh: line 2:  6122 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
+launch failed
+launched after 122 s
+Detected file type 'PNG' from extension
+Wrote screenshot to: shots/ipad-12.png
+shot ipad 12 at 127 s
+Detected file type 'PNG' from extension
+Wrote screenshot to: shots/ipad-40.png
+shot ipad 40 at 130 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/ipad-60.png
-shot ipad 60 at 128 s
+shot ipad 60 at 132 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/ipad-85.png
-shot ipad 85 at 144 s
+shot ipad 85 at 134 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/ipad-125.png
-shot ipad 125 at 150 s
-/Users/runner/work/_temp/208706c5-9d95-4957-98aa-244d97aaccee.sh: line 2:  8311 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
-shot 185 failed
-shot ipad 185 at 221 s
+shot ipad 125 at 137 s
+Detected file type 'PNG' from extension
+Wrote screenshot to: shots/ipad-185.png
+shot ipad 185 at 188 s
 ipad APP_ALIVE=no
 == iphone
-Unrecognized subcommand: status_override
-usage: simctl [--set <path>] [--profiles <path>] <subcommand> ...
-       simctl help [subcommand]
-Command line utility to control the Simulator
-
-For subcommands that require a <device> argument, you may specify a device UDID
-or the special "booted" string which will cause simctl to pick a booted device.
-If multiple devices are booted when the "booted" device is selected, simctl
-will choose one of them.
-
-Subcommands:
-	addmedia            Add photos, live photos, videos, or contacts to the library of a device.
-	appinfo             Show information about an installed application.
-	boot                Boot a device or device pair.
-	clone               Clone an existing device.
-	create              Create a new device.
-	delete              Delete specified devices, unavailable devices, or all devices.
-	diagnose            Collect diagnostic information and logs.
-	erase               Erase a device's contents and settings.
-	get_app_container   Print the path of the installed app's container
-	getenv              Print an environment variable from a running device.
-	help                Prints the usage for a given subcommand.
-	icloud_sync         Trigger iCloud sync on a device.
-	install             Install an app on a device.
-	install_app_data    Install an xcappdata package to a device, replacing the current contents of the container.
-	io                  Set up a device IO operation.
-	keychain            Manipulate a device's keychain
-	launch              Launch an application by identifier on a device.
-	list                List available devices, device types, runtimes, or device pairs.
-	listapps            Show the installed applications.
-	location            Control a device's simulated location
-	logverbose          enable or disable verbose logging for a device
-	openurl             Open a URL in a device.
-	pair                Create a new watch and phone pair.
-	pair_activate       Set a given pair as active.
-	pbcopy              Copy standard input onto the device pasteboard.
-	pbpaste             Print the contents of the device's pasteboard to standard output.
-	pbsync              Sync the pasteboard content from one pasteboard to another.
-	personalization     Provides utility when working with personalization manifests
-	privacy             Grant, revoke, or reset privacy and permissions
-	push                Send a simulated push notification
-	rename              Rename a device.
-	runtime             Perform operations on runtimes
-	shutdown            Shutdown a device.
-	spawn               Spawn a process by executing a given executable on a device.
-	status_bar          Set or clear status bar overrides
-	terminate           Terminate an application by identifier on a device.
-	ui                  Get or Set UI options
-	uninstall           Uninstall an app from a device.
-	unpair              Unpair a watch and phone pair.
-	upgrade             Upgrade a device to a newer runtime.
-io.github.bitsaint.commuter: 13000
-launched after 5 s
-/Users/runner/work/_temp/208706c5-9d95-4957-98aa-244d97aaccee.sh: line 2: 13041 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
+/Users/runner/work/_temp/aa5a7a78-2cdd-4920-9177-a5cfc35bfbcc.sh: line 2: 16571 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
+Detected file type 'PNG' from extension
+Wrote screenshot to: warmup-iphone.png
+io.github.bitsaint.commuter: 17847
+launched after 4 s
+/Users/runner/work/_temp/aa5a7a78-2cdd-4920-9177-a5cfc35bfbcc.sh: line 2: 17935 Alarm clock: 14         perl -e 'alarm shift; exec @ARGV' "$secs" "$@" < /dev/null
 shot 12 failed
-shot iphone 12 at 44 s
+shot iphone 12 at 68 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/iphone-40.png
-shot iphone 40 at 98 s
+shot iphone 40 at 116 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/iphone-60.png
-shot iphone 60 at 123 s
+shot iphone 60 at 121 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/iphone-85.png
-shot iphone 85 at 139 s
+shot iphone 85 at 123 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/iphone-125.png
-shot iphone 125 at 155 s
+shot iphone 125 at 138 s
 Detected file type 'PNG' from extension
 Wrote screenshot to: shots/iphone-185.png
-shot iphone 185 at 232 s
+shot iphone 185 at 219 s
 iphone APP_ALIVE=yes
 ## iPad
-[demo] 7:40 AM PHASE walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=524m eta=7:56 AM src=liveVehicle pace=relax onBoard=false
-[demo] 7:41 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=521m eta=7:56 AM src=liveVehicle pace=relax onBoard=false
-[demo] 7:42 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=518m eta=7:56 AM src=liveVehicle pace=relax onBoard=false
-[demo] 7:43 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=522m eta=7:56 AM src=liveVehicle pace=relax onBoard=false
-[demo] 7:44 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=523m eta=7:56 AM src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7:45 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=523m eta=7:56 AM src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7:46 AM walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=524m eta=7:56 AM src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7:47 AM walking(toLeg: 1) vehicle d=1075 next=1 dwell=- board=5 passed=false alight=13 passed=false userToStop=465m eta=7:56 AM src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7:48 AM walking(toLeg: 1) vehicle d=2154 next=2 dwell=- board=5 passed=false alight=13 passed=false userToStop=385m eta=7:57 AM src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7:49 AM walking(toLeg: 1) vehicle d=2593 next=2 dwell=- board=5 passed=false alight=13 passed=false userToStop=298m eta=7:57 AM src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7:50 AM walking(toLeg: 1) vehicle d=3525 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=212m eta=7:56 AM src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7:51 AM walking(toLeg: 1) vehicle d=3756 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=124m eta=7:57 AM src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7:52 AM PHASE waiting(leg: 1) vehicle d=4546 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=34m eta=7:57 AM src=liveVehicle pace=atStop onBoard=false
-[demo] 7:53 AM waiting(leg: 1) vehicle d=4971 next=3 dwell=3 board=5 passed=false alight=13 passed=false userToStop=2m eta=7:57 AM src=liveVehicle pace=atStop onBoard=false
-[demo] 7:54 AM waiting(leg: 1) vehicle d=5427 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=1m eta=7:57 AM src=liveVehicle pace=atStop onBoard=false
-[demo] 7:55 AM waiting(leg: 1) vehicle d=6497 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7:57 AM src=liveVehicle pace=atStop onBoard=false
-[demo] 7:57 AM waiting(leg: 1) vehicle d=6732 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=1m eta=7:58 AM src=liveVehicle pace=atStop onBoard=false
-[demo] 7:58 AM waiting(leg: 1) vehicle d=7507 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=1m eta=7:58 AM src=liveVehicle pace=atStop onBoard=false
-[demo] 7:58 AM PHASE riding(leg: 1) vehicle d=7605 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=19m eta=7:58 AM src=passed pace=onBoard onBoard=true
-[demo] 7:59 AM riding(leg: 1) vehicle d=8382 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=795m eta=7:58 AM src=passed pace=onBoard onBoard=true
-[demo] 8:00 AM riding(leg: 1) vehicle d=8666 next=7 dwell=- board=5 passed=true alight=13 passed=false userToStop=1079m eta=7:58 AM src=passed pace=onBoard onBoard=true
-[demo] 8:01 AM riding(leg: 1) vehicle d=9561 next=7 dwell=7 board=5 passed=true alight=13 passed=false userToStop=1956m eta=7:58 AM src=passed pace=onBoard onBoard=true
-[demo] 8:02 AM riding(leg: 1) vehicle d=9842 next=8 dwell=- board=5 passed=true alight=13 passed=false userToStop=2149m eta=7:58 AM src=passed pace=onB
+grep: ipad-console.log: No such file or directory
 ## iPhone
-[demo] 7.40 PHASE walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=525m eta=7.56 src=liveVehicle pace=relax onBoard=false
-[demo] 7.41 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=529m eta=7.56 src=liveVehicle pace=relax onBoard=false
-[demo] 7.42 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=527m eta=7.56 src=liveVehicle pace=relax onBoard=false
-[demo] 7.43 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=521m eta=7.56 src=liveVehicle pace=relax onBoard=false
+[demo] 7.40 PHASE walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=524m eta=7.56 src=liveVehicle pace=relax onBoard=false
+[demo] 7.41 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=523m eta=7.56 src=liveVehicle pace=relax onBoard=false
+[demo] 7.42 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=523m eta=7.56 src=liveVehicle pace=relax onBoard=false
+[demo] 7.43 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=522m eta=7.56 src=liveVehicle pace=relax onBoard=false
 [demo] 7.44 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=521m eta=7.56 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.45 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=525m eta=7.56 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.46 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=524m eta=7.56 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.47 walking(toLeg: 1) vehicle d=625 next=1 dwell=- board=5 passed=false alight=13 passed=false userToStop=489m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.48 walking(toLeg: 1) vehicle d=1981 next=1 dwell=- board=5 passed=false alight=13 passed=false userToStop=411m eta=7.56 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.49 walking(toLeg: 1) vehicle d=2276 next=2 dwell=- board=5 passed=false alight=13 passed=false userToStop=326m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.50 walking(toLeg: 1) vehicle d=3372 next=2 dwell=- board=5 passed=false alight=13 passed=false userToStop=240m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.51 walking(toLeg: 1) vehicle d=3585 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=154m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.52 walking(toLeg: 1) vehicle d=4264 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=65m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
-[demo] 7.52 PHASE waiting(leg: 1) vehicle d=4558 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=33m eta=7.57 src=liveVehicle pace=atStop onBoard=false
+[demo] 7.45 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=523m eta=7.56 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.46 walking(toLeg: 1) vehicle d=0 next=0 dwell=0 board=5 passed=false alight=13 passed=false userToStop=525m eta=7.56 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.47 walking(toLeg: 1) vehicle d=955 next=1 dwell=- board=5 passed=false alight=13 passed=false userToStop=471m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.48 walking(toLeg: 1) vehicle d=2137 next=1 dwell=- board=5 passed=false alight=13 passed=false userToStop=391m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.49 walking(toLeg: 1) vehicle d=2539 next=2 dwell=- board=5 passed=false alight=13 passed=false userToStop=302m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.50 walking(toLeg: 1) vehicle d=3523 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=215m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.51 walking(toLeg: 1) vehicle d=3753 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=124m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.52 walking(toLeg: 1) vehicle d=4539 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=35m eta=7.57 src=liveVehicle pace=leaveSoon onBoard=false
+[demo] 7.52 PHASE waiting(leg: 1) vehicle d=4582 next=3 dwell=- board=5 passed=false alight=13 passed=false userToStop=30m eta=7.57 src=liveVehicle pace=atStop onBoard=false
 [demo] 7.53 waiting(leg: 1) vehicle d=4971 next=3 dwell=3 board=5 passed=false alight=13 passed=false userToStop=0m eta=7.57 src=liveVehicle pace=atStop onBoard=false
-[demo] 7.54 waiting(leg: 1) vehicle d=5441 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7.57 src=liveVehicle pace=atStop onBoard=false
-[demo] 7.55 waiting(leg: 1) vehicle d=6515 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=1m eta=7.57 src=liveVehicle pace=atStop onBoard=false
-[demo] 7.57 waiting(leg: 1) vehicle d=6743 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7.58 src=liveVehicle pace=atStop onBoard=false
-[demo] 7.58 waiting(leg: 1) vehicle d=7522 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=1m eta=7.58 src=liveVehicle pace=atStop onBoard=false
-[demo] 7.58 PHASE riding(leg: 1) vehicle d=7617 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=31m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 7.59 riding(leg: 1) vehicle d=8423 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=836m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.00 riding(leg: 1) vehicle d=8712 next=7 dwell=- board=5 passed=true alight=13 passed=false userToStop=1124m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 7.54 waiting(leg: 1) vehicle d=5487 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7.57 src=liveVehicle pace=atStop onBoard=false
+[demo] 7.55 waiting(leg: 1) vehicle d=6522 next=4 dwell=- board=5 passed=false alight=13 passed=false userToStop=2m eta=7.57 src=liveVehicle pace=atStop onBoard=false
+[demo] 7.57 waiting(leg: 1) vehicle d=6744 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=0m eta=7.58 src=liveVehicle pace=atStop onBoard=false
+[demo] 7.58 waiting(leg: 1) vehicle d=7503 next=5 dwell=- board=5 passed=false alight=13 passed=false userToStop=1m eta=7.58 src=liveVehicle pace=atStop onBoard=false
+[demo] 7.58 PHASE riding(leg: 1) vehicle d=7619 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=34m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 7.59 riding(leg: 1) vehicle d=8411 next=6 dwell=- board=5 passed=true alight=13 passed=false userToStop=824m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.00 riding(leg: 1) vehicle d=8721 next=7 dwell=- board=5 passed=true alight=13 passed=false userToStop=1134m eta=7.58 src=passed pace=onBoard onBoard=true
 [demo] 8.01 riding(leg: 1) vehicle d=9561 next=7 dwell=7 board=5 passed=true alight=13 passed=false userToStop=1956m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.02 riding(leg: 1) vehicle d=9862 next=8 dwell=- board=5 passed=true alight=13 passed=false userToStop=2160m eta=7.58 src=passed pace=onBoard onBoard=true
-[demo] 8.03 riding(leg: 1) vehicle d=100
+[demo] 8.02 riding(leg: 1) vehicle d=9865 next=8 dwell=- board=5 passed=true alight=13 passed=false userToStop=2161m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.04 riding(leg: 1) vehicle d=10043 next=9 dwell=- board=5 passed=true alight=13 passed=false userToStop=2256m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.05 riding(leg: 1) vehicle d=10437 next=9 dwell=9 board=5 passed=true alight=13 passed=false userToStop=2544m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.06 riding(leg: 1) vehicle d=11081 next=10 dwell=- board=5 passed=true alight=13 passed=false userToStop=3170m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.07 riding(leg: 1) vehicle d=11562 next=10 dwell=10 board=5 passed=true alight=13 passed=false userToStop=3631m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.08 riding(leg: 1) vehicle d=12454 next=11 dwell=- board=5 passed=true alight=13 passed=false userToStop=4394m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.09 riding(leg: 1) vehicle d=13593 next=11 dwell=- board=5 passed=true alight=13 passed=false userToStop=5446m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.10 riding(leg: 1) vehicle d=13977 next=12 dwell=- board=5 passed=true alight=13 passed=false userToStop=5689m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.11 riding(leg: 1) vehicle d=14969 next=12 dwell=- board=5 passed=true alight=13 passed=false userToStop=6318m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.12 riding(leg: 1) vehicle d=15240 next=13 dwell=- board=5 passed=true alight=13 passed=false userToStop=6422m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.13 riding(leg: 1) vehicle d=16327 next=13 dwell=- board=5 passed=true alight=13 passed=false userToStop=6925m eta=7.58 src=passed pace=onBoard onBoard=true
+[demo] 8.14 PHASE arrived onBoard=false
+[demo] 8.15 arrived onBoard=false
+[demo] 8.16 arrived onBoard=false
+[demo] 8.17 arrived onBoard=false
+[demo] 8.18 arrived onBoard=false
+[demo] 8.19 arrived onBoard=false
